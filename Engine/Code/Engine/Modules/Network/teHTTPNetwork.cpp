@@ -210,21 +210,24 @@ namespace te
 		{
 			#ifndef TE_PLATFORM_WIN
 			s32 result = shutdown(socketID, SHUT_RDWR);
-			if (result < 0)
+			if (result != 0)
 			{
-				//TE_LOG("------ disconnect fail ! ---------");
-				//TE_LOG("errno %i", errno);
+				TE_LOG("------ disconnect fail ! ---------");
+				TE_LOG("errno %i", errno);
 			}
 			
 			result = close(socketID);
-			if (result < 0)
+			if (result != 0)
 			{
 				TE_LOG("------ close fail ! ---------");
 				TE_LOG("errno %i", errno);
 			}
 			#else
 				if (closesocket(socketID) != 0)
+				{
 					TE_LOG("------ close fail ! ---------");
+					TE_LOG("errno %i", errno);
+				}
 				
 			#endif
 						
@@ -335,23 +338,28 @@ namespace te
 					teString tStr = (c8*)req.filename;
 					core::IBuffer * fileInput = core::GetFileManager()->OpenFile(tStr, core::CFileBuffer::FWM_READ, true);
 					
-					u32 tContentLength = fileInput->GetSize() + k + strlen(tePartSeparator) + 4/*2x -- */ + 2/*2x \r\n*/;
-					j += sprintf(reqHead+j, "%i\r\n\r\n", tContentLength);
-					j += sprintf(reqHead+j, "%s", tempReqHead);
+					if(fileInput)
+					{
+						u32 tContentLength = fileInput->GetSize() + k + strlen(tePartSeparator) + 4/*2x -- */ + 2/*2x \r\n*/;
+						j += sprintf(reqHead+j, "%i\r\n\r\n", tContentLength);
+						j += sprintf(reqHead+j, "%s", tempReqHead);
 
-					bufferSize = sprintf(buffer, "%s", reqHead); //-- header
-					fileInput->Lock(core::BLT_READ);
-					fileInput->Read(buffer + bufferSize, fileInput->GetSize()); //-- binary
-					fileInput->Unlock();
-					bufferSize += fileInput->GetSize();
-					
-					c8 rrr[] = "\r\n--";
-					c8 nnn[] = "--\r\n";
-					memcpy(&buffer[bufferSize], rrr, 4);
-					memcpy(&buffer[bufferSize + 4], tePartSeparator, strlen(tePartSeparator));
-					memcpy(&buffer[bufferSize + 4 + strlen(tePartSeparator)], nnn, 4);
-					
-					bufferSize += (4 + strlen(tePartSeparator) + 4);
+						bufferSize = sprintf(buffer, "%s", reqHead); //-- header
+						fileInput->Lock(core::BLT_READ);
+						fileInput->Read(buffer + bufferSize, fileInput->GetSize()); //-- binary
+						fileInput->Unlock();
+						bufferSize += fileInput->GetSize();
+						
+						c8 rrr[] = "\r\n--";
+						c8 nnn[] = "--\r\n";
+						memcpy(&buffer[bufferSize], rrr, 4);
+						memcpy(&buffer[bufferSize + 4], tePartSeparator, strlen(tePartSeparator));
+						memcpy(&buffer[bufferSize + 4 + strlen(tePartSeparator)], nnn, 4);
+						
+						bufferSize += (4 + strlen(tePartSeparator) + 4);
+						
+						TE_SAFE_DROP(fileInput);
+					}
 				}
 			}
 			else // GET
@@ -529,7 +537,7 @@ namespace te
 		{
 			isConnected = 0;			
 			socketID = socket( AF_INET, SOCK_STREAM, 0);
-			if(socketID < 0)
+			if(socketID == 0)
 			{
 				TE_LOG("------ socket fail ! --------- ");
 				TE_LOG("errno %i", errno);
@@ -541,11 +549,11 @@ namespace te
 			lingerOpt.l_onoff = 1;
 			
 			timeval tv;
-			tv.tv_sec = 1;
+			tv.tv_sec = 20;
 			tv.tv_usec = 0 ;
-			int result = setsockopt (socketID, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof tv); 
+			int result = setsockopt (socketID, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(tv)); 
 			//int result = setsockopt(socketID, SOL_SOCKET, SO_LINGER, &lingerOpt, sizeof(lingerOpt));
-			if (result < 0)
+			if (result != 0)
 			{
 				TE_LOG("------ socket fail ! --------- ");
 				TE_LOG("errno %i", errno);
@@ -575,6 +583,8 @@ namespace te
 			u32 sendNum = 0;
 			u32 recvNum = 0;
 			u32 lastSend = 0;
+
+			u1 ololostate = false;
 			
 			while(1)
 			{
@@ -586,7 +596,18 @@ namespace te
 					continue; 
 				}
 				
-				if(!tempHTTP->OpenSocket())
+				if (tempHTTP->reqCount)
+				{
+					if(!ololostate)
+					{
+						if(!tempHTTP->OpenSocket())
+						{
+							teSleep(teNetSleepTime);
+							continue; 
+						}
+					}
+				}
+				else
 				{
 					teSleep(teNetSleepTime);
 					continue; 
@@ -600,6 +621,7 @@ namespace te
 				teMutexLock(&tempMutex);
 				u1 isRequest = 1;				
 				if (tempHTTP->reqCount)
+				{
 					if (!tempHTTP->requests[tempHTTP->reqFirst].sended)	
 					{
 						if(!tempHTTP->isConnected)
@@ -641,24 +663,47 @@ namespace te
 						tempHTTP->FormMessage(tempHTTP->requests[tempHTTP->reqFirst], tempHTTP->sendBuffer, tempHTTP->sendBufferUsed);
 						
 						sendResult = send(tempHTTP->socketID, tempHTTP->sendBuffer, tempHTTP->sendBufferUsed, 0);
-						TE_LOG("---Send:%s", tempHTTP->sendBuffer)
+						//TE_LOG("---Send:%s", tempHTTP->sendBuffer)
+						TE_LOG("send data %i", errno)
+
+
+
+						if(sendResult > 10000)
+						{
+							int a = 1;
+						}
 						
 						if(sendResult == tempHTTP->sendBufferUsed)
 							tempHTTP->requests[tempHTTP->reqFirst].sended = 1;
+						else
+						{
+							TE_LOG_ERR("FUUUUU %i %i", sendResult, tempHTTP->sendBufferUsed)
+						}
+
+						//teMutexUnlock(&tempMutex);
+						//teSleep(teNetSleepTime);
+
+						if((sendResult <= 0))// || (!isRequest))
+						{
+							teMutexUnlock(&tempMutex);
+							tempHTTP->Disconnect();
+							continue;
+						}
 					}
 					else
 					{
 						isRequest = 0;
 					}
+				}
 				
 				teMutexUnlock(&tempMutex);
-				teSleep(teNetSleepTime);
+				//teSleep(teNetSleepTime);
 				
-				if((sendResult <= 0) || (!isRequest))
-				{
-					tempHTTP->Disconnect();
-					continue;
-				}
+				//if((sendResult < 0))// || (!isRequest))
+				//{
+				//	tempHTTP->Disconnect();
+				//	continue;
+				//}
 				
 				//-------Receive
 				s32 nbytes = 0;
@@ -689,9 +734,15 @@ namespace te
 					teMutexUnlock(&tempMutex);
 					
 					tempHTTP->recvBufferUsed = tNum;
+
+					ololostate = false;
 				}
 				else
 				{
+					TE_LOG_WRN("timeout check, errno %i", errno);
+
+					ololostate = false;
+
 					//---------  requests
 					teMutexLock(&tempMutex);
 					switch (tempHTTP->requests[tempHTTP->reqFirst].waitRespType)
@@ -702,15 +753,20 @@ namespace te
 						case TE_NET_WAIT_RESPONSE_TIMEOUT:
 							if(tempHTTP->requests[tempHTTP->reqFirst].failResCount >= teNetRespFailCount)
 							{
+								TE_LOG_WRN("timeout 1");
 								tempHTTP->DelFromRequests();
 							}
 							else
 							{
 								++tempHTTP->requests[tempHTTP->reqFirst].failResCount;
+								ololostate = true;
+								teMutexUnlock(&tempMutex);
+								continue;
 							}
 							break;
 							
 						case TE_NET_WAIT_RESPONSE_ONCE:
+							TE_LOG_WRN("timeout 2");
 							tempHTTP->AddToResponses(NULL, 0, E_TIMEOUT, 0, tempHTTP->requests[tempHTTP->reqFirst].callback, tempHTTP->requests[tempHTTP->reqFirst].userData);
 							tempHTTP->DelFromRequests();
 								

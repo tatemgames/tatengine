@@ -75,8 +75,6 @@ namespace te
 
 					if(sizeRoot)
 					{
-						//sizeRoot->scale.SetXYZ((f32)viewportSize.x / basicUIWidth, (f32)viewportSize.y / basicUIHeight, 1.0f);
-
 						if(viewportSize.x == 2048)
 							sizeRoot->scale.SetXYZ(1.0f, 1.0f, 1.0f);
 						else if(viewportSize.x == 1136)
@@ -84,9 +82,14 @@ namespace te
 						else if(viewportSize.x == 1024)
 							sizeRoot->scale.SetXYZ(0.5f, 0.5f, 1.0f);
 						else if(viewportSize.x == 960)
-							sizeRoot->scale.SetXYZ(0.5f, 0.5f, 1.0f);
+							sizeRoot->scale.SetXYZ(0.42f, 0.42f, 1.0f);
 						else if(viewportSize.x == 480)
 							sizeRoot->scale.SetXYZ(0.25f, 0.25f, 1.0f);
+						else
+						{
+							// fail safe
+							sizeRoot->scale.SetXYZ((f32)viewportSize.x / basicUIWidth, (f32)viewportSize.y / basicUIHeight, 1.0f);
+						}
 					}
 
 					RequestChange();

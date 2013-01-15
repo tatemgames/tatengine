@@ -180,6 +180,48 @@ namespace te
 			TE_INLINE u8 * GetIndexes(const teSurfaceLayers & layers){return data + indexesOffset + layers.offset[SLT_INDEXES];}
 			TE_INLINE const u8 * GetIndexes(const teSurfaceLayers & layers) const {return data + indexesOffset + layers.offset[SLT_INDEXES];}
 
+			TE_INLINE void GetVertexValue(const teSurfaceLayers & layers, ESurfaceLayerType layer, u32 index, f32 * result, u8 resultCount) const
+			{
+				const u8 * ptr = Get(layers, layer, index);
+
+				#define TE_VSURF_READ_DATA(__type) \
+				{ \
+					for(u8 i = 0; i < teMin(layers.variablesPerObject[layer], resultCount); ++i) \
+						result[i] = (f32)*reinterpret_cast<const __type*>(ptr + i * sizeof(__type)); \
+					break; \
+				}
+
+				switch(layers.variableType[layer])
+				{
+				case SVT_BYTE:				TE_VSURF_READ_DATA(s8)
+				case SVT_UNSIGNED_BYTE:		TE_VSURF_READ_DATA(u8)
+				case SVT_SHORT:				TE_VSURF_READ_DATA(s16)
+				case SVT_UNSIGNED_SHORT:	TE_VSURF_READ_DATA(u16)
+				case SVT_INT:				TE_VSURF_READ_DATA(s32)
+				case SVT_UNSIGNED_INT:		TE_VSURF_READ_DATA(u32)
+				case SVT_HALF_FLOAT:		TE_VSURF_READ_DATA(f16)
+				case SVT_FLOAT:				TE_VSURF_READ_DATA(f32)
+				case SVT_DOUBLE:			TE_VSURF_READ_DATA(f64)
+				default: break;
+				}
+			}
+
+			TE_INLINE u32 GetIndexValue(const teSurfaceLayers & layers, u32 index) const
+			{
+				const u8 * ptr = GetIndexes(layers) + layers.stride[SLT_INDEXES] * index;
+
+				switch(layers.variableType[SLT_INDEXES])
+				{
+				case SVT_BYTE:				return (u32)*reinterpret_cast<const s8*>(ptr);
+				case SVT_UNSIGNED_BYTE:		return (u32)*reinterpret_cast<const u8*>(ptr);
+				case SVT_SHORT:				return (u32)*reinterpret_cast<const s16*>(ptr);
+				case SVT_UNSIGNED_SHORT:	return (u32)*reinterpret_cast<const u16*>(ptr);
+				case SVT_INT:				return (u32)*reinterpret_cast<const s32*>(ptr);
+				case SVT_UNSIGNED_INT:		return (u32)*reinterpret_cast<const u32*>(ptr);
+				default: return u32Max;
+				}
+			}
+
 			TE_INLINE u1 IsMaterialValid() const {return materialIndex != u32Max;}
 			TE_INLINE u1 IsEmpty() const {return !indexCount;}
 

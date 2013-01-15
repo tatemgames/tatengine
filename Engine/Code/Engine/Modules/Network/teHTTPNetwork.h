@@ -21,16 +21,16 @@ namespace te
 		#define TE_NET_WAIT_RESPONSE_TIMEOUT 1
 		#define TE_NET_WAIT_RESPONSE_ONCE 2
 		
-		const u32 teNetRespFailCount = 10; // for TE_NET_WAIT_RESPONSE_TIMEOUT
+		const u32 teNetRespFailCount = 20; // for TE_NET_WAIT_RESPONSE_TIMEOUT
 		
-		const u32 teNetRespSize = 40 * 1024; 
+		const u32 teNetRespSize = 128 * 1024; 
 		const u32 teNetReqSize = 256;
 		const u32 teNetReqDataSize = 512;
 
 		const u32 teNetQueueSize = 4;
 		
-		const u32 teNetSendBufferSize = 40 * 1024;
-		const u32 teNetRecvBufferSize = 40 * 1024;
+		const u32 teNetSendBufferSize = 128 * 1024;
+		const u32 teNetRecvBufferSize = 128 * 1024;
 		
 		const u32 teNetSleepTime = 20;
 		
@@ -79,12 +79,12 @@ namespace te
 			c8 filename[teNetReqSize];
 			HTTPNetCallback callback;
 			teptr_t userData;
-			char waitRespType;
+			c8 waitRespType;
 			u32 failResCount;
 			u32 error;	//-- from EErrorNum
 			
 			teNetCommand commands[teNetCommandsCount];
-			int commandsCount;
+			s32 commandsCount;
 						
 			u1 sended;
 			u32 packetID;

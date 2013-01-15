@@ -80,7 +80,7 @@ namespace te
 				{
 					teVector3df point = GetPoint(u);
 					s += (point - lastPoint).GetDistance();
-					anchors[teMin(i, anchors.GetAlive() - 1)].SetXY(s / length, u);
+					anchors[teMin(i, (u32)(anchors.GetAlive() - 1))].SetXY(s / length, u);
 					++i;
 					lastPoint = point;
 				}

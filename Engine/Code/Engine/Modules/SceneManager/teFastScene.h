@@ -83,6 +83,7 @@ namespace te
 			void OnRender();
 
 			void Load(u8 stage = 0, u1 deferred = false); // use deferred if you call from actor OnUpdate
+			TE_INLINE u8 GetStage() const {return stageLoaded;}
 
 			TE_INLINE const teFastSceneStatistic & GetStatistic() const {return statistic;}
 

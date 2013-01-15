@@ -49,6 +49,13 @@ namespace te
 				//uv.y = (f32)setV / ((f32)u16Max - 1.0f);
 			}
 
+			void Set(f32 setX, f32 setY, f32 setZ, const teVector2duh & setUV, const teColor4u & setColor)
+			{
+				pos.SetXYZ(setX, setY, setZ);
+				uv = setUV;
+				color = setColor;
+			}
+
 			TE_INLINE void Set(const teVector2df & setPos, const teVector2duh & setUV, const teColor4u & setColor)
 			{
 				pos = setPos;

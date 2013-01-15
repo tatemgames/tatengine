@@ -107,9 +107,10 @@ public:
 
 //! Application Delegate
 @implementation ApplicationDelegate
-  
+
 @synthesize Window;
 @synthesize View;
+@synthesize movieController = _movieController;
 
 - (BOOL)application:(UIApplication *)application willFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -134,10 +135,40 @@ public:
 	TE_NEW(PlatformiPhone, te::core::tePlatform_iOS)
 	te::core::GetPlatform()->SetCurrentDevicePlatform(PlatformiPhone);
 	PlatformiPhone->Drop();
+	
+	self.movieController = [[MPMoviePlayerController alloc] init];//initWithContentURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"intro" ofType:@"mov"]]];
+	
+	//self.movieController.controlStyle = MPMovieControlStyleNone;
+	self.movieController.shouldAutoplay = NO;
+	self.movieController.view.frame = CGRectMake(0, 0, 1024, 768);
+	
+	[self.View addSubview:self.movieController.view];
+	[self.movieController.view setHidden:YES];
+	
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayBackDidFinish:) name:MPMoviePlayerPlaybackDidFinishNotification object:self.movieController];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayBackDidFinish:) name:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey object:self.movieController];
+	
+	//[self.movieController setFullscreen:YES animated:YES];
+	//[self.movieController prepareToPlay];
+	
+	//UIControl * overlay = [[[UIControl alloc] initWithFrame:CGRectMake(0, 0, 1024, 768)] autorelease];
+	//[overlay addTarget:self action:@selector(movieWindowTouched:) forControlEvents:UIControlEventTouchDown];
+	//[self.movieController.view addSubview:overlay];
+	
 
 	TE_NEW_S(te::app::teApplicationManager(false))
 	[View layoutSubviews];
 	te::app::GetApplicationManager()->InitApplication();
+}
+
+-(void)moviePlayBackDidFinish:(NSNotification*)notification
+{
+	//if(self.movieController.view.hidden == YES)
+	//	return;
+	
+	[self.movieController.view setHidden:YES];
+	
+	((te::core::tePlatform_iOS*)te::core::GetPlatform()->GetCurrentDevicePlatform())->OnVideoFinished();
 }
 
 //! On finish launching

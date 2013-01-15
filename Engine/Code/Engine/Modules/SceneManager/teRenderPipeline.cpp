@@ -40,10 +40,23 @@ namespace te
 				result = 1;
 			else if(key1.layer < key2.layer)
 				result = -1;
-			else if(key1.materialIndex > key2.materialIndex)
-				result = 1;
-			else if(key1.materialIndex < key2.materialIndex)
-				result = -1;
+			else if(key1.materialIndex != key2.materialIndex)
+			{
+				if(key2.layer % 2)
+				{
+					if(key1.materialIndex > key2.materialIndex)
+						result = 1;
+					else if(key1.materialIndex < key2.materialIndex)
+						result = -1;
+				}
+				else
+				{
+					if(key1.materialIndex < key2.materialIndex)
+						result = 1;
+					else if(key1.materialIndex > key2.materialIndex)
+						result = -1;
+				}
+			}
 			else if(key1.type > key2.type)
 				result = 1;
 			else if(key1.type < key2.type)

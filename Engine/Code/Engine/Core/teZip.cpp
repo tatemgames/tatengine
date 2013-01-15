@@ -11,6 +11,10 @@
 #include "teBufferSecurity.h"
 #include "teFileManager.h"
 
+#ifdef TE_PLATFORM_WIN
+#include <windows.h>
+#endif
+
 namespace te
 {
 	namespace core
@@ -137,28 +141,84 @@ namespace te
 
 		#pragma pack(pop)
 
+		teZipMaker::teZipMaker()
+			:debugMode(false)
+		{
+		}
+
 		void teZipMaker::AddFile(const teString & name, IBuffer * buffer)
 		{
-			u32 nameSize = name.GetSize();
+			if(debugMode)
+			{
+				teString fileNameDebug = debugStringConcate.Add("%s%s", debugDirPath.c_str(), name.c_str()).BakeToString();
 
-			teZipFileHeader header;
-			header.Clear();
-			header.SetSize(buffer->GetSize());
-			header.fileNameSize = nameSize;
-			header.crc = GetCRC32(buffer); // TODO
+				IBuffer * fileBuffer = GetFileManager()->OpenFile(fileNameDebug, CFileBuffer::FWM_WRITE, false, false);
 
-			ReserveDataSize(sizeof(teZipFileHeader) + nameSize + buffer->GetSize());
-			memcpy(data.Request(sizeof(teZipFileHeader)), &header, sizeof(teZipFileHeader));
-			memcpy(data.Request(nameSize), name.c_str(), nameSize);
+				if(fileBuffer)
+				{
+					c8 * temp = (c8*)TE_ALLOCATE(buffer->GetSize());
+					buffer->Lock(BLT_READ);
+					buffer->SetPosition(0);
+					buffer->Read(temp, buffer->GetSize());
+					buffer->Unlock();
 
-			buffer->Lock(core::BLT_READ);
-			buffer->SetPosition(0);
-			buffer->Read(data.Request(buffer->GetSize()), buffer->GetSize());
-			buffer->Unlock();
+					fileBuffer->Lock(BLT_WRITE);
+					fileBuffer->SetPosition(0);
+					fileBuffer->Allocate(buffer->GetSize());
+					fileBuffer->Write(temp, buffer->GetSize());
+					fileBuffer->Unlock();
+
+					TE_SAFE_DROP(fileBuffer);
+					TE_FREE(temp);
+				}
+			}
+			else
+			{
+				u32 nameSize = name.GetSize();
+
+				teZipFileHeader header;
+				header.Clear();
+				header.SetSize(buffer->GetSize());
+				header.fileNameSize = nameSize;
+				header.crc = GetCRC32(buffer); // TODO
+
+				ReserveDataSize(sizeof(teZipFileHeader) + nameSize + buffer->GetSize());
+				memcpy(data.Request(sizeof(teZipFileHeader)), &header, sizeof(teZipFileHeader));
+				memcpy(data.Request(nameSize), name.c_str(), nameSize);
+
+				buffer->Lock(core::BLT_READ);
+				buffer->SetPosition(0);
+				buffer->Read(data.Request(buffer->GetSize()), buffer->GetSize());
+				buffer->Unlock();
+			}
+		}
+
+		void teZipMaker::AddFile(const teString & archiveName, const teString & fileName)
+		{
+			if(debugMode)
+			{
+				#ifdef TE_PLATFORM_WIN
+					teString fileNameDebug = debugStringConcate.Add("%s%s", debugDirPath.c_str(), archiveName.c_str()).BakeToString();
+					CopyFileA(fileName.c_str(), fileNameDebug.c_str(), false);
+				#else
+					core::IBuffer * fileBuffer = core::GetFileManager()->OpenFile(fileName, core::CFileBuffer::FWM_READ, false, false);
+					AddFile(archiveName, fileBuffer);
+					TE_SAFE_DROP(fileBuffer);
+				#endif
+			}
+			else
+			{
+				core::IBuffer * fileBuffer = core::GetFileManager()->OpenFile(fileName, core::CFileBuffer::FWM_READ);
+				AddFile(archiveName, fileBuffer);
+				TE_SAFE_DROP(fileBuffer);
+			}
 		}
 
 		void teZipMaker::Finalize()
 		{
+			if(debugMode)
+				return;
+
 			u32 localFilesSize = data.GetAlive();
 			u32 poolPosition = 0, filesCount = 0;
 
@@ -192,6 +252,9 @@ namespace te
 
 		void teZipMaker::SaveTo(const teString & fileName)
 		{
+			if(debugMode)
+				return;
+
 			core::IBuffer * outputBuffer = core::GetFileManager()->OpenFile(fileName, core::CFileBuffer::FWM_WRITE, false);
 			outputBuffer->Lock(core::BLT_WRITE);
 			outputBuffer->SetPosition(0);
@@ -200,6 +263,21 @@ namespace te
 			outputBuffer->Unlock();
 			TE_SAFE_DROP(outputBuffer);
 		}
+
+		void teZipMaker::SetDebugMode(u1 setDebugMode, teString setDebugDirPath)
+		{
+			debugMode = setDebugMode;
+			debugDirPath = setDebugDirPath;
+
+			if(debugMode)
+			{
+				debugStringPool.Reserve(1024);
+				debugStringConcate.SetBuffer(debugStringPool.Allocate(1024));
+			}
+			else
+				debugStringPool.Clear();
+		}
+
 
 		void teZipMaker::ReserveDataSize(u32 size)
 		{

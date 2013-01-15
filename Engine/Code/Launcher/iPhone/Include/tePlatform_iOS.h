@@ -62,6 +62,13 @@ namespace te
 			void AskUserQuestion(teString & question, teGetUserInputCallback callback, te::teptr_t userData);
 			
 			f32 GetBrightness();
+			
+			void PlayVideo(u8 index, void * callbackActor);
+			
+			void OnVideoFinished();
+			
+		protected:
+			void * videoCallbackActor;
 		};
 	}
 }

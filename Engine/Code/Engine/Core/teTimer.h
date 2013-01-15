@@ -120,6 +120,14 @@ namespace te
 
 		#define TE_TIME_BEGIN(__var) te::core::teTime2 __var = TE_TIME2;
 		#define TE_TIME_END(__var) __var = TE_TIME2 - __var;
+
+		// return time limited to period, needed to workaround problem with float time precision
+		#define TE_TIME_ANIM(__period_ms)   (te::core::teTime2(TE_TIME2.units % te::core::teTime2().FromMilliSeconds((f32)(__period_ms)).units).ToMilliSeconds())
+		#define TE_TIME_ANIM_S(__period_s) (te::core::teTime2(TE_TIME2.units % te::core::teTime2().FromSeconds((f32)(__period_s)).units).ToSeconds())
+
+		// return from 0 to 1 in period time
+		#define TE_TIME_ANIM_T(__period_ms) ((f32)TE_TIME_ANIM(__period_ms) / ((f32)(__period_ms)))
+		#define TE_TIME_ANIM_S_T(__period_s) ((f32)TE_TIME_ANIM_S(__period_s) / ((f32)(__period_s)))
 	}
 }
 

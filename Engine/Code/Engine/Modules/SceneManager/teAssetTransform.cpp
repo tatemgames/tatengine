@@ -23,22 +23,28 @@ namespace te
 			{
 				transform.inFrame = transform.visible && assetPack.transforms[transform.parent].inFrame;
 
-				teMatrix4f mr;
-				transform.rotation.GetMatrix(mr);
+				//if(transform.inFrame)
+				{
+					teMatrix4f mr;
+					transform.rotation.GetMatrix(mr);
 
-				teMatrix4f mo;
-				mo.SetTransforms3D(transform.position, transform.scale, mr);
+					teMatrix4f mo;
+					mo.SetTransforms3D(transform.position, transform.scale, mr);
 
-				assetPack.global[transform.parent].MultiplicationAffine(mo, assetPack.global[index]);
+					assetPack.global[transform.parent].MultiplicationAffine(mo, assetPack.global[index]);
+				}
 			}
 			else
 			{
 				transform.inFrame = transform.visible;
 
-				teMatrix4f mr;
-				transform.rotation.GetMatrix(mr);
+				//if(transform.inFrame)
+				{
+					teMatrix4f mr;
+					transform.rotation.GetMatrix(mr);
 
-				assetPack.global[index].SetTransforms3D(transform.position, transform.scale, mr);
+					assetPack.global[index].SetTransforms3D(transform.position, transform.scale, mr);
+				}
 			}
 		}
 	}

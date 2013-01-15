@@ -26,6 +26,7 @@
 #include "teActorScroll.h"
 #include "teActorCurve.h"
 #include "teActorTimer.h"
+#include "teActorVideoPlayer.h"
 
 #include "teFrustum.h"
 
@@ -78,6 +79,7 @@ namespace te
 				RegisterScroll(&actorsTI);
 				RegisterCurve(&actorsTI);
 				RegisterTimer(&actorsTI);
+				RegisterVideoPlayer(&actorsTI);
 
 				#ifdef TE_MODULE_SCRIPTING
 					RegisterScriptLua(&actorsTI);
@@ -220,9 +222,9 @@ namespace te
 
 			teMatrix4f matView;
 			matView.SetIdentity();
-			
-			c8 curCameraType;
-			
+
+			u8 currentCameraType = CT_PERSPECTIVE;
+
 			video::teFrameBuffer * frameBuffer = NULL;
 
 			// wip
@@ -295,7 +297,7 @@ namespace te
 						video::GetRender()->SetViewportOptions(video::teViewport(scenePack.cameras[command.from].viewportSize, scenePack.cameras[command.from].viewportPosition));
 						video::GetRender()->GetMatrixView() = matView;
 						
-						curCameraType = scenePack.cameras[command.from].cameraType;
+						currentCameraType = scenePack.cameras[command.from].cameraType;
 
 						// wip
 						frustum.CalculateFrustum(video::GetRender()->GetMatrixProjection(), matView);
@@ -356,7 +358,7 @@ namespace te
 								continue;
 							}
 
-							u8 result = RenderSpriteToBatch(contentPack, scenePack, scenePack.sprites[from], batch, matView, video::GetRender()->GetViewportOptions().size, curCameraType);
+							u8 result = RenderSpriteToBatch(contentPack, scenePack, scenePack.sprites[from], batch, matView, video::GetRender()->GetViewportOptions().size, currentCameraType);
 
 							if(result == RTBE_MATERIAL_MISS)
 								++statistic.materialMissesSprite;
@@ -547,19 +549,33 @@ namespace te
 
 			TE_TIME_BEGIN(loadingTime);
 
-			TE_ASSERT(stage < 10); // TODO
-			c8 stageName[7] = {'s', '0' + stage, '.', 'b', 'i', 'n', '\0'};
-			c8 contentName[7] = {'c', '0' + stage, '.', 'b', 'i', 'n', '\0'};
+			TE_ASSERT(stage < 100);
 
-			core::IBuffer * stageBuffer = core::GetFileManager()->OpenFile(stageName);
+			core::IBuffer * stageBuffer = NULL;
+			core::IBuffer * contentBuffer = NULL;
+
+			if(stage < 10)
+			{
+				c8 stageName[7] = {'s', '0' + stage, '.', 'b', 'i', 'n', '\0'};
+				c8 contentName[7] = {'c', '0' + stage, '.', 'b', 'i', 'n', '\0'};
+
+				stageBuffer = core::GetFileManager()->OpenFile(stageName);
+				contentBuffer = core::GetFileManager()->OpenFile(contentName);
+			}
+			else
+			{
+				c8 stageName[8] = {'s', '0' + stage / 10, '0' + stage % 10, '.', 'b', 'i', 'n', '\0'};
+				c8 contentName[8] = {'c', '0' + stage / 10, '0' + stage % 10, '.', 'b', 'i', 'n', '\0'};
+
+				stageBuffer = core::GetFileManager()->OpenFile(stageName);
+				contentBuffer = core::GetFileManager()->OpenFile(contentName);
+			}
 
 			if(stageBuffer)
 			{
 				scenePack.Load(stageBuffer);
 				TE_SAFE_DROP(stageBuffer);
 			}
-
-			core::IBuffer * contentBuffer = core::GetFileManager()->OpenFile(contentName);
 
 			if(contentBuffer)
 			{

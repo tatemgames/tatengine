@@ -21,12 +21,22 @@ namespace te
 		class teZipMaker
 		{
 		public:
+			teZipMaker();
+
 			void AddFile(const teString & name, IBuffer * buffer);
+			void AddFile(const teString & archiveName, const teString & fileName);
 			void Finalize();
 			void SaveTo(const teString & fileName);
 
+			void SetDebugMode(u1 setDebugMode, teString setDebugDirPath = "");
+			TE_INLINE u1 GetDebugMode() const {return debugMode;}
+
 		protected:
 			teConstArray<u8> data;
+			teString debugDirPath;
+			teStringPool debugStringPool;
+			teStringConcate debugStringConcate;
+			u1 debugMode;
 			void ReserveDataSize(u32 size);
 		};
 	}

@@ -36,13 +36,17 @@ namespace te
 			DT_IOS_IPHONE_3GS,
 			DT_IOS_IPHONE_4,
 			DT_IOS_IPHONE_4S,
+			DT_IOS_IPHONE_5,
 			DT_IOS_IPOD_1,
 			DT_IOS_IPOD_2,
 			DT_IOS_IPOD_3,
 			DT_IOS_IPOD_4,
+			DT_IOS_IPOD_5,
 			DT_IOS_IPAD_1,
 			DT_IOS_IPAD_2,
 			DT_IOS_IPAD_3,
+			DT_IOS_IPAD_4,
+			DT_IOS_IPAD_MINI_1,
 
 			DT_ANDROID,
 			DT_PS_VITA,
@@ -69,6 +73,47 @@ namespace te
 			teReferenceCounter * GetCurrentDevicePlatform() const;
 
 			EDeviceType GetDeviceType();
+
+			TE_INLINE f32 GetDevicePPI()
+			{
+				switch(GetDeviceType())
+				{
+				case DT_IOS_IPHONE_2G:
+				case DT_IOS_IPHONE_3G:
+				case DT_IOS_IPHONE_3GS:
+				case DT_IOS_IPOD_1:
+				case DT_IOS_IPOD_2:
+				case DT_IOS_IPOD_3:
+					return 163.0f;
+
+				case DT_IOS_IPHONE_4:
+				case DT_IOS_IPHONE_4S:
+				case DT_IOS_IPOD_4:
+				case DT_IOS_IPHONE_5:
+				case DT_IOS_IPOD_5:
+					return 326.0f;
+
+				case DT_IOS_IPAD_1:
+				case DT_IOS_IPAD_2:
+					return 132.0f;
+
+				case DT_IOS_IPAD_3:
+				case DT_IOS_IPAD_4:
+					return 264.0f;
+
+				case DT_IOS_IPAD_MINI_1:
+					return 163.0f;
+
+				case DT_IOS_UNKNOWN:
+				case DT_UNKNOWN:
+				case DT_ANDROID:
+				case DT_PS_VITA:
+				case DT_MAC:
+				case DT_WIN:
+				default:
+					return -1.0f;
+				}
+			}
 
 		protected:
 			IFileSystem * fileSystem;

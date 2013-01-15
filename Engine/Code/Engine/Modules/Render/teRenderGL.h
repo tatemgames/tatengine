@@ -95,6 +95,8 @@ namespace te
 			}
 		};
 
+		//#define TE_RENDER_GL_CACHE
+
 		#if defined(TE_RENDER_GL)
 
 		class teRenderGL : public te::teReferenceCounter
@@ -148,17 +150,18 @@ namespace te
 
 			teRenderStatistic renderStatistic;
 
-			/*
-			GLuint contentVBO;
+			#ifdef TE_RENDER_GL_CACHE
 
-			//--- cashes
-			GLsizei viewWidth;
-			GLsizei viewHeight;
-			
-			u32 curBlend;
-			u32 curTextureID;
-			u8 curDepthFlag;
-			*/
+				teViewport cacheViewport;
+				u32 curBlend;
+				u32 curTextureID;
+				u8 curDepthFlag;
+
+				u32 vao[256];
+				teSurfaceData * vaoSurf[256];
+				u32 vbo;
+				u1 vboFisrtFrame;
+			#endif
 		};
 		
 		//! Get Render

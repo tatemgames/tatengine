@@ -20,13 +20,6 @@ namespace te
 {
 	namespace video
 	{
-		/*
-		u32 vao[256];
-		teSurfaceData * vaoSurf[256];
-		u32 vbo = 0;
-		u1 vboFisrtFrame = true;
-		*/
-		
 		teRenderGL * currentRender = NULL;
 
 		teRenderGL::teRenderGL()
@@ -35,20 +28,21 @@ namespace te
 
 			shaderPass = SP_GEN_DIFFUSE;
 
-			//contentVBO = 0;
-
 			currentRender = this;
 
-			/*
+			#ifdef TE_RENDER_GL_CACHE
+
+			vbo = 0;
+			vboFisrtFrame = true;
+
 			for(u32 i = 0; i < 256; ++i)
 				vao[i] = u32Max;
 
-			//----- cashes
-			viewWidth = 0; viewHeight = 0;
 			curBlend = u32Max;
 			curTextureID = u32Max;
 			curDepthFlag = u8Max;
-			*/
+
+			#endif
 		}
 
 		teRenderGL::~teRenderGL()
@@ -125,14 +119,12 @@ namespace te
 					glDisable(GL_SCISSOR_TEST);
 			}
 
-			/*
-			#ifndef TE_PLATFORM_MAC
-			if(!vbo)
-				tglGenBuffers(1, &vbo);
-			
-			vboFisrtFrame = true;
+			#ifdef TE_RENDER_GL_CACHE
+				if(!vbo)
+					tglGenBuffers(1, &vbo);
+
+				vboFisrtFrame = true;
 			#endif
-			*/
 		}
 
 		void teRenderGL::End()
@@ -171,112 +163,93 @@ namespace te
 			if(!surface->IsMaterialValid())
 				return;
 
-			/*
-#ifndef TE_PLATFORM_MAC
+#ifdef TE_RENDER_GL_CACHE
 
 			if(vboFisrtFrame && contentPack.surfaceData.GetAlive())
 			{
-				static u8 temp = 0;
+				vboFisrtFrame = false;
+
+				static u16 temp = 0;
 
 				if(temp)
 					--temp;
 				else
 				{
-					temp = 0; // wip
+					temp = 30; // wip
 					tglBindBuffer(GL_ARRAY_BUFFER, vbo);
 					tglBufferData(GL_ARRAY_BUFFER, contentPack.surfaceData.GetAlive(), contentPack.surfaceData.GetPool(), GL_DYNAMIC_DRAW);
-					vboFisrtFrame = false;
 				}
 			}
-#endif
 
 			if(vao[0] == u32Max)
 			{
 				u32 offset = 0;
 				u32 counter = 0;
-				
+
 				while(offset < contentPack.surfaceData.GetAlive())
 				{
-					
-					//----- save surface ptr
 					teSurfaceData * surface = (teSurfaceData*)contentPack.surfaceData.At(offset);
-					
+
 					if(!surface->IsMaterialValid())
 					{
 						offset += surface->dataSize + sizeof(teSurfaceData);
 						continue;
 					}
-					
+
 					vaoSurf[counter] = surface;
-					
-					//------ layer for cur surface
+
 					const teSurfaceLayers & layers = contentPack.surfaceLayers[surface->layersIndex];
-					
-					//------ shader for cur sarface material
+
 					teShader & shader = library.GetShader((EShaderType)contentPack.materials[surface->materialIndex].shaderIndex);
 					shader.Bind(SP_GEN_DIFFUSE);
-					 
-					
-					//----- Create and bind VAO
-					tglGenVertexArrays(1, &vao[counter]);//glGenVertexArraysOES(1, &vao[counter]);
+
+					tglGenVertexArrays(1, &vao[counter]);
 					tglBindVertexArray(vao[counter]);
-					
-#ifndef TE_PLATFORM_MAC
+
 					tglBindBuffer(GL_ARRAY_BUFFER, vbo);
 					tglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
-#endif
-
 
 					for(u8 i = 0; i < SLT_INDEXES; ++i)
 					{
-						//--- get attribut 
 						GLuint uniform = shader.GetAttributes(SP_GEN_DIFFUSE, (ESurfaceLayerType)i);
-												
+
 						if(uniform == -1)
 							continue;
-						
+
 						if(layers.variablesPerObject[i])
 						{
-						
 							teptr_t a = (teptr_t)surface->data;
 							teptr_t b = (teptr_t)contentPack.surfaceData.GetPool();
-							
-#if defined(TE_PLATFORM_MAC)
-							teptr_t c = a ;//- b;
-#else
+
 							teptr_t c = a - b;
-#endif
-							
-							// ------ Configure the attributes in the VAO.
+
 							tglEnableVertexAttribArray(uniform);
-							tglVertexAttribPointer(uniform,                         //glVertexAttribPointer, (Index, Size, Type, Normalized, Stride, Ptr)
-												   layers.variablesPerObject[i],
-												   layers.GetVariableGLType(i),
-												   TE_GET_BIT(layers.normalized, i),
-												   layers.stride[i],
-												   (const GLvoid*)(c + layers.offset[i]));
+							tglVertexAttribPointer(uniform,
+													layers.variablesPerObject[i],
+													layers.GetVariableGLType(i),
+													TE_GET_BIT(layers.normalized, i),
+													layers.stride[i],
+													(const GLvoid*)(c + layers.offset[i]));
 						}
 						else
 						{
-							tglDisableVertexAttribArray(uniform); //!
+							tglDisableVertexAttribArray(uniform);
 						}
 					}
 
-					
 					tglBindVertexArray(0);
-					
+
 					offset += surface->dataSize + sizeof(teSurfaceData);
 
-					//printf("%d \n", counter);
 					counter++; // inc for each surface
 				}
-				
-
 			}
 			else
 			{
 			}
-			*/
+
+#endif
+			// ---------------
 			
 			const video::teMaterial & states = contentPack.materials[surface->materialIndex];
 
@@ -340,10 +313,8 @@ namespace te
 				
 				//curDepthFlag = states.IsFlag(MF_DEPTH_BUFFER);
 			}
-			
-			
+
 			teShader & shader = library.GetShader((EShaderType)states.shaderIndex);
-			//teShader & shader = library.GetShader(ST_FAILSAFE);
 
 			shader.Bind(shaderPass);
 
@@ -380,7 +351,7 @@ namespace te
 				}
 			}
 
-			/*
+#ifdef TE_RENDER_GL_CACHE
 			//----- search sufface
 			u32 surfID = u32Max;
 			for (int i = 0; i<256; i++)
@@ -424,13 +395,6 @@ namespace te
 					shader.SetUniform(UT_MAT_BONES, skeleton->bonesCount * 2, 4, reinterpret_cast<const f32*>(skeleton->GetSkin()));
 				}
 
-#if defined(TE_PLATFORM_MAC)				
-				glDrawElements(surface->GetOperationGLType(),
-							   surface->indexCount,
-							   contentPack.surfaceLayers[surface->layersIndex].GetVariableGLType(SLT_INDEXES),
-							   surface->GetIndexes(contentPack.surfaceLayers[surface->layersIndex]));
-
-#else
 
 				uintptr_t a = (uintptr_t) surface->GetIndexes(contentPack.surfaceLayers[surface->layersIndex]);
 
@@ -440,17 +404,18 @@ namespace te
 					surface->indexCount,
 					contentPack.surfaceLayers[surface->layersIndex].GetVariableGLType(SLT_INDEXES),
 					(const GLvoid*)(a - b));
-#endif				
 				 
 			}
 			else // ----- without VAO
-			*/
+#endif
 			{
 
-				//tglBindVertexArray(0);
+#ifdef TE_RENDER_GL_CACHE
+				tglBindVertexArray(0);
 
-				//tglBindBuffer(GL_ARRAY_BUFFER, 0);
-				//tglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+				tglBindBuffer(GL_ARRAY_BUFFER, 0);
+				tglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#endif
 				
 				shader.BindAttributes(surface, contentPack.surfaceLayers[surface->layersIndex]);
 

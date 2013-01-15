@@ -96,6 +96,9 @@ toType(data:LightUserData, type:String):UserData
 setMaterial
 	wip
 
+getStage(actor:LightUserData):number
+	return level index
+
 ------------------------------- built-in variables
 
 each lua script created as table with functions, we set special system variables to each table

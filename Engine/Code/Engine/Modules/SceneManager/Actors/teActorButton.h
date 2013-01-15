@@ -14,6 +14,8 @@
 #include "teInputManager.h"
 #include "teAssetTools.h"
 #include "teApplicationManager.h"
+#include "tePlatform.h"
+#include "teMathTools.h"
 
 namespace te
 {
@@ -33,13 +35,19 @@ namespace te
 
 			TE_INLINE void OnUpdate()
 			{
-				u1 spriteNotInFrame = !scene->GetAssetPack().transforms[sprite->renderAsset.transformIndex].inFrame;
-				u1 spritePressedNotInFrame = (spritePressed && (!scene->GetAssetPack().transforms[spritePressed->renderAsset.transformIndex].inFrame)) || (!spritePressed);
+				if((!surface) && (!sprite))
+					return;
+
+				u1 isNotSurface = (surface == NULL);
+
+				u1 notInFrame = isNotSurface ? (!scene->GetAssetPack().transforms[sprite->renderAsset.transformIndex].inFrame) : (!scene->GetAssetPack().transforms[surface->renderAsset.transformIndex].inFrame);
+				u1 pressedNotInFrame = isNotSurface ? ((spritePressed && (!scene->GetAssetPack().transforms[spritePressed->renderAsset.transformIndex].inFrame)) || (!spritePressed)) : true;
 				u1 workIfInvisible = ((u8)flags) & BF_WORK_IF_INVISIBLE;
 
-				u32 spriteIndex = scene->GetAssetPack().sprites.GetIndexInArray(sprite);
+				u32 assetIndex = isNotSurface ? scene->GetAssetPack().sprites.GetIndexInArray(sprite) : u32Max;
+				s16 assetLayer = isNotSurface ? sprite->renderAsset.layer : surface->renderAsset.layer;
 
-				if(spriteNotInFrame && spritePressedNotInFrame && (!workIfInvisible))
+				if(notInFrame && pressedNotInFrame && (!workIfInvisible))
 				{
 					wasPressed = false;
 					wasTouchInside = false;
@@ -66,12 +74,12 @@ namespace te
 						if(wasTouchInside)
 						{
 							SetStyle(true);
-							OnPressed((f32)spriteIndex);
+							OnPressed((f32)assetIndex);
 
 							anyPressed = true;
 
-							if(buttonGrabLayer < sprite->renderAsset.layer)
-								buttonGrabLayer = sprite->renderAsset.layer;
+							if((buttonGrabLayer < assetLayer) && (!(((u8)flags) & BF_DONT_GRAB)))
+								buttonGrabLayer = assetLayer;
 						}
 						
 						touchPos = input::GetInputManager()->GetTouch(0);
@@ -80,7 +88,7 @@ namespace te
 					{
 						if(wasTouchInside)
 						{
-							if((!(((u8)flags) & BF_IGNORE_MOVING)) && ((touchPos - input::GetInputManager()->GetTouch(0)).GetDistance() > 2.0f))
+							if((!(((u8)flags) & BF_IGNORE_MOVING)) && ((touchPos - input::GetInputManager()->GetTouch(0)).GetDistance() > 16.0f))
 							{
 								SetStyle(false);
 								wasTouchInside = false;
@@ -100,10 +108,10 @@ namespace te
 
 						if(IsTouchInside(input::GetInputManager()->GetTouch(0)) && wasTouchInside)
 						{
-							if(buttonGrabLayer == sprite->renderAsset.layer)
+							if((buttonGrabLayer == assetLayer) || (((u8)flags) & BF_DONT_GRAB))
 							{
 								anyClicked = true;
-								OnClicked((f32)spriteIndex);
+								OnClicked((f32)assetIndex);
 							}
 						}
 
@@ -112,7 +120,7 @@ namespace te
 							anyPressed = true;
 
 							SetStyle(false);
-							OnClear((f32)spriteIndex);
+							OnClear((f32)assetIndex);
 						}
 					}
 				}
@@ -120,15 +128,124 @@ namespace te
 
 			u1 IsTouchInside(const teVector2df & touchInScreenSpace) const
 			{
-				u32 cameraIndex = FindCameraThatRenderAsset(scene->GetRenderProgram(), RCT_DRAW_SPRITES, (u32)scene->GetAssetPack().sprites.GetIndexInArray(sprite));
+				if((!surface) && (!sprite))
+					return false;
 
-				teVector3df rayNear, rayFar;
-				GetRayFromPointInViewport(scene->GetAssetPack(), cameraIndex, touchInScreenSpace, rayNear, rayFar);
+				if(surface)
+				{
+					u32 cameraIndex = FindCameraThatRenderAsset(scene->GetRenderProgram(), RCT_DRAW_SURFACES, (u32)scene->GetAssetPack().surfaces.GetIndexInArray(surface));
 
-				if(spritePressed && scene->GetAssetPack().transforms[spritePressed->renderAsset.transformIndex].visible)
-					return spritePressed->renderAsset.aabb.IsIntersectLineSegment(rayNear, rayFar);
+					const teAssetCamera & camera = scene->GetAssetPack().cameras[cameraIndex];
+					video::teSurfaceData * data = reinterpret_cast<video::teSurfaceData*>(scene->GetContentPack().surfaceData.At(surface->surfaceIndex));
+					const video::teSurfaceLayers & layers = scene->GetContentPack().surfaceLayers[data->layersIndex];
+
+					teMatrix4f matModel, matView, matPrj;
+					matModel = scene->GetAssetPack().global[surface->renderAsset.transformIndex];
+					scene->GetAssetPack().global[camera.transformIndex].Inverse(matView);
+					camera.BuildProjectionMatrix(matPrj);
+
+					u1 pressed = false;
+
+					teVector2df touchPos(touchInScreenSpace.x, camera.viewportSize.y - touchInScreenSpace.y);
+
+					TE_ASSERT_NODEBUG((data->operationType == video::ROT_TRIANGLES) || (data->operationType == video::ROT_TRIANGLE_STRIP));
+
+					u32 ind[3] = {u32Max, u32Max, u32Max};
+
+					for(u32 i = 0; i < data->indexCount; ((data->operationType == video::ROT_TRIANGLES) ? (i += 3) : (++i)))
+					{
+						if(data->operationType == video::ROT_TRIANGLES)
+						{
+							ind[0] = data->GetIndexValue(layers, i + 0);
+							ind[1] = data->GetIndexValue(layers, i + 1);
+							ind[2] = data->GetIndexValue(layers, i + 2);
+						}
+						else
+						{
+							if(i == 0)
+							{
+								ind[0] = data->GetIndexValue(layers, i + 0);
+								ind[1] = data->GetIndexValue(layers, i + 1);
+								ind[2] = data->GetIndexValue(layers, i + 2);
+
+								//i = 2; // TODO with this doesnt work
+							}
+							else
+							{
+								ind[1] = ind[0];
+								ind[0] = ind[2];
+								ind[2] = data->GetIndexValue(layers, i);
+							}
+						}
+
+						teVector3df p[3];
+
+						for(u8 j = 0; j < 3; ++j)
+						{
+							teVector2df pointPrj;
+							data->GetVertexValue(layers, video::SLT_POSITION, ind[j], (f32*)&p[j], 3);
+							p[j] = matModel.MultiplyMatrixOnVector3D(p[j]);
+							ProjectPointToViewport(scene->GetAssetPack(), cameraIndex, p[j], matView, matPrj, camera.viewportPosition, camera.viewportSize, pointPrj);
+							p[j].SetXYZ(pointPrj.x, pointPrj.y, 0.0f);
+						}
+
+						if(core::IsPointInsideTriangle(touchPos, p[0].GetXY(), p[1].GetXY(), p[2].GetXY()))
+						{
+							pressed = true;
+							break;
+						}
+					}
+
+					return pressed;
+				}
 				else
-					return sprite->renderAsset.aabb.IsIntersectLineSegment(rayNear, rayFar);
+				{
+					u32 cameraIndex = FindCameraThatRenderAsset(scene->GetRenderProgram(), RCT_DRAW_SPRITES, (u32)scene->GetAssetPack().sprites.GetIndexInArray(sprite));
+
+					teVector3df rayNear, rayFar;
+					GetRayFromPointInViewport(scene->GetAssetPack(), cameraIndex, touchInScreenSpace, rayNear, rayFar);
+
+					teAABB3df aabb;
+
+					if(spritePressed && scene->GetAssetPack().transforms[spritePressed->renderAsset.transformIndex].visible)
+						aabb = spritePressed->renderAsset.aabb;
+					else
+						aabb = sprite->renderAsset.aabb;
+
+					if(!(((u8)flags) & BF_DISABLE_MINIMAL_TOUCH_ZONE))
+					{
+						f32 ppi = core::GetPlatform()->GetDevicePPI();
+
+						teVector2df minimalSize;
+
+						if(ppi < 0.0f)
+							minimalSize.SetXY(0.0f, 0.0f);
+						else
+						{
+							f32 pixelsInCm = (ppi / 2.54f) / teSqrt(2.0f); // approximately
+							f32 cm = 1.0f;
+
+							minimalSize.SetXY(pixelsInCm * cm, pixelsInCm * cm);
+						}
+
+						teVector2df size = (aabb.edgeMax - aabb.edgeMin).GetXY();
+						size.SetXY(teAbs(size.x), teAbs(size.y));
+
+						if(size.x < minimalSize.x)
+						{
+							aabb.edgeMax.x += (minimalSize.x - size.x) / 2.0f;
+							aabb.edgeMin.x -= (minimalSize.x - size.x) / 2.0f;
+						}
+
+						if(size.y < minimalSize.y)
+						{
+							aabb.edgeMax.y += (minimalSize.y - size.y) / 2.0f;
+							aabb.edgeMin.y -= (minimalSize.y - size.y) / 2.0f;
+						}
+					}
+
+					return aabb.IsIntersectLineSegment(rayNear, rayFar);
+				}
 			}
 
 			TE_ACTOR_SIGNAL(0, OnClicked);
@@ -148,12 +265,19 @@ namespace te
 				return buttonGrabLayer != s16Min;
 			}
 
+			// use it when you need to disable all buttons for current frame
+			static void ForceDisable(s16 grabOnLayer = s16Max)
+			{
+				buttonGrabLayer = grabOnLayer;
+			}
+
 		protected:
 			f32 flags;
 			teAssetSprite * sprite;
 			teAssetSprite * spritePart1;
 			teAssetSprite * spritePart2;
 			teAssetSprite * spritePressed;
+			teAssetSurface * surface;
 
 			teFastScene * scene;
 			teVector2df touchPos;
@@ -167,13 +291,21 @@ namespace te
 
 			enum EButtonFlags
 			{
-				BF_DONT_SHADE_SPRITE	= 0x1,
-				BF_WORK_IF_INVISIBLE	= 0x2,
-				BF_IGNORE_MOVING		= 0x4,
+				BF_DONT_SHADE_SPRITE			= 0x1,
+				BF_WORK_IF_INVISIBLE			= 0x2,
+				BF_IGNORE_MOVING				= 0x4,
+				BF_DISABLE_MINIMAL_TOUCH_ZONE	= 0x8,
+				BF_DONT_GRAB					= 0x10
 			};
 
 			TE_INLINE void SetStyle(u1 pressed)
 			{
+				if((!surface) && (!sprite))
+					return;
+
+				if(surface)
+					return;
+
 				if(spritePressed)
 				{
 					scene->GetAssetPack().transforms[spritePressed->renderAsset.transformIndex].visible = pressed;
@@ -210,6 +342,7 @@ namespace te
 			ti->AddLink("spritePart1", true, "sprite");
 			ti->AddLink("spritePart2", true, "sprite");
 			ti->AddLink("spritePressed");
+			ti->AddLink("surface");
 			ti->AddSignal("OnClicked");
 			ti->AddSignal("OnPressed");
 			ti->AddSignal("OnClear");

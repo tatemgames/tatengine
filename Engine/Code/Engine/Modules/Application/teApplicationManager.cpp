@@ -82,7 +82,7 @@ namespace te
 		{
 			if(firstTick)
 			{
-				u32 currentVersion = 0;
+				u32 currentVersion = u32Max;
 				core::IBuffer * versionBuffer = core::GetFileManager()->OpenFile(core::GetFileManager()->GetPathConcate().Add(core::GetPlatform()->GetFileSystem()->GetPath(core::FPT_RESOURCES_UNPACKED).c_str()).Add("data0.lz4.version").BakeToString().c_str(), core::CFileBuffer::FWM_READ, false, false);
 				if(versionBuffer)
 				{
@@ -93,7 +93,7 @@ namespace te
 				}
 				TE_SAFE_DROP(versionBuffer);
 
-				u32 newVersion = 0;
+				u32 newVersion = u32Max;
 				versionBuffer = core::GetFileManager()->OpenFile("data0.lz4.version", core::CFileBuffer::FWM_READ, true, false);
 				if(versionBuffer)
 				{
@@ -104,7 +104,10 @@ namespace te
 				}
 				TE_SAFE_DROP(versionBuffer);
 
-				//if(!currentVersion || (currentVersion != newVersion))
+				u1 invalidPak = (newVersion == u32Max);
+				u1 invalidCache = (currentVersion == u32Max) || (currentVersion != newVersion);
+
+				if(invalidCache && (!invalidPak))
 				{
 					#if defined(TE_MODULE_SCENEMANAGER)
 						core::teDecodeFile("data0.lz4", "data0.zip");

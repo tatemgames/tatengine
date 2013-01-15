@@ -17,6 +17,7 @@
 #import <UIKit/UIKit.h>
 #import <UIKit/UIAccelerometer.h>
 #import <GameKit/GameKit.h>
+#import <MediaPlayer/MPMoviePlayerController.h>
 
 //! Application Delegate
 @interface ApplicationDelegate : NSObject <UIApplicationDelegate, UIAccelerometerDelegate, GKLeaderboardViewControllerDelegate, GKAchievementViewControllerDelegate, UIAlertViewDelegate>
@@ -36,6 +37,8 @@
 
 //! View property
 @property (nonatomic, retain) IBOutlet glView * View;
+
+@property (nonatomic, retain) MPMoviePlayerController * movieController;
 
 - (void)ShowLoadingView;
 - (void)HideLoadingView;

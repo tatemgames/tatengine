@@ -24,6 +24,9 @@ namespace te
 
 			if((batch->vertexCount + 4) > (spritesPerBatch * 4))
 				return RTBE_NO_MEMORY;
+			
+			if(sprite.renderAsset.materialIndex == u32Max)
+				return RTBE_OK;
 
 			const video::teMaterial & material = contentPack.materials[sprite.renderAsset.materialIndex];
 

@@ -616,6 +616,13 @@ namespace te
 				return 0;
 			}
 
+			static s32 LuaGetStage(lua_State * L)
+			{
+				teActorScriptLua * data = (teActorScriptLua*)lua_topointer(L, 1);
+				lua_pushnumber(L, data->scene->GetStage());
+				return 1;
+			}
+
 			static s32 BindPrimitiveSet(lua_State * L)
 			{
 				tePrimitiveLinkData * data = *(tePrimitiveLinkData**)luaL_checkudata(L, 1, "tePrimitive");
@@ -1072,6 +1079,7 @@ namespace te
 
 				lua_register(L, "toType", &LuaToType);
 				lua_register(L, "setMaterial", &LuaSetMaterial);
+				lua_register(L, "getStage", &LuaGetStage);
 
 				#define TE_LUA_REG(__name, __set, __get) \
 				{ \
