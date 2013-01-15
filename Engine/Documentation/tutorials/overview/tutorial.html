@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<link rel="stylesheet" href="../css/style.css">
+	<title></title>  
+	<!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+
+<body>
+	<div class="container">
+		<header class="header clearfix">
+			<div class="logo">TatEngine</div>
+			<nav class="menu_main">
+				<ul>
+					<li><a href="../index.html">Overview</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<div class="info">
+			<article class="hero clearfix">
+				<div class="col_100">
+					<h1>SDK dir structure</h1>
+					<p></p>
+				</div>
+			</article>
+
+		<article class="article clearfix">
+			<div class="col_50">
+				<h1>SDK dir structure</h1>
+				<ul>
+					<li>Engine - contains engine code and documentation</li>
+					<ul>
+						<li>Code</li>
+						<ul>
+							<li>Engine - contains engine code</li>
+							<li>Launcher - contains engine launcher code (system depended code)</li>
+						</ul>
+						<li>Documentation - contains documentation</li>
+						<li>Templates - contains projects templates</li>
+					</ul>
+					<li>Projects - contains projects</li>
+					<li>Tools</li>
+					<ul>
+						<li>Bakery - data "cooking" tools, convert all data to raw blobs, etc</li>
+						<li>DistanceField - generate distance field fonts</li>
+						<li>FbxConverter - convert fbx to engine model format</li>
+						<li>PhotoshopExport - photoshop export plugin</li>
+						<li>Recompress - additional compress tools</li>
+					</ul>
+				</ul>
+			</div>
+			<div class="col_50">
+				<h1>Project dir structure</h1>
+				<ul>
+					<li>Bin - contains binary, dll, libs, etc</li>
+					<li>Code</li>
+					<ul>
+						<li>Game - contains game code</li>
+						<li>SomeLib - contains lib code</li>
+						<li>Projects - contains projects for ide</li>
+						<ul>
+							<li>MSVS - for msvs</li>
+							<li>Templates - contains projects templates</li>
+							<ul>
+								<li>MSVS - template for msvs</li>
+								<li>XCode - template for xcode</li>
+							</ul>
+							<li>XCode - for xcode</li>
+						</ul>
+					</ul>
+					<li>Content - contains source content</li>
+					<li>Media - contains cooked content</li>
+					<li>User - "user dir", emulate user dirs on mobile phones</li>
+				</ul>
+			</div>
+			<div class="clearfix"></div>
+		</article>
+	</div>
+
+	<footer class="footer clearfix">
+		<div class="copyright"><a href="http://www.tatemgames.com"><img src="../logo_tatemgames.png"></a></div>
+		<nav class="menu_bottom">
+			<ul>
+				<li><a href="../index.html">Overview</a></li>
+			</ul>
+		</nav>
+	</footer>
+	</div>
+</body>
+</html>

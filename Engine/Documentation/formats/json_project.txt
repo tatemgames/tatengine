@@ -1,0 +1,67 @@
+json format : project.json vx.xx rxx (wip)
+
+------------ general
+
+{
+	"pakFileName" : "%result_pack_file_name%",
+
+	"execWin" : "%app_binary_file_name_for_win%",
+	"execMac" : "%app_binary_file_name_for_mac%",
+
+	"cttiFileName" : "%ctti_json_file_name%",
+	"cttiBinFileName" : "%ctti_bin_file_name%",
+
+	"pakFileName" : "%zip_pak_file_name%",
+	"pakFileNameLZ" : "%lz4_pak_file_name%",
+	
+	"contentDir" : "%content_dir_with_slash%",
+	
+	"scenes":
+	[
+		{
+			"name" : "%scene_name%",
+			"description" : "%scene_description%",
+			"fileNameBase" : "%scene_file_name_prefix%",
+			"assetsFile" : "%scene_file_name%",
+			"assetsFileForBakery" : "%scene_file_name_for_bakery%",
+			"assetsFileBaked" : "%result_scene_file_name%",
+			"contentFile" : "%content_file_name%",
+			"contentFileForBakery" : "%scene_conent_file_name_for_bakery%",
+			"contentFileBaked" : "%result_content_file_name%"
+		},
+		...
+	]
+}
+
+------------ example
+
+{
+	"name" : "test project",
+
+	"execWin" : "Bin/Test_Win_Release.exe",
+	"execMac" : "",
+
+	"cttiFileName" : "Bin/ctti.json",
+	"cttiBinFileName" : "Bin/ctti.bin",
+
+	"pakFileName" : "Media/data0.zip",
+	"pakFileNameLZ" : "Media/data0.lz4",
+	
+	"contentDir" : "Content/",
+
+	"scenes":
+	[
+		{
+			"name" : "main",
+			"description" : "---",
+			"fileNameBase" : "main",
+			
+			"assetsFile" : "scene_main.json",
+			"assetsFileForBakery" : "scene_main_bakery.json",
+			"assetsFileBaked" : "s0.bin",
+			"contentFile" : "scene_main.json",
+			"contentFileForBakery" : "scene_main_bakery.json",
+			"contentFileBaked" : "c0.bin"
+		}
+	]
+}

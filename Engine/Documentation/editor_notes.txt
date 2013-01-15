@@ -1,0 +1,304 @@
+editor notes
+support : jimon@tatemgames.com
+
+actual version 0.2.2
+last stable : 0.2.2
+
+---------------------------------------------------------------------------------------- textures
+
+file - file name, use only png files
+originEnabled - if yes, use origin.x and origin.y values, if no - skip them
+origin.x, origin.y - point from left top point (to right bottom), that defines center of image
+size.x, size.y - size of sprite that will be rendered with this texture to screen (doesnt change any other stuff)
+imgSize.x, imgSize.y - actuall width and height of image file
+pixelA.x, pixelA.y - left top point on image for crop
+pixelB.x, pixelB.y - right bottom point on image for crop
+filtered - if yes use linear filter, if no just find nearest pixel
+repeat - enable repeat texture coordinates
+mipmap - enable mipmaping
+forceUniqueInstance - turn off bakery atlas generator (needed if you use repeat)
+autoCrop - if yes, remove free space around image
+atlasBorder - add border to image for correct rendering
+
+---------------------------------------------------------------------------------------- renderbuffers
+
+possible types now : rgba8, d24 (depth 24 bits)
+
+---------------------------------------------------------------------------------------- framebuffers
+
+if you want use texture as attach, it also must be attached to any material (texture existence is material depended)
+
+---------------------------------------------------------------------------------------- materials
+
+------------ shaders
+
+possible shaders now :
+
+default - draw diffuse from texture0 * material color
+sprite - draw diffuse  from texture0 * material color * color from vertex
+failsafe - draw only vertex position with white color
+lightmap - lightmap wip
+ssao - SSAO wip
+skin - do skinning, draw diffuse from texture0 * material color
+font_df - use for distance field font rendering
+user0 - user shader #0
+...
+user15 - user shader #15
+
+------------ blending
+
+possible blending now :
+
+1) disabled - no blending at all
+2) alpha - blending with alpha
+3) light - light background
+4) shade - shade background
+5) additive - add color to background
+6) multiply - multiply with background color
+
+------------ color
+
+RGBA channels, value from 0 to 255
+
+------------ flags
+
+texelToPixel - force correct rendering texture pixels to screen pixels of 2d stuff, filtering in texture MUST BE SET TO OFF
+
+depthBuffer - enable usage of depth buffer (check as LESS, write if passed)
+
+---------------------------------------------------------------------------------------- transforms
+
+rotation x, y, z, w - quaternion form
+
+---------------------------------------------------------------------------------------- camera
+
+------------ cameraType = perspective
+
+nearPlane - value from 0, use greater value from correct z buffer distribution
+farPlane - value from 0
+fov - field of view in degrees
+
+------------ cameraType = orthographic
+
+nearPlane - any signed value
+farPlane - any signed value
+fov - not used
+
+---------------------------------------------------------------------------------------- text
+
+size - text size in pt, used for scaling
+halign - horizontal align, possible now : left, center, right
+origin - origin point of text bound rectangle, possible now : center, leftUp, leftMiddle, leftDown, rightUp, rightMiddle, rightDown, topLeft, topMiddle, topRight, bottomLeft, bottomMiddle, bottomRight
+
+---------------------------------------------------------------------------------------- variable
+
+possible type : integer, float
+
+---------------------------------------------------------------------------------------- render config
+
+------------ general
+
+render program - script for render pipeline
+
+------------ commands
+
+// set framebuffer
+{ "type": "setFramebuffer", "data": "%name%" }
+
+// set screenbuffer
+{ "type": "setFramebuffer", "data": "" }
+
+// set camera, get viewport size from screen or framebuffer (if it set)
+{ "type": "setCamera", "data": "%name%" }
+
+// set shaders pass, possible now : diffuse, user0, user1, user2, user3
+{ "type": "setPass", "data": "diffuse" }
+
+// clear screen with default options (clear only depth width value 1.0f)
+{ "type": "clearScreen" }
+
+// draw sprites, surfaces, texts on layers from -100 to 100 inclusive
+{ "type": "drawLayers", "from": -100, "to": 100 },
+
+------------ example
+
+[
+	{
+		"data": "test",
+		"type": "setFramebuffer"
+	},
+	{
+		"data": "camera_2d",
+		"type": "setCamera"
+	},
+	{
+		"data": "user0",
+		"type": "setPass"
+	},
+	{
+		"from": -999.0,
+		"to": 999.0,
+		"type": "drawLayers"
+	},
+	{
+		"data": "",
+		"type": "setFramebuffer"
+	},
+	{
+		"data": "diffuse",
+		"type": "setPass"
+	},
+	{
+		"data": "camera_2d",
+		"type": "setCamera"
+	},
+	{
+		"from": 1000.0,
+		"to": 2000.0,
+		"type": "drawLayers"
+	}
+]
+
+---------------------------------------------------------------------------------------- vertex layers config
+
+------------ general
+
+define vertex attributes structure
+first config must be for sprite internal structure, dont change it
+
+------------ data layer
+
+{
+	// data type name, possible now : position, normal, uv0, uv1, uv2, uv3, color, tangent, bonesIDs, bonesW, user0, user1, user2, indexes
+	"type": "position",
+
+	// variables in vector count, can be 1, 2, 3, 4
+	"variablesPerObject": 3
+
+	// variable type (size), possible now : s8, c8, u8, s16, u16, u32, f32, and for desktop only : s32, f16, f64
+	"variableType": "f32",
+
+	// normalized flag for integer variable types
+	"normalized": false,
+
+	// offset from beginning
+	"offset": 0,
+
+	// offset from first object to next object
+	"stride": 20,
+},
+
+------------ example
+
+[
+	
+	{
+		"layers": 
+		[
+			
+			{
+				"normalized": false,
+				"offset": 0,
+				"stride": 20,
+				"type": "position",
+				"variableType": "f32",
+				"variablesPerObject": 3
+			},
+			
+			{
+				"normalized": true,
+				"offset": 12,
+				"stride": 20,
+				"type": "uv0",
+				"variableType": "u16",
+				"variablesPerObject": 2
+			},
+			
+			{
+				"normalized": true,
+				"offset": 16,
+				"stride": 20,
+				"type": "color",
+				"variableType": "u8",
+				"variablesPerObject": 4
+			},
+			
+			{
+				"offset": 0,
+				"stride": 2,
+				"type": "indexes",
+				"variableType": "u16"
+			}
+		],
+		"name": "sprite"
+	}
+]
+
+---------------------------------------------------------------------------------------- curves
+
+time must be > 0
+
+---------------------------------------------------------------------------------------- photoshop meta programming
+
+you can tell editor what to do in meta code in photoshop per layer, meta code contains array of commands in json format
+in each name field editor replace macro %baseName% to actual layer name (plus custom prefix)
+you can add nodes, remove nodes, make links to slots and data in already imported or already existed nodes
+if you need to add links to some nodes that will apear later in import - just import psd file twice
+
+[
+	{
+		"type" : "createNode", // create node or select if it already exist
+		"nodeName" : "%baseName%_my_text",
+		"nodeType" : "button",
+		"links" : // create link, do nothing if link already exist
+		[
+			{
+				"fromField" : "sprite",
+				"toName" : "%baseName%",
+				"toType" : "sprite",
+				"toField" : "self",
+			}
+		],
+		"signals" :
+		[
+			{
+				"fromField" : "OnClicked",
+				"toName" : "testcurve",
+				"toType" : "curve",
+				"toField" : "Start",
+			}
+		],
+		"data" : // set data everytime
+		[
+			{
+				"field" : "fieldname",
+				"data" : 1.1
+			}
+		],
+		"dataAdv" : // set data advanced
+		[
+			{
+				"fromNode" : "somesprite", // read value from node field
+				"fromType" : "transform",
+				"fromField" : "position.y",
+				"field" : "position.x", // current node field
+				"data" : "%1 * 2 + %2" // javascript expression where %1 is fromField float value, %2 is my field float value, result stored in target type
+			}
+		],
+	},
+	{
+		"type" : "removeNode",
+		"nodeName" : "%baseName%_my_text",
+		"nodeType" : "button"
+	},
+	{
+		"type" : "moveCursor", // move cursor
+		"x" : 64,
+		"y" : 96
+	}
+	{
+		"type" : "cutToWidth", // when export layer from photoshop, cut it to width
+		"width" : 1,
+	}
+]
+

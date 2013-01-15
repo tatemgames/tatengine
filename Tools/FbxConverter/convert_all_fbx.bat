@@ -1,0 +1,1 @@
+FOR %%G IN (*.fbx) DO fbxtotmf_0.4.4_15fps.exe %%G

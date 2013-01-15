@@ -1,0 +1,131 @@
+
+{
+	"pages": 
+	[
+		"page 1",
+		"page 2",
+		"page 3",
+		"page 4",
+		"page 5",
+		"page 6",
+		"page 7",
+		"page 8",
+		"page 9",
+		"page 10",
+		"page 11",
+		"page 12",
+		"page 13",
+		"page 14",
+		"page 15",
+		"page 16",
+		"page 17",
+		"page 18",
+		"page 19",
+		"page 20",
+		"page 21",
+		"page 22",
+		"page 23",
+		"page 24",
+		"page 25",
+		"page 26",
+		"page 27",
+		"page 28",
+		"page 29",
+		"page 30",
+		"page 31",
+		"page 32"
+	],
+	"pagesFileNames": 
+	[
+		"scene_main_p00.json",
+		"scene_main_p01.json",
+		"scene_main_p02.json",
+		"scene_main_p03.json",
+		"scene_main_p04.json",
+		"scene_main_p05.json",
+		"scene_main_p06.json",
+		"scene_main_p07.json",
+		"scene_main_p08.json",
+		"scene_main_p09.json",
+		"scene_main_p10.json",
+		"scene_main_p11.json",
+		"scene_main_p12.json",
+		"scene_main_p13.json",
+		"scene_main_p14.json",
+		"scene_main_p15.json",
+		"scene_main_p16.json",
+		"scene_main_p17.json",
+		"scene_main_p18.json",
+		"scene_main_p19.json",
+		"scene_main_p20.json",
+		"scene_main_p21.json",
+		"scene_main_p22.json",
+		"scene_main_p23.json",
+		"scene_main_p24.json",
+		"scene_main_p25.json",
+		"scene_main_p26.json",
+		"scene_main_p27.json",
+		"scene_main_p28.json",
+		"scene_main_p29.json",
+		"scene_main_p30.json",
+		"scene_main_p31.json"
+	],
+	"program": 
+	[
+		
+		{
+			"data": "camera_2d",
+			"type": "setCamera"
+		},
+		
+		{
+			"from": -999.0,
+			"to": 999.0,
+			"type": "drawLayers"
+		}
+	],
+	"vertexStructures": 
+	[
+		
+		{
+			"layers": 
+			[
+				
+				{
+					"normalized": false,
+					"offset": 0.0,
+					"stride": 20.0,
+					"type": "position",
+					"variableType": "f32",
+					"variablesPerObject": 3.0
+				},
+				
+				{
+					"normalized": true,
+					"offset": 12.0,
+					"stride": 20.0,
+					"type": "uv0",
+					"variableType": "u16",
+					"variablesPerObject": 2.0
+				},
+				
+				{
+					"normalized": true,
+					"offset": 16.0,
+					"stride": 20.0,
+					"type": "color",
+					"variableType": "u8",
+					"variablesPerObject": 4.0
+				},
+				
+				{
+					"offset": 0.0,
+					"stride": 2.0,
+					"type": "indexes",
+					"variableType": "u16"
+				}
+			],
+			"name": "sprite"
+		}
+	]
+}

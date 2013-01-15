@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<link rel="stylesheet" href="../css/style.css">
+	<link rel="stylesheet" href="../css/zenburn.css">
+	<title></title>  
+	<!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+
+<body>
+	<div class="container">
+		<header class="header clearfix">
+			<div class="logo">TatEngine</div>
+			<nav class="menu_main">
+				<ul>
+					<li><a href="../index.html">Overview</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<div class="info">
+			<article class="hero clearfix">
+				<div class="col_100">
+					<h1>World editor scripting basics</h1>
+					<p>Lets find out about world editor scripting.</p>
+				</div>
+			</article>
+
+		<script src="../js/highlight.pack.js"></script><script>hljs.initHighlightingOnLoad();</script>
+		
+		<article class="article clearfix">
+			<h1>Scripting</h1>
+			<p>Let's start with simple scene.</p>
+			<img src="tut_1.png">
+			<p>Add button, scriptLua and string to scene.</p>
+			<img src="tut_2.png">
+			<p>Select new nodes and rename them to 'script' and 'button' with help of Tools -> Rename selected (F8).</p>
+			<img src="tut_3.png">
+			<p>Idea is similar to Kismet (Unreal Engine visual scripting system). But we have flow from left to right, when Kismet is from right to left. And no arrows :(</p>
+			<img src="tut_4.png">
+			<p>So there are darker dots. Signal dots (A) generate event, Slot dots (B) accept events, one signal dot can be connected to multiply slot dots.</p>
+			<img src="tut_5.png">
+			<p>Let's just connect everything like this. Press on signal dot and move mouse to slot dot. When button push 'OnClicked' event, script recieve it on general slot 0.</p>
+			<img src="tut_6.png">
+			<p class="warning">Make sure that material shader is set to 'sprite'.</p>
+			<img src="tut_7.png">
+			<p>If you run project now sprite should be pressable (Remember : save, save for bakery, bake and run, quite stupid yep - we think about it).</p>
+			<img src="tut_8.png">
+			<p>Select string node, and press Tools -> Curve/String/Component editor (Ctrl + E). You should see this.</p>
+			<img src="tut_9.png">
+			<p>Lets start with template for script.</p>
+<pre><code class="lua">-- will be global variable, shared between all scripts
+enableTest = 0;
+
+-- will be local variable
+local t = 0;
+
+-- constructor, will be called when script inited
+function metaname.init()
+end
+
+-- destructor, will be called when script removed
+function metaname.deinit()
+end
+
+-- update function, will be called each frame
+function metaname.onUpdate()
+	-- simple moving
+	t = t + 1;
+	local a = t * math.pi / 180;
+	metaname.link0.pos_x = math.cos(a) * 128;
+	metaname.link0.pos_y = math.sin(a) * 128;
+end
+
+-- will be called when slot0 recieve event
+function metaname.slot0()
+	print('test');
+	metaname.link0.scl_x = math.random() + 1;
+end
+
+-- slots have from 0 to 4 agruments
+function metaname.slot1(a, b, c, d)
+
+	-- that how you should call a signal
+	signal0(metaname.actor, d, c, b, a);
+
+end</code></pre>
+		<p>So now sprite will be moving in circle. And you can press on it and size will change.</p>
+		<img src="tut_10.png">
+		<p>Lua script is not the only one actor node. Lets find out about curve node. Create it, rename it and connect everything like this.</p>
+		<img src="tut_11.png">
+		<p>Select curve node and press Tools -> Curve/String/Component editor (Ctrl + E). Make some animation.</p>
+		<img src="tut_12.png">
+		<p>Add signal0 call to button event handler.</p>
+<pre><code class="lua">-- will be global variable, shared between all scripts
+enableTest = 0;
+
+-- will be local variable
+local t = 0;
+
+-- constructor, will be called when script inited
+function metaname.init()
+end
+
+-- destructor, will be called when script removed
+function metaname.deinit()
+end
+
+-- update function, will be called each frame
+function metaname.onUpdate()
+	-- simple moving
+	t = t + 1;
+	local a = t * math.pi / 180;
+	metaname.link0.pos_x = math.cos(a) * 128;
+	metaname.link0.pos_y = math.sin(a) * 128;
+end
+
+-- will be called when slot0 recieve event
+function metaname.slot0()
+	print('test');
+	metaname.link0.scl_x = math.random() + 1;
+
+	-- start some animation
+	signal0(metaname.actor);
+end
+
+-- slots have from 0 to 4 agruments
+function metaname.slot1(a, b, c, d)
+
+	-- that how you should call a signal
+	signal0(metaname.actor, d, c, b, a);
+
+end</code></pre>
+		<p>And now you should see scaleY animation on button click.</p>
+		<img src="tut_13.png">
+		</article>
+	</div>
+
+	<footer class="footer clearfix">
+		<div class="copyright"><a href="http://www.tatemgames.com"><img src="../logo_tatemgames.png"></a></div>
+		<nav class="menu_bottom">
+			<ul>
+				<li><a href="../index.html">Overview</a></li>
+			</ul>
+		</nav>
+	</footer>
+	</div>
+</body>
+</html>

@@ -1,0 +1,589 @@
+
+{
+	"actors": 
+	[
+
+	],
+	"arrays": 
+	[
+
+	],
+	"cameras": 
+	[
+		
+		{
+			"data": 
+			[
+				
+				{
+					"data": 0.0,
+					"name": "self"
+				},
+				
+				{
+					"data": "orthographic",
+					"name": "cameraType"
+				},
+				
+				{
+					"data": -1.0,
+					"name": "nearPlane"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "farPlane"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "fov"
+				}
+			],
+			"folded": false,
+			"links": 
+			[
+				
+				{
+					"links": 
+					[
+						
+						{
+							"toFieldName": "self",
+							"toName": "camera_2d",
+							"toType": "transform"
+						}
+					],
+					"name": "transform"
+				}
+			],
+			"name": "camera_2d",
+			"page": 0,
+			"type": "camera",
+			"x": 472,
+			"y": 47
+		}
+	],
+	"components": 
+	[
+
+	],
+	"dataPlugs": 
+	[
+
+	],
+	"dataSockets": 
+	[
+
+	],
+	"drawActors": 
+	[
+
+	],
+	"fonts": 
+	[
+
+	],
+	"frameBuffers": 
+	[
+
+	],
+	"geometries": 
+	[
+
+	],
+	"materials": 
+	[
+		
+		{
+			"data": 
+			[
+				
+				{
+					"data": 0.0,
+					"name": "self"
+				},
+				
+				{
+					"data": "default",
+					"name": "shader"
+				},
+				
+				{
+					"data": "disabled",
+					"name": "blend"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "color.r"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "color.g"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "color.b"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "color.a"
+				},
+				
+				{
+					"data": false,
+					"name": "texelToPixel"
+				},
+				
+				{
+					"data": false,
+					"name": "depthBufferTest"
+				},
+				
+				{
+					"data": false,
+					"name": "depthBufferWrite"
+				}
+			],
+			"folded": false,
+			"links": 
+			[
+				
+				{
+					"links": 
+					[
+						
+						{
+							"toFieldName": "self",
+							"toName": "test",
+							"toType": "texture"
+						}
+					],
+					"name": "texture1"
+				},
+				
+				{
+					"links": 
+					[
+
+					],
+					"name": "texture2"
+				},
+				
+				{
+					"links": 
+					[
+
+					],
+					"name": "texture3"
+				},
+				
+				{
+					"links": 
+					[
+
+					],
+					"name": "texture4"
+				}
+			],
+			"name": "test",
+			"page": 0,
+			"type": "material",
+			"x": 677,
+			"y": 639
+		}
+	],
+	"renderBuffers": 
+	[
+
+	],
+	"signalSockets": 
+	[
+
+	],
+	"skeletons": 
+	[
+
+	],
+	"socketPlugs": 
+	[
+
+	],
+	"sounds": 
+	[
+
+	],
+	"sprites": 
+	[
+		
+		{
+			"data": 
+			[
+				
+				{
+					"data": 0.0,
+					"name": "self"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "layer"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "color.r"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "color.g"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "color.b"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "color.a"
+				}
+			],
+			"folded": false,
+			"links": 
+			[
+				
+				{
+					"links": 
+					[
+						
+						{
+							"toFieldName": "self",
+							"toName": "test",
+							"toType": "transform"
+						}
+					],
+					"name": "transform"
+				},
+				
+				{
+					"links": 
+					[
+						
+						{
+							"toFieldName": "self",
+							"toName": "test",
+							"toType": "material"
+						}
+					],
+					"name": "material"
+				}
+			],
+			"name": "test",
+			"page": 0,
+			"type": "sprite",
+			"x": 1010,
+			"y": 445
+		}
+	],
+	"strings": 
+	[
+
+	],
+	"surfaces": 
+	[
+
+	],
+	"texts": 
+	[
+
+	],
+	"textures": 
+	[
+		
+		{
+			"data": 
+			[
+				
+				{
+					"data": 0.0,
+					"name": "self"
+				},
+				
+				{
+					"data": "chess.png",
+					"name": "file"
+				},
+				
+				{
+					"data": false,
+					"name": "originEnabled"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "origin.x"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "origin.y"
+				},
+				
+				{
+					"data": 256.0,
+					"name": "size.x"
+				},
+				
+				{
+					"data": 256.0,
+					"name": "size.y"
+				},
+				
+				{
+					"data": 256.0,
+					"name": "imgSize.x"
+				},
+				
+				{
+					"data": 256.0,
+					"name": "imgSize.y"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "pixelA.x"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "pixelA.y"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "pixelB.x"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "pixelB.y"
+				},
+				
+				{
+					"data": false,
+					"name": "filtered"
+				},
+				
+				{
+					"data": false,
+					"name": "repeat"
+				},
+				
+				{
+					"data": false,
+					"name": "mipmap"
+				},
+				
+				{
+					"data": false,
+					"name": "forceUniqueInstance"
+				},
+				
+				{
+					"data": true,
+					"name": "autoCrop"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "atlasBorder"
+				}
+			],
+			"folded": false,
+			"name": "test",
+			"page": 0,
+			"type": "texture",
+			"x": 316,
+			"y": 538
+		}
+	],
+	"transforms": 
+	[
+		
+		{
+			"data": 
+			[
+				
+				{
+					"data": 0.0,
+					"name": "self"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "position.x"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "position.y"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "position.z"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "rotation.x"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "rotation.y"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "rotation.z"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "rotation.w"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "scale.x"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "scale.y"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "scale.z"
+				},
+				
+				{
+					"data": false,
+					"name": "visible"
+				}
+			],
+			"folded": false,
+			"links": 
+			[
+				
+				{
+					"links": 
+					[
+
+					],
+					"name": "parent"
+				}
+			],
+			"name": "camera_2d",
+			"page": 0,
+			"type": "transform",
+			"x": 133,
+			"y": 45
+		},
+		
+		{
+			"data": 
+			[
+				
+				{
+					"data": 0.0,
+					"name": "self"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "position.x"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "position.y"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "position.z"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "rotation.x"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "rotation.y"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "rotation.z"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "rotation.w"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "scale.x"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "scale.y"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "scale.z"
+				},
+				
+				{
+					"data": true,
+					"name": "visible"
+				}
+			],
+			"folded": false,
+			"links": 
+			[
+				
+				{
+					"links": 
+					[
+
+					],
+					"name": "parent"
+				}
+			],
+			"name": "test",
+			"page": 0,
+			"type": "transform",
+			"x": 647,
+			"y": 242
+		}
+	],
+	"variables": 
+	[
+
+	]
+}

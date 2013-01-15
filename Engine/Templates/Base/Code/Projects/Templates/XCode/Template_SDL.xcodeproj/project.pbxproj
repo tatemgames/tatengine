@@ -1,0 +1,270 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		EF3F1DF51339FC4300F68DE0 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF3F1DF41339FC4300F68DE0 /* Cocoa.framework */; };
+		EF3F1E131339FC6A00F68DE0 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF3F1E121339FC6A00F68DE0 /* SDL.framework */; };
+		EF3F1E151339FC7000F68DE0 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF3F1E141339FC7000F68DE0 /* OpenGL.framework */; };
+		6CA6A17214ACB4EF00AECC5B /* libfmodex.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CA6A17114ACB4EF00AECC5B /* libfmodex.dylib */; };
+		6CA6A17D14ACBB9400AECC5B /* libfmodex.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6CA6A17114ACB4EF00AECC5B /* libfmodex.dylib */; };
+		EF7251DD133A022C000C9501 /* TatEngine-InfoMac.plist in Resources */ = {isa = PBXBuildFile; fileRef = EF7251DC133A022C000C9501 /* TatEngine-InfoMac.plist */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6CA6A17B14ACBB8C00AECC5B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				6CA6A17D14ACBB9400AECC5B /* libfmodex.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		EF3F1DF01339FC4300F68DE0 /* %%%TEMPLATE_NAME%%%.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = %%%TEMPLATE_NAME%%%.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF3F1DF41339FC4300F68DE0 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		EF3F1E121339FC6A00F68DE0 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = Library/Frameworks/SDL.framework; sourceTree = SDKROOT; };
+		EF3F1E141339FC7000F68DE0 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		6CA6A17114ACB4EF00AECC5B /* libfmodex.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfmodex.dylib; path = ../../../Bin/libfmodex.dylib; sourceTree = "<group>"; };
+		EF7251DC133A022C000C9501 /* TatEngine-InfoMac.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "TatEngine-InfoMac.plist"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		EF3F1DED1339FC4300F68DE0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EF3F1E151339FC7000F68DE0 /* OpenGL.framework in Frameworks */,
+				EF3F1E131339FC6A00F68DE0 /* SDL.framework in Frameworks */,
+				EF3F1DF51339FC4300F68DE0 /* Cocoa.framework in Frameworks */,
+				6CA6A17214ACB4EF00AECC5B /* libfmodex.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		EF3F1DE51339FC4300F68DE0 = {
+			isa = PBXGroup;
+			children = (
+				EF3F1E111339FC5000F68DE0 /* Other */,
+				/* Begin PBXRootGroup section */
+			);
+			sourceTree = "<group>";
+		};
+		EF3F1DF11339FC4300F68DE0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EF3F1DF01339FC4300F68DE0 /* %%%TEMPLATE_NAME%%%.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EF3F1DF31339FC4300F68DE0 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				EF3F1E141339FC7000F68DE0 /* OpenGL.framework */,
+				EF3F1E121339FC6A00F68DE0 /* SDL.framework */,
+				EF3F1DF41339FC4300F68DE0 /* Cocoa.framework */,
+				6CA6A17114ACB4EF00AECC5B /* libfmodex.dylib */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		EF3F1E111339FC5000F68DE0 /* Other */ = {
+			isa = PBXGroup;
+			children = (
+				EF7251DC133A022C000C9501 /* TatEngine-InfoMac.plist */,
+				EF3F1DF11339FC4300F68DE0 /* Products */,
+				EF3F1DF31339FC4300F68DE0 /* Frameworks */,
+			);
+			name = Other;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		EF3F1DEF1339FC4300F68DE0 /* %%%TEMPLATE_NAME%%% */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EF3F1E0E1339FC4300F68DE0 /* Build configuration list for PBXNativeTarget "%%%TEMPLATE_NAME%%%" */;
+			buildPhases = (
+				EF3F1DEC1339FC4300F68DE0 /* Sources */,
+				EF3F1DED1339FC4300F68DE0 /* Frameworks */,
+				EF3F1DEE1339FC4300F68DE0 /* Resources */,
+				6CA6A17B14ACBB8C00AECC5B /* CopyFiles */,
+				6CA6A17E14ACBD2000AECC5B /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = %%%TEMPLATE_NAME%%%;
+			productName = %%%TEMPLATE_NAME%%%;
+			productReference = EF3F1DF01339FC4300F68DE0 /* %%%TEMPLATE_NAME%%%.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		EF3F1DE71339FC4300F68DE0 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = EF3F1DEA1339FC4300F68DE0 /* Build configuration list for PBXProject "%%%TEMPLATE_NAME%%%" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = EF3F1DE51339FC4300F68DE0;
+			productRefGroup = EF3F1DF11339FC4300F68DE0 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EF3F1DEF1339FC4300F68DE0 /* %%%TEMPLATE_NAME%%% */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		EF3F1DEE1339FC4300F68DE0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EF7251DD133A022C000C9501 /* TatEngine-InfoMac.plist in Resources */,
+				/* Begin PBXResourcesBuildPhaseFiles section */
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		6CA6A17E14ACBD2000AECC5B /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "install_name_tool -change ./libfmodex.dylib @rpath/libfmodex.dylib $TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/$PRODUCT_NAME";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		EF3F1DEC1339FC4300F68DE0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				/* Begin PBXSourcesBuildPhaseFiles section */
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		EF3F1E0C1339FC4300F68DE0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					DEBUG,
+					TE_PLATFORM_MAC,
+				);
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SYMROOT = ../../../Bin;
+			};
+			name = Debug;
+		};
+		EF3F1E0D1339FC4300F68DE0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = TE_PLATFORM_MAC;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				SDKROOT = macosx;
+				SYMROOT = ../../../Bin;
+			};
+			name = Release;
+		};
+		EF3F1E0F1339FC4300F68DE0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				INFOPLIST_FILE = "TatEngine-InfoMac.plist";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../Bin\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		EF3F1E101339FC4300F68DE0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				INFOPLIST_FILE = "TatEngine-InfoMac.plist";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../Bin\"",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		EF3F1DEA1339FC4300F68DE0 /* Build configuration list for PBXProject "%%%TEMPLATE_NAME%%%" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EF3F1E0C1339FC4300F68DE0 /* Debug */,
+				EF3F1E0D1339FC4300F68DE0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EF3F1E0E1339FC4300F68DE0 /* Build configuration list for PBXNativeTarget "%%%TEMPLATE_NAME%%%" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EF3F1E0F1339FC4300F68DE0 /* Debug */,
+				EF3F1E101339FC4300F68DE0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = EF3F1DE71339FC4300F68DE0 /* Project object */;
+}

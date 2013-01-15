@@ -1,0 +1,276 @@
+code style v0.93 r6
+
+------------ general
+
+0) function/methods names start with an upper case, in multi-word function names each word starts with an upper case
+
+	void TestFunctionThatDoesSomething(float test1, int test2);
+	
+variable names start with a lower case
+
+	float testValue = 600.0f;
+
+1) use real tabs (equal to 4 spaces)
+
+2) use ANSI style, with no spaces between statements brackets
+
+	// example
+	if(statement0)
+	{
+		Do0();
+	}
+	
+	if((statement1 && statement2) || statement3)
+	{
+		if(statement4)
+		{
+			Do1();
+		}
+		else
+		{
+			Do2();
+		}
+	}
+	
+	if(statement5)
+	{
+		Do3();
+		Do4();
+	}
+	else
+		Do5();
+
+	if(statement6)
+		Do6();
+	else if(statement7)
+		Do7();
+
+3) use precision specification for floats
+
+	float f0 = 0.5f;
+	float f1 = 1.0f;
+	
+instead of
+
+	float f2 = 2.f;
+	
+4) defines, enums names use all upper case characters, words are separated with an underscore
+
+	#define TEST_DEFINE 1
+
+5) typedef names use the same naming convention as functions, however they always end with "Type"
+
+	typedef int FileHandleType;
+	
+6) pointer and const usage
+
+	const void * pointerValue;
+	const int * const value;
+	
+	typedef const int * TestIntType;
+	
+7) namespace names use all lower case characters
+
+	namespace test
+	{
+		namespace foo
+		{
+		}
+	}
+	
+8) also use indentation for defines and namespaces
+
+	namespace test
+	{
+		#ifdef TEST_DEFINE
+	
+		class teTest;
+		
+		#endif
+		
+		#define TEST_DEFINE_2(__arg) \
+			DoSomething(__arg); \
+			DoSomething(__arg2);
+	}
+
+9) the standard header for functions/class/methods is: (optional)
+
+	/*
+	====================
+	FunctionName
+	
+		Description
+	====================
+	*/
+
+10) objects/structures pass by reference/pointer
+function/method return object/structures by reference/pointer if it's possible
+
+	const teTestStructure & GetTestStructure(const teDescription & description)
+
+11) don't use exceptions, most projects configured to build without them
+
+12) switches
+
+	switch(expression)
+	{
+	case test1:
+		DoSomething();
+		break;
+	case test2:
+		{
+			teType someVariable;
+			DoSomething2();
+			break;
+		}
+	default:
+		{
+			DoSomething2();
+			break;
+		}
+	}
+
+------------ classes/structures/enums
+
+0) ording of class variables and methods should be as follows
+
+	list of friend classes
+	public classes/structutes/typedefs
+	public variables
+	public methods
+	protected classes/structutes/typedefs
+	protected variables
+	protected methods
+	private classes/structutes/typedefs
+	private variables
+	private methods
+
+this allows the public interface to be easily found at the beginning of the class
+
+1) classes
+
+	class teTest; // no interface prefix for projects with interface pattern, probably first letters of project name, TatEngine -> te
+	class ITest; // interface
+	class CTest; // realization
+	
+	class CTest
+	{
+	public:
+		struct ClassInternalStruct
+		{
+			float testValue;
+		};
+	
+		typedef Map<ClassInternalStruct> SomethingType;
+
+		CTest();
+		~CTest();
+		
+		float TestMethod(float arg1, int arg2) const;
+
+	protected:
+		float test;
+		
+	private:
+		float test2;
+	};
+	
+
+2) struct names use the same naming convention as functions, however they always start with "te"
+
+	struct teRenderGroup;
+
+3) enums name uses the same naming convention as functions, however they always start with "E"
+the enum constants use all upper case characters, multiple words are separated with an underscore, and they always starts with abbreviation of enum name
+	
+	enum ETestEnumWorks
+	{
+		TEW_NONE,
+		TEW_DO_1,
+		TEW_DO_2,
+		TEW_TEST
+	};
+	
+4) setup arguments
+	
+	class teTest
+	{
+	public:
+		void SetFlag(bool value)
+		{
+			activityFlag = value;
+		}
+
+		void SetDescription(int newId, int newData)
+		{
+			id = newId;
+			data = newData;
+		}
+
+	protected:
+		bool activityFlag;
+		int id;
+		int data;
+	};
+
+5) always make class methods "const" when they do not modify any class variables
+
+6) avoid use of "const_cast", when object is needed to be modified, but only const versions are accessible, create a function that clearly gives an editable version of the object, this keeps the control of the "const-ness" in the hands of the object and not the user
+
+7) return "const" objects (by reference or pointer) unless the general usage of the object is to change its state
+
+8) don't use "dynamic_cast", most projects configured to build without RTTI
+
+9) don't use multiple inheritance
+
+10) initialization list
+	
+	class teTest
+	{
+	public:
+		teTest(type setVal2)
+			:val1(0), val2(setVal2), val3(...),
+			val4(...), val5(...)
+		{
+		}
+	};
+
+------------ file names
+
+1) words
+	
+	teTest.h
+	teTest.cpp
+	
+	ITest.h
+	CTest.h
+	CTest.cpp
+	
+2) header structure
+
+	// comment
+	/* comment */
+	
+	#ifndef TE_MYHEADER_H
+	#define TE_MYHEADER_H
+	
+	namespace te
+	{
+		namespace core
+		{
+			class teCoreClass
+			{
+			public:
+				teCoreClass();
+				~teCoreClass();
+				
+				void DoSomething();
+				
+			protected:
+				float value;
+			};
+		}
+	}
+	
+	#endif
+	

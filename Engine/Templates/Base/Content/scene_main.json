@@ -1,0 +1,657 @@
+
+{
+	"actors": 
+	[
+
+	],
+	"arrays": 
+	[
+
+	],
+	"cameras": 
+	[
+		
+		{
+			"data": 
+			[
+				
+				{
+					"data": 0.0,
+					"name": "self"
+				},
+				
+				{
+					"data": "orthographic",
+					"name": "cameraType"
+				},
+				
+				{
+					"data": -1.0,
+					"name": "nearPlane"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "farPlane"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "fov"
+				}
+			],
+			"folded": false,
+			"links": 
+			[
+				
+				{
+					"links": 
+					[
+						
+						{
+							"toFieldName": "self",
+							"toName": "camera_2d",
+							"toType": "transform"
+						}
+					],
+					"name": "transform"
+				}
+			],
+			"name": "camera_2d",
+			"page": 0,
+			"type": "camera",
+			"x": 472,
+			"y": 47
+		}
+	],
+	"dataPlugs": 
+	[
+
+	],
+	"dataSockets": 
+	[
+
+	],
+	"fonts": 
+	[
+
+	],
+	"geometries": 
+	[
+
+	],
+	"materials": 
+	[
+		
+		{
+			"data": 
+			[
+				
+				{
+					"data": 0.0,
+					"name": "self"
+				},
+				
+				{
+					"data": "default",
+					"name": "shader"
+				},
+				
+				{
+					"data": "disabled",
+					"name": "blend"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "color.r"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "color.g"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "color.b"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "color.a"
+				},
+				
+				{
+					"data": false,
+					"name": "texelToPixel"
+				},
+				
+				{
+					"data": false,
+					"name": "depthBuffer"
+				}
+			],
+			"folded": false,
+			"links": 
+			[
+				
+				{
+					"links": 
+					[
+						
+						{
+							"toFieldName": "self",
+							"toName": "test",
+							"toType": "texture"
+						}
+					],
+					"name": "texture1"
+				},
+				
+				{
+					"links": 
+					[
+
+					],
+					"name": "texture2"
+				},
+				
+				{
+					"links": 
+					[
+
+					],
+					"name": "texture3"
+				},
+				
+				{
+					"links": 
+					[
+
+					],
+					"name": "texture4"
+				}
+			],
+			"name": "test",
+			"page": 0,
+			"type": "material",
+			"x": 354,
+			"y": 384
+		}
+	],
+	"pages": 
+	[
+		"page 1",
+		"page 2",
+		"page 3",
+		"page 4",
+		"page 5",
+		"page 6",
+		"page 7",
+		"page 8",
+		"page 9",
+		"page 10",
+		"page 11",
+		"page 12",
+		"page 13",
+		"page 14",
+		"page 15",
+		"page 16",
+		"page 17",
+		"page 18",
+		"page 19",
+		"page 20",
+		"page 21",
+		"page 22",
+		"page 23",
+		"page 24",
+		"page 25",
+		"page 26",
+		"page 27",
+		"page 28",
+		"page 29",
+		"page 30",
+		"page 31",
+		"page 32"
+	],
+	"program": 
+	[
+		
+		{
+			"data": "camera_2d",
+			"type": "setCamera"
+		},
+		
+		{
+			"from": -999.0,
+			"to": 999.0,
+			"type": "drawLayers"
+		}
+	],
+	"signalSockets": 
+	[
+
+	],
+	"skeletons": 
+	[
+
+	],
+	"socketPlugs": 
+	[
+
+	],
+	"sprites": 
+	[
+		
+		{
+			"data": 
+			[
+				
+				{
+					"data": 0.0,
+					"name": "self"
+				},
+				
+				{
+					"data": 0,
+					"name": "layer"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "color.r"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "color.g"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "color.b"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "color.a"
+				}
+			],
+			"folded": false,
+			"links": 
+			[
+				
+				{
+					"links": 
+					[
+						
+						{
+							"toFieldName": "self",
+							"toName": "test",
+							"toType": "transform"
+						}
+					],
+					"name": "transform"
+				},
+				
+				{
+					"links": 
+					[
+						
+						{
+							"toFieldName": "self",
+							"toName": "test",
+							"toType": "material"
+						}
+					],
+					"name": "material"
+				}
+			],
+			"name": "test",
+			"page": 0,
+			"type": "sprite",
+			"x": 788,
+			"y": 385
+		}
+	],
+	"strings": 
+	[
+
+	],
+	"surfaces": 
+	[
+
+	],
+	"texts": 
+	[
+
+	],
+	"textures": 
+	[
+		
+		{
+			"data": 
+			[
+				
+				{
+					"data": 0.0,
+					"name": "self"
+				},
+				
+				{
+					"data": "chess.png",
+					"name": "file"
+				},
+				
+				{
+					"data": false,
+					"name": "originEnabled"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "origin.x"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "origin.y"
+				},
+				
+				{
+					"data": 256.0,
+					"name": "size.x"
+				},
+				
+				{
+					"data": 256.0,
+					"name": "size.y"
+				},
+				
+				{
+					"data": 256.0,
+					"name": "imgSize.x"
+				},
+				
+				{
+					"data": 256.0,
+					"name": "imgSize.y"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "pixelA.x"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "pixelA.y"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "pixelB.x"
+				},
+				
+				{
+					"data": 255.0,
+					"name": "pixelB.y"
+				},
+				
+				{
+					"data": false,
+					"name": "filtered"
+				},
+				
+				{
+					"data": false,
+					"name": "repeat"
+				},
+				
+				{
+					"data": false,
+					"name": "mipmap"
+				},
+				
+				{
+					"data": false,
+					"name": "forceUniqueInstance"
+				},
+				
+				{
+					"data": true,
+					"name": "autoCrop"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "atlasBorder"
+				}
+			],
+			"folded": false,
+			"name": "test",
+			"page": 0,
+			"type": "texture",
+			"x": 84,
+			"y": 343
+		}
+	],
+	"transforms": 
+	[
+		
+		{
+			"data": 
+			[
+				
+				{
+					"data": 0.0,
+					"name": "self"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "position.x"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "position.y"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "position.z"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "rotation.x"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "rotation.y"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "rotation.z"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "rotation.w"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "scale.x"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "scale.y"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "scale.z"
+				},
+				
+				{
+					"data": false,
+					"name": "visible"
+				}
+			],
+			"folded": false,
+			"links": 
+			[
+				
+				{
+					"links": 
+					[
+
+					],
+					"name": "parent"
+				}
+			],
+			"name": "camera_2d",
+			"page": 0,
+			"type": "transform",
+			"x": 133,
+			"y": 45
+		},
+		
+		{
+			"data": 
+			[
+				
+				{
+					"data": 0.0,
+					"name": "self"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "position.x"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "position.y"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "position.z"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "rotation.x"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "rotation.y"
+				},
+				
+				{
+					"data": 0.0,
+					"name": "rotation.z"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "rotation.w"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "scale.x"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "scale.y"
+				},
+				
+				{
+					"data": 1.0,
+					"name": "scale.z"
+				},
+				
+				{
+					"data": true,
+					"name": "visible"
+				}
+			],
+			"folded": false,
+			"links": 
+			[
+				
+				{
+					"links": 
+					[
+
+					],
+					"name": "parent"
+				}
+			],
+			"name": "test",
+			"page": 0,
+			"type": "transform",
+			"x": 500,
+			"y": 247
+		}
+	],
+	"variables": 
+	[
+
+	],
+	"vertexStructures": 
+	[
+		
+		{
+			"layers": 
+			[
+				
+				{
+					"normalized": false,
+					"offset": 0.0,
+					"stride": 20.0,
+					"type": "position",
+					"variableType": "f32",
+					"variablesPerObject": 3.0
+				},
+				
+				{
+					"normalized": true,
+					"offset": 12.0,
+					"stride": 20.0,
+					"type": "uv0",
+					"variableType": "u16",
+					"variablesPerObject": 2.0
+				},
+				
+				{
+					"normalized": true,
+					"offset": 16.0,
+					"stride": 20.0,
+					"type": "color",
+					"variableType": "u8",
+					"variablesPerObject": 4.0
+				},
+				
+				{
+					"offset": 0.0,
+					"stride": 2.0,
+					"type": "indexes",
+					"variableType": "u16"
+				}
+			],
+			"name": "sprite"
+		}
+	]
+}

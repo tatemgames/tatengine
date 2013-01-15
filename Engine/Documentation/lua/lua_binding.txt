@@ -1,0 +1,139 @@
+TatEngine Lua binding
+support : jimon@tatemgames.com
+
+wip
+
+--------------------------------------------------------------------------------------------------------- bindings info
+
+------------------------------- general user data types
+
+tePrimitive
+	represents primitive number value type (u1, u16, s16, u32, s32, f32, u64, s64, f64, etc)
+	fields :
+		1) data - set\get value
+
+teMaterial
+	wip
+
+teAtlasSprite
+	wip
+
+teSkeleton
+	wip
+
+teSurfaceData
+	wip
+
+teFont
+	wip
+
+teSound
+	wip
+
+teStringInfo
+	engine content UTF-8 string
+	fields :
+		1) data - set\get string
+		2) size - total string buffer size in bytes, read-only
+
+teAssetTransform
+	engine transform asset
+	fields :
+		1) pos_x - set\get position vector x
+		2) pos_y - set\get position vector y
+		3) pos_z - set\get position vector z
+		4) rot_x - set\get rotation quaternion x
+		5) rot_y - set\get rotation quaternion y
+		6) rot_z - set\get rotation quaternion z
+		7) rot_w - set\get rotation quaternion w
+		8) parent - parent index, read-only
+		9) visible - set\get visibility flag
+		10) in_frame - set true in node will be renderd, read-only
+
+teAssetCamera
+	wip
+
+teAssetSprite
+	engine sprite asset
+	fields :
+		1) color_a - set\get color alpha color value in range [0, 255]
+		2) color_r - set\get color red color value in range [0, 255]
+		3) color_g - set\get color green color value in range [0, 255]
+		4) color_b - set\get color blue color value in range [0, 255]
+
+teAssetSurface
+	wip
+
+teAssetText
+	wip
+
+teAssetDrawActor
+	wip
+
+teAssetVariable
+	engine variable asset
+	fields :
+		1) s32 - set\get variable s32 representation
+		2) f32 - set\get variable f32 representation
+		3) type - set\get variable type
+
+teAssetArray
+	engine array asset
+	fields :
+		1) count - return elements count, read-only
+		2) array.[index] - return element, read-only, element returns as light user data, you need to cast it yourself with help of toType
+
+------------------------------- system functions
+
+signal0(actor:LightUserData, arg0:Number, arg1:Number, arg2:Number, arg3:Number), signal1, ...
+	call script node signal with arguments
+
+toType(data:LightUserData, type:String):UserData
+	cast light user data to full user data with type
+	example :
+		local sprite = toType(arr[3], "teAssetSprite");
+
+setMaterial
+	wip
+
+------------------------------- built-in variables
+
+each lua script created as table with functions, we set special system variables to each table
+
+metaname.actor
+	represents current actor, variable type - light user data
+
+metaname.link0, metaname.link1, ...
+	represents current actor link, variable type - user data
+
+------------------------------- modules
+
+wip
+
+--------------------------------------------------------------------------------------------------------- example
+
+enableTest = 0; -- will be global variable for all scripts
+local t = 0; -- will be local variable
+
+function metaname.init()
+	-- constructor
+end
+
+function metaname.deinit()
+	-- destructor
+end
+
+function metaname.onUpdate() -- will be called on update
+	if en == 1 then
+		t = t + 1;
+		local a = t * math.pi / 180;
+		metaname.link0.pos_x = math.cos(a) * 128;
+		metaname.link0.pos_y = math.sin(a) * 128;
+		metaname.link1.color_r = math.random() * 255;
+	end
+end
+
+function metaname.slot0(a, b, c, d) -- will be called on slot0
+	en = 1 - en;
+	signal0(metaname.actor, 1, 2, 3, 4); -- call actor signal
+end

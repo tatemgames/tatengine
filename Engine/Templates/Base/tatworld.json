@@ -1,0 +1,30 @@
+{
+	"name" : "projectName",
+
+	"execWin" : "Bin/Template_Win_Release.exe",
+	"execMac" : "",
+
+	"cttiFileName" : "Bin/ctti.json",
+	"cttiBinFileName" : "Bin/ctti.bin",
+
+	"pakFileName" : "Media/data0.zip",
+	"pakFileNameLZ" : "Media/data0.lz4",
+	
+	"contentDir" : "Content/",
+
+	"scenes":
+	[
+		{
+			"name" : "main",
+			"description" : "---",
+			"fileNameBase" : "main",
+			
+			"assetsFile" : "scene_main.json",
+			"assetsFileForBakery" : "scene_main_bakery.json",
+			"assetsFileBaked" : "s0.bin",
+			"contentFile" : "scene_main.json",
+			"contentFileForBakery" : "scene_main_bakery.json",
+			"contentFileBaked" : "c0.bin"
+		}
+	]
+}

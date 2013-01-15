@@ -1,0 +1,150 @@
+json format : scene_*.json v0.1 r1 (wip)
+
+---------------------------------------------------------- structures
+
+1) general root structure
+
+{
+	"nodesList0" :
+	[
+		{ ... node0 ... },
+		...
+		{ ... nodeM0 ... },
+	],
+	...
+	"nodesListN" :
+	[
+		{ ... node0 ... },
+		...
+		{ ... nodeMN ... },
+	],
+	
+	"program" : [ ... ],
+	"vertexStructures" : [ ... ],
+}
+
+2) node structure
+
+each node have 3 types of data : data, links, signals
+
+{
+	"x" : number,
+	"y" : number,
+	"name" : string,
+	"type" : string,
+	"folded" : boolean,
+
+	"data" :
+	[
+		{
+			"data" : value,
+			"name" : string,
+		}
+		...
+	],
+
+	"links" :
+	[
+		{
+			"links": 
+			[
+				{
+					"toFieldName" : string,
+					"toName" : string,
+					"toType" : string
+				}
+			],
+			"name" : string
+		},
+		...
+	],
+
+	"signals" :
+	[
+		{
+			"links": 
+			[
+				{
+					"toFieldName" : string,
+					"toName" : string,
+					"toType" : string
+				},
+				...
+			],
+			"name" : string
+		},
+		...
+	]
+}
+
+3) render program structure
+
+"program" :
+[
+	{ ... command0 ... },
+	...
+	{ ... commandN ... }
+]
+
+4) render program command structure
+
+command type 1 :
+{
+	"data" : value,
+	"type" : string,
+},
+
+command type 2 :
+{
+	"from" : number,
+	"to" : number,
+	"type" : string,
+}
+
+5) vertex structures array
+
+"vertexStructures" :
+[
+	{ ... vertexStructure0 ... },
+	...
+	{ ... vertexStructureN ... }
+]
+
+6) vertex structure
+
+{
+	"layers": 
+	[
+		{
+			"normalized" : boolean,
+			"offset" : number,
+			"stride" : number,
+			"type" : string,
+			"variableType" : string,
+			"variablesPerObject" : number
+		},
+	],
+
+	"name": string
+}
+
+---------------------------------------------------------- nodes lists
+
+scene contains this lists :
+
+transforms
+cameras
+sprites
+surfaces
+texts
+variables
+arrays
+actors
+textures
+materials
+skeletons
+geometries
+fonts
+strings
+
+

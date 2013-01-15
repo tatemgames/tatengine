@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<link rel="stylesheet" href="../css/style.css">
+	<title></title>  
+	<!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+
+<body>
+	<div class="container">
+		<header class="header clearfix">
+			<div class="logo">TatEngine</div>
+			<nav class="menu_main">
+				<ul>
+					<li><a href="../index.html">Overview</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<div class="info">
+			<article class="hero clearfix">
+				<div class="col_100">
+					<h1>World editor</h1>
+					<p>Lets find out about TatEngine World editor.</p>
+				</div>
+			</article>
+
+		<article class="article clearfix">
+			<h1>Nodes</h1>
+			<p>So we have some stuff here.</p>
+			<img src="tut_1.png">
+			<p>Basic concent : everything is node, node have links to other nodes (A) and data for other nodes (B). Basicly it's same as unity component system concept (pure aggregation scene graph).</p>
+			<img src="tut_2.png">
+			<p>Also node have data that not exposed to other nodes (not linkable).</p>
+			<img src="tut_3.png">
+			<p>There are a lot of node types.</p>
+			<img src="tut_4.png">
+			<p>Just put cursor to some free place, and click on transform node type, so you create node.</p>
+			<img src="tut_5.png">
+			<p>Select it, and press delete (Del), and it goes away.</p>
+			<img src="tut_6.png">
+			<p>Now select all nodes (Ctrl + A) and press fold (Shift + Space).</p>
+			<img src="tut_7.png">
+			<p>Select nodes one by one, and move it with right mouse button, press shift to align to grid, make it prettier.</p>
+			<img src="tut_8.png">
+			<h1>Sprites</h1>
+			<p>Basicly node with type "sprite" is sprite instance, it has point where it should be rendered, and material with what it shoud rendered. It also has layer in which it should rendered.</p>
+			<img src="tut_9.png">
+			<h1>Transforms</h1>
+			<p>Transform define world point with position, rotation (quaternion) and scale. Also it can have parent.</p>
+			<img src="tut_10.png">
+			<h1>Materials</h1>
+			<p>Materials are more complex. You will find out details in editor_notes.txt</p>
+			<img src="tut_11.png">
+			<h1>Textures</h1>
+			<p>Texture just define image (full or just part of it). Define size and origin of sprite (size and origin field, note - origin field used only when origin enabled is true). And some flags.<br>Just press Tools -> Update texture params and it will fill origin, size, imgSize, pixelA, pixelB from image file.</p>
+			<img src="tut_12.png">
+			<h1>Create new sprite</h1>
+			<p>Just create texture, material, transform and sprite. Connect them. And set texture file name to chess.png and press Update texture params.</p>
+			<img src="tut_13.png">
+			<p>Than select sprite and change it layer to -1.</p>
+			<img src="tut_14.png">
+			<p>Press Save project, Save for bakery, Bake and Run. You should see this.</p>
+			<img src="tut_15.png">
+		</article>
+	</div>
+
+	<footer class="footer clearfix">
+		<div class="copyright"><a href="http://www.tatemgames.com"><img src="../logo_tatemgames.png"></a></div>
+		<nav class="menu_bottom">
+			<ul>
+				<li><a href="../index.html">Overview</a></li>
+			</ul>
+		</nav>
+	</footer>
+	</div>
+</body>
+</html>

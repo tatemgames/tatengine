@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<link rel="stylesheet" href="../css/style.css">
+	<link rel="stylesheet" href="../css/zenburn.css">
+	<title></title>  
+	<!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+</head>
+
+<body>
+	<div class="container">
+		<header class="header clearfix">
+			<div class="logo">TatEngine</div>
+			<nav class="menu_main">
+				<ul>
+					<li><a href="../index.html">Overview</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<div class="info">
+			<article class="hero clearfix">
+				<div class="col_100">
+					<h1>Native scripting basics</h1>
+					<p></p>
+				</div>
+			</article>
+
+		<script src="../js/highlight.pack.js"></script><script>hljs.initHighlightingOnLoad();</script>
+		
+		<article class="article clearfix">
+			<h1>C++ Scripting</h1>
+			<p>Let's start with building project, open CApplication.cpp.</p>
+			<img src="tut_1.png">
+			<p>So, basic actor template. Native actors are more complex than lua scripts, but for now you only should remember that native actor have field sections : data, links and general. Data sections contains only float fields, they will be accessible in editor (only editable or editable and linkable). Links are only pointers to something. And general fields is up to you, just classic C++ class fields.</p>
+<pre><code class="cpp">// test actor class
+class teActorTest
+{
+public:
+	// constructor
+	teActorTest(teFastScene * setScene)
+		:scene(setScene)
+	{
+	}
+
+	// destructor
+	~teActorTest()
+	{
+	}
+
+	// will be called each frame
+	void OnUpdate()
+	{
+	}
+
+	// will be called on slot receive event
+	void OnSomeSlot(f32 agrument)
+	{
+		transform->scale.x = TE_RAND + 0.5f; // random macro, return from 0 to 1
+		SomeSignal1(); // call signals like normal class methods
+	}
+
+	// signals
+	// 0 and 1 got from signals register order
+	TE_ACTOR_SIGNAL(0, SomeSignal1)
+	TE_ACTOR_SIGNAL(1, SomeSignal2)
+protected:
+	// actor data section
+	f32 data1;
+	f32 data2;
+
+	// actor link section, placed after data section
+	teAssetTransform * transform;
+	teAssetSprite * someSprite;
+
+	// actor general fields section
+
+	// pointer to our scene
+	teFastScene * scene;
+
+	u32 someVariable;
+};
+
+TE_ACTOR_PROXY(teActorTest)
+TE_ACTOR_SLOT_1(teActorTest, OnSomeSlot) // slot 1 defines count of arguments, from 0 to 4
+
+void RegisterActors(teActorsTI * ti)
+{
+	// add new node to type information
+	ti->AddClass(sizeof(teActorTest), "testActor", TE_ACTOR_PROXY_NAMES(teActorTest));
+
+	// add data fields to this node
+	ti->AddData("data1");
+	ti->AddData("data2");
+
+	// add link fields to this node
+	ti->AddLink("transform");
+	ti->AddLink("someSprite");
+
+	// add signals
+	ti->AddSignal("SomeSignal1"); // add it first, so index = 0
+	ti->AddSignal("SomeSignal2"); // index = 1
+
+	// add slots
+	ti->AddSlot("OnSomeSlot", TE_ACTOR_SLOT_PROXY(teActorTest, OnSomeSlot));
+
+	// remember : only call ti methods in this order : add class, add data, add link, add signal, add slot
+}</code></pre>
+		<p>Place code like this.</p>
+		<img src="tut_2.png">
+		<p>Close world editor. Build and run application in release from visual studio. You should see crc warning. Basicly engine is data driven, so if you change ctti (compile time type information) then baked data becomes invalid.</p>
+		<img src="tut_3.png">
+		<p>Now open world editor, you should see new actor.</p>
+		<img src="tut_4.png">
+		<p>Just connect it instead of lua script. It will work same as lua script.</p>
+		<img src="tut_5.png">
+		<p>To move forward you need to know how to get asset by they index</p>
+		<pre><code class="cpp">// like this
+teAssetTransform & transform = scene->GetAssetPack().transforms[someSprite->renderAsset.transformIndex];
+video::teMaterial & material = scene->GetContentPack().materials[someSprite->renderAsset.materialIndex];</code></pre>
+		</article>
+	</div>
+
+	<footer class="footer clearfix">
+		<div class="copyright"><a href="http://www.tatemgames.com"><img src="../logo_tatemgames.png"></a></div>
+		<nav class="menu_bottom">
+			<ul>
+				<li><a href="../index.html">Overview</a></li>
+			</ul>
+		</nav>
+	</footer>
+	</div>
+</body>
+</html>
