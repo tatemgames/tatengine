@@ -120,7 +120,7 @@ public:
 	
 	UIAccelerometer * Accelerometer = [UIAccelerometer sharedAccelerometer];
 	Accelerometer.delegate = self;
-	Accelerometer.updateInterval = 1.00;
+	Accelerometer.updateInterval = 0.05;
 	
 	[Window setFrame:[[UIScreen mainScreen] bounds]];
 	
