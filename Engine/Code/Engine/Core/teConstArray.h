@@ -145,51 +145,51 @@ namespace te
 		}
 
 		//! @brief Get array reserved elements count
-		TE_INLINE size_t GetSize() const {return size;}
+		TE_FORCE_INLINE size_t GetSize() const {return size;}
 
 		//! @brief Get array alive elements count
-		TE_INLINE size_t GetAlive() const {return freePosition;}
+		TE_FORCE_INLINE size_t GetAlive() const {return freePosition;}
 
 		//! @brief Get array reserved size in bytes
-		TE_INLINE size_t GetSizeBytes() const {return size * sizeof(T);}
+		TE_FORCE_INLINE size_t GetSizeBytes() const {return size * sizeof(T);}
 
 		//! @brief Get array alive size in bytes
-		TE_INLINE size_t GetAliveBytes() const {return freePosition * sizeof(T);}
+		TE_FORCE_INLINE size_t GetAliveBytes() const {return freePosition * sizeof(T);}
 
 		//! @brief Return array memory pool
-		TE_INLINE T * GetPool(){TE_ASSERT(GetAlive()); return data;}
+		TE_FORCE_INLINE T * GetPool(){TE_ASSERT(GetAlive()); return data;}
 
 		//! @brief Return array memory pool
-		TE_INLINE const T * GetPool() const {TE_ASSERT(GetAlive()); return data;}
+		TE_FORCE_INLINE const T * GetPool() const {TE_ASSERT(GetAlive()); return data;}
 
 		//! @brief Return element with index
-		TE_INLINE T & operator [] (size_t i) {TE_ASSERT(i < freePosition); return data[i];}
+		TE_FORCE_INLINE T & operator [] (size_t i) {TE_ASSERT(i < freePosition); return data[i];}
 
 		//! @brief Return element with index
-		TE_INLINE const T & operator [] (size_t i) const {TE_ASSERT(i < freePosition); return data[i];}
+		TE_FORCE_INLINE const T & operator [] (size_t i) const {TE_ASSERT(i < freePosition); return data[i];}
 
 		//! @brief Return memory pointer to element at index
-		TE_INLINE T * At(size_t i) {TE_ASSERT(i < freePosition); return data + i;}
+		TE_FORCE_INLINE T * At(size_t i) {TE_ASSERT(i < freePosition); return data + i;}
 
 		//! @brief Return memory pointer to element at index
-		TE_INLINE const T * At(size_t i) const {TE_ASSERT(i < freePosition); return data + i;}
+		TE_FORCE_INLINE const T * At(size_t i) const {TE_ASSERT(i < freePosition); return data + i;}
 
 		//! @brief Return first element
-		TE_INLINE T & GetFirst() {TE_ASSERT(GetAlive()); return *At(0);}
+		TE_FORCE_INLINE T & GetFirst() {TE_ASSERT(GetAlive()); return *At(0);}
 
 		//! @brief Return first element
-		TE_INLINE const T & GetFirst() const {TE_ASSERT(GetAlive()); return *At(0);}
+		TE_FORCE_INLINE const T & GetFirst() const {TE_ASSERT(GetAlive()); return *At(0);}
 
 		//! @brief Return last element
-		TE_INLINE T & GetLast() {TE_ASSERT(GetAlive()); return *At(GetAlive() - 1);}
+		TE_FORCE_INLINE T & GetLast() {TE_ASSERT(GetAlive()); return *At(GetAlive() - 1);}
 
 		//! @brief Return last element
-		TE_INLINE const T & GetLast() const {TE_ASSERT(GetAlive()); return *At(GetAlive() - 1);}
+		TE_FORCE_INLINE const T & GetLast() const {TE_ASSERT(GetAlive()); return *At(GetAlive() - 1);}
 
 		//! @brief Return element index in array by pointer
 		//! param[in] pointer element pointer
 		//! @details Not failsafe, so additional result checks required if you cant guarantee valid pointer.
-		TE_INLINE u64 GetIndexInArray(T * pointer) const
+		TE_FORCE_INLINE u64 GetIndexInArray(T * pointer) const
 		{
 			return (reinterpret_cast<uintptr_t>(pointer) - reinterpret_cast<uintptr_t>(data)) / sizeof(T);
 		}

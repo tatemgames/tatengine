@@ -22,15 +22,15 @@ namespace te
 	public:
 		T x, y, z;
 		
-		TE_INLINE teVector3d():x(0), y(0), z(0) {}
-		TE_INLINE teVector3d(T setX, T setY, T setZ):x(setX), y(setY), z(setZ) {}
-		TE_INLINE teVector3d(T k):x(k), y(k), z(k) {}
+		TE_FORCE_INLINE teVector3d():x(0), y(0), z(0) {}
+		TE_FORCE_INLINE teVector3d(T setX, T setY, T setZ):x(setX), y(setY), z(setZ) {}
+		TE_FORCE_INLINE teVector3d(T k):x(k), y(k), z(k) {}
 		
 		template <class B>
-		TE_INLINE teVector3d(const teVector3d<B> & other):x((T)other.x), y((T)other.y), z((T)other.z) {}
+		TE_FORCE_INLINE teVector3d(const teVector3d<B> & other):x((T)other.x), y((T)other.y), z((T)other.z) {}
 
 		template <class B>
-		TE_INLINE teVector3d(const teVector2d<B> & other):x((T)other.x), y((T)other.y), z(0) {}
+		TE_FORCE_INLINE teVector3d(const teVector2d<B> & other):x((T)other.x), y((T)other.y), z(0) {}
 
 		TE_INLINE void SetXYZ(T setX, T setY, T setZ) {x = setX; y = setY; z = setZ;}
 		TE_INLINE void Flush() {SetXYZ(0, 0, 0);}

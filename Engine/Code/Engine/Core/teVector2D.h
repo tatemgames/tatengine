@@ -20,15 +20,15 @@ namespace te
 	{
 		T x, y;
 
-		TE_INLINE teVector2d():x(0), y(0) {}
-		teVector2d(T setX, T setY) :x(setX), y(setY) {}
-		TE_INLINE teVector2d(T k) :x(k), y(k) {}
+		TE_FORCE_INLINE teVector2d():x(0), y(0) {}
+		TE_FORCE_INLINE teVector2d(T setX, T setY):x(setX), y(setY) {}
+		TE_FORCE_INLINE teVector2d(T k) :x(k), y(k) {}
 
 		template <class B>
-		TE_INLINE teVector2d(const teVector2d<B> & other):x((T)other.x), y((T)other.y) {}
+		TE_FORCE_INLINE teVector2d(const teVector2d<B> & other):x((T)other.x), y((T)other.y) {}
 
-		TE_INLINE void SetXY(T setX, T setY) {x = setX; y = setY;}
-		TE_INLINE void Flush() {SetXY(0, 0);}
+		TE_FORCE_INLINE void SetXY(T setX, T setY) {x = setX; y = setY;}
+		TE_FORCE_INLINE void Flush() {SetXY(0, 0);}
 
 		TE_INLINE u1 IsEqual(const teVector2d<T> & other) const {return (x == other.x) && (y == other.y);}
 

@@ -38,11 +38,13 @@
 //#define TE_NATIVE_HALF_FLOAT
 
 #ifdef TE_COMPILER_MSVC
-	#define TE_INLINE __forceinline
+	#define TE_INLINE inline
+	#define TE_FORCE_INLINE __forceinline
 	#pragma warning(disable : 4200) // disable warning for zero-size array declaration
 	#pragma warning(disable : 4996) // disable warning for secure version of crt functions
 #else
 	#define TE_INLINE inline
+	#define TE_FORCE_INLINE inline
 #endif
 
 #ifdef TE_COMPILER_LLVM
@@ -50,6 +52,7 @@
 #endif
 
 #define TE_FUNC static TE_INLINE
+#define TE_FUNC_FI static TE_FORCE_INLINE
 
 // -------------------------------------------------------------- Debug
 #define TE_DEBUG

@@ -23,18 +23,18 @@ namespace te
 	public:
 		T x, y, z, w;
 		
-		TE_INLINE teQuaternion():x(0), y(0), z(0), w(1) {}
-		TE_INLINE teQuaternion(T setX, T setY, T setZ, T setW):x(setX), y(setY), z(setZ), w(setW) {}
-		TE_INLINE teQuaternion(T k):x(k), y(k), z(k), w(k) {}
+		TE_FORCE_INLINE teQuaternion():x(0), y(0), z(0), w(1) {}
+		TE_FORCE_INLINE teQuaternion(T setX, T setY, T setZ, T setW):x(setX), y(setY), z(setZ), w(setW) {}
+		TE_FORCE_INLINE teQuaternion(T k):x(k), y(k), z(k), w(k) {}
 		
 		template <class B>
-		teQuaternion(const teQuaternion<B> & other):x((T)other.x), y((T)other.y), z((T)other.z), w((T)other.w) {}
+		TE_FORCE_INLINE teQuaternion(const teQuaternion<B> & other):x((T)other.x), y((T)other.y), z((T)other.z), w((T)other.w) {}
 		
 		template <class B>
-		teQuaternion(const teVector3d<B> & other):x((T)other.x), y((T)other.y), z((T)other.z), w(1) {}
+		TE_FORCE_INLINE teQuaternion(const teVector3d<B> & other):x((T)other.x), y((T)other.y), z((T)other.z), w(1) {}
 		
 		template <class B>
-		teQuaternion(B angle, const teVector3d<B> & axis)
+		TE_FORCE_INLINE teQuaternion(B angle, const teVector3d<B> & axis)
 		{
 			T valueSin, valueCos;
 			te::teSinCos(angle * 0.5f, valueSin, valueCos);
@@ -265,21 +265,21 @@ namespace te
 	public:
 		teQuaternionf a, b;
 
-		TE_INLINE teDualQuaternion()
+		TE_FORCE_INLINE teDualQuaternion()
 		{
 		}
 
-		TE_INLINE teDualQuaternion(const teQuaternionf & setA, const teQuaternionf & setB)
+		TE_FORCE_INLINE teDualQuaternion(const teQuaternionf & setA, const teQuaternionf & setB)
 			:a(setA), b(setB)
 		{
 		}
 
-		TE_INLINE teDualQuaternion(const teQuaternionf & rotate, const teVector3df & translate)
+		TE_FORCE_INLINE teDualQuaternion(const teQuaternionf & rotate, const teVector3df & translate)
 		{
 			SetFrom(rotate, translate);
 		}
 
-		TE_INLINE teDualQuaternion(const teDualQuaternion & other)
+		TE_FORCE_INLINE teDualQuaternion(const teDualQuaternion & other)
 			:a(other.a), b(other.b)
 		{
 		}

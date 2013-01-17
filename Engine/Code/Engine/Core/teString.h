@@ -21,7 +21,7 @@ namespace te
 	*  \param[out] result UTF-32 character.
 	*  \return count of readed chars.
 	*/
-	TE_FUNC u8 teUTF8toUTF32(const c8 * input, u32 & result)
+	TE_FUNC_FI u8 teUTF8toUTF32(const c8 * input, u32 & result)
 	{
 		if((input[0] & 0xFC) == 0xFC)
 		{
@@ -60,7 +60,7 @@ namespace te
 	*  \param[in] input input character string.
 	*  \return size in bytes.
 	*/
-	TE_FUNC u8 teUTF8GetCharacterSize(const c8 * input)
+	TE_FUNC_FI u8 teUTF8GetCharacterSize(const c8 * input)
 	{
 		if((input[0] & 0xFC) == 0xFC)
 			return 6;

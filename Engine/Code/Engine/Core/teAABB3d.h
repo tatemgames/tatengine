@@ -22,28 +22,28 @@ namespace te
 	public:
 		teVector3d<T> edgeMin, edgeMax;
 
-		TE_INLINE teAABB3d()
+		TE_FORCE_INLINE teAABB3d()
 		{
 		}
 
-		TE_INLINE teAABB3d(const teVector3d<T> & setMin, const teVector3d<T> & setMax)
+		TE_FORCE_INLINE teAABB3d(const teVector3d<T> & setMin, const teVector3d<T> & setMax)
 			:edgeMin(setMin), edgeMax(setMax)
 		{
 		}
 		
 		template <class B>
-		inline teAABB3d(const teAABB3d<B> & other)
+		TE_FORCE_INLINE teAABB3d(const teAABB3d<B> & other)
 			:edgeMin(other.edgeMin), edgeMax(other.edgeMax)
 		{
 		}
 
-		inline void Flush()
+		TE_INLINE void Flush()
 		{
 			edgeMin.Flush();
 			edgeMax.Flush();
 		}
 
-		inline void SetEdges(const teVector3d<T> & setMin, const teVector3d<T> & setMax)
+		TE_INLINE void SetEdges(const teVector3d<T> & setMin, const teVector3d<T> & setMax)
 		{
 			edgeMin = setMin;
 			edgeMax = setMax;
@@ -65,14 +65,14 @@ namespace te
 		}
 
 		template<typename B>
-		inline teAABB3d<T> & operator = (const teAABB3d<B> & other)
+		TE_INLINE teAABB3d<T> & operator = (const teAABB3d<B> & other)
 		{
 			edgeMin = other.edgeMin;
 			edgeMax = other.edgeMax;
 			return *this;
 		}
 
-		inline u1 IsEqual(const teAABB3d<T> & other) const
+		TE_INLINE u1 IsEqual(const teAABB3d<T> & other) const
 		{
 			return (edgeMin == other.edgeMin) && (edgeMax == other.edgeMax);
 		}

@@ -29,10 +29,10 @@ namespace te
 	public:
 		T r, g, b, a;
 
-		TE_INLINE teColor4():r(0), g(0), b(0), a((T)ChMaxValue) {}
-		TE_INLINE teColor4(T setR, T setG, T setB, T setA):r(setR), g(setG), b(setB), a(setA) {Clamp();}
-		TE_INLINE teColor4(T setR, T setG, T setB):r(setR), g(setG), b(setB), a((T)ChMaxValue) {Clamp();}
-		TE_INLINE teColor4(T k):r(k), g(k), b(k), a(k) {Clamp();}
+		TE_FORCE_INLINE teColor4():r(0), g(0), b(0), a((T)ChMaxValue) {}
+		TE_FORCE_INLINE teColor4(T setR, T setG, T setB, T setA):r(setR), g(setG), b(setB), a(setA) {Clamp();}
+		TE_FORCE_INLINE teColor4(T setR, T setG, T setB):r(setR), g(setG), b(setB), a((T)ChMaxValue) {Clamp();}
+		TE_FORCE_INLINE teColor4(T k):r(k), g(k), b(k), a(k) {Clamp();}
 
 		template <typename OtType, s32 OtChMaxVal>
 		TE_INLINE teColor4(const teColor4<OtType, OtChMaxVal> & other):r(__CONV_CH(other.r)), g(__CONV_CH(other.g)), b(__CONV_CH(other.b)), a(__CONV_CH(other.a)) {}

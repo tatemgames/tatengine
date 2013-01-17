@@ -42,7 +42,7 @@ namespace te
 				m30, m31, m32, m33);
 		}
 
-		TE_INLINE void Set(T m00, T m01, T m02, T m03,
+		TE_FORCE_INLINE void Set(T m00, T m01, T m02, T m03,
 						   T m10, T m11, T m12, T m13,
 						   T m20, T m21, T m22, T m23,
 						   T m30, T m31, T m32, T m33)
@@ -68,14 +68,14 @@ namespace te
 			Get(3, 3) = m33;
 		}
 
-		TE_INLINE void Set(const teMatrix4 & setM)
+		TE_FORCE_INLINE void Set(const teMatrix4 & setM)
 		{
 			memcpy(m, setM.m, sizeof(T) * 16);
 		}
 
-		TE_INLINE T & Get(u8 i, u8 j) {return m[TE_MATRIX4X4_ORDER_RULE(i, j)];}
+		TE_FORCE_INLINE T & Get(u8 i, u8 j) {return m[TE_MATRIX4X4_ORDER_RULE(i, j)];}
 
-		TE_INLINE const T & Get(u8 i, u8 j) const {return m[TE_MATRIX4X4_ORDER_RULE(i, j)];}
+		TE_FORCE_INLINE const T & Get(u8 i, u8 j) const {return m[TE_MATRIX4X4_ORDER_RULE(i, j)];}
 
 		TE_INLINE teMatrix4<T> & SetIdentity()
 		{
@@ -458,6 +458,8 @@ namespace te
 
 	//! f32 Matrix 4x4
 	typedef teMatrix4<f32> teMatrix4f;
+
+#undef Get
 }
 
 #endif
