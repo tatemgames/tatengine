@@ -574,8 +574,7 @@ namespace te
 				case 7: data->Signal7(a[0], a[1], a[2], a[3]); break;
 				default: break;
 				}
-
-				return 0;
+  				return 0;
 			}
 
 			static s32 LuaSignal0(lua_State * L) {return LuaSignal(L, 0);}
@@ -838,8 +837,9 @@ namespace te
 
 				if(strcmp(key, "data") == 0) lua_pushstring(L, raw);
 				else if(strcmp(key, "size") == 0) lua_pushinteger(L, (s32)size);
+				else return 0;
 
-				return 0;
+				return 1;
 			}
 
 			static s32 BindAssetTransformSet(lua_State * L)
@@ -880,6 +880,7 @@ namespace te
 				else if(strcmp(key, "parent") == 0) lua_pushinteger(L, data->parent);
 				else if(strcmp(key, "visible") == 0) lua_pushinteger(L, data->visible);
 				else if(strcmp(key, "in_frame") == 0) lua_pushinteger(L, data->inFrame);
+				else return 0;
 
 				return 1;
 			}
@@ -932,6 +933,7 @@ namespace te
 				else if(strcmp(key, "color_r") == 0) lua_pushinteger(L, data->color.r);
 				else if(strcmp(key, "color_g") == 0) lua_pushinteger(L, data->color.g);
 				else if(strcmp(key, "color_b") == 0) lua_pushinteger(L, data->color.b);
+				else return 0;
 
 				return 1;
 			}
@@ -959,7 +961,7 @@ namespace te
 				else if(strcmp(key, "pos_y") == 0) lua_pushnumber(L, data->position.y);
 				*/
 
-				return 1;
+				return 0;
 			}
 
 			static s32 BindAssetTextSet(lua_State * L)
@@ -985,7 +987,7 @@ namespace te
 				else if(strcmp(key, "pos_y") == 0) lua_pushnumber(L, data->position.y);
 				*/
 
-				return 1;
+				return 0;
 			}
 
 			static s32 BindAssetDrawActorSet(lua_State * L)
@@ -1011,7 +1013,7 @@ namespace te
 				else if(strcmp(key, "pos_y") == 0) lua_pushnumber(L, data->position.y);
 				*/
 
-				return 1;
+				return 0;
 			}
 
 			static s32 BindAssetVariableSet(lua_State * L)
@@ -1034,6 +1036,7 @@ namespace te
 				if(strcmp(key, "s32") == 0) lua_pushinteger(L, data->GetS32());
 				else if(strcmp(key, "f32") == 0) lua_pushnumber(L, data->GetF32());
 				else if(strcmp(key, "type") == 0) lua_pushnumber(L, data->type);
+				else return 0;
 
 				return 1;
 			}
