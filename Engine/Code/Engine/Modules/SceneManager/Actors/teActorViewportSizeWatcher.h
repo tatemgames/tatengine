@@ -72,25 +72,24 @@ namespace te
 						else if(animationState == 2)
 							center->scale *= teLinearInterpolation(1.0f, 10.0f, t2);
 					}
-
+										
+//					if(viewportSize.x == 2048)
+//						sizeRootScale.SetXY(1.0f, 1.0f);
+//					else if(viewportSize.x == 1136)
+//						sizeRootScale.SetXY(0.42f, 0.42f);
+//					else if(viewportSize.x == 1024)
+//						sizeRootScale.SetXY(0.5f, 0.5f);
+//					else if(viewportSize.x == 960)
+//						sizeRootScale.SetXY(0.42f, 0.42f);
+//					else if(viewportSize.x == 480)
+//						sizeRootScale.SetXY(0.25f, 0.25f);
+//					else
+						sizeRootScale.SetXY((f32)viewportSize.x / basicUIWidth, (f32)viewportSize.y / basicUIHeight);
+					
+					//sizeRootScale *= 2.0f;
+					
 					if(sizeRoot)
-					{
-						if(viewportSize.x == 2048)
-							sizeRoot->scale.SetXYZ(1.0f, 1.0f, 1.0f);
-						else if(viewportSize.x == 1136)
-							sizeRoot->scale.SetXYZ(0.42f, 0.42f, 1.0f);
-						else if(viewportSize.x == 1024)
-							sizeRoot->scale.SetXYZ(0.5f, 0.5f, 1.0f);
-						else if(viewportSize.x == 960)
-							sizeRoot->scale.SetXYZ(0.42f, 0.42f, 1.0f);
-						else if(viewportSize.x == 480)
-							sizeRoot->scale.SetXYZ(0.25f, 0.25f, 1.0f);
-						else
-						{
-							// fail safe
-							sizeRoot->scale.SetXYZ((f32)viewportSize.x / basicUIWidth, (f32)viewportSize.y / basicUIHeight, 1.0f);
-						}
-					}
+							sizeRoot->scale.SetXYZ(sizeRootScale.x, sizeRootScale.y, 1.0f);
 
 					RequestChange();
 				}
@@ -114,6 +113,8 @@ namespace te
 			}
 
 			TE_ACTOR_SIGNAL(0, OnChanged)
+			
+			TE_INLINE static const teVector2df & GetSizeRootScale() {return sizeRootScale;}
 
 		protected:
 			f32 basicUIWidth;
@@ -133,6 +134,8 @@ namespace te
 			teVector2di viewportPosition, viewportSize;
 			core::teTime2 animationStart;
 			u8 animationState;
+			
+			static teVector2df sizeRootScale;
 		};
 
 		TE_ACTOR_PROXY(teActorViewportSizeWatcher)

@@ -46,6 +46,7 @@ namespace te
 		u1 teActorButton::anyPressed = false;
 		s16 teActorButton::buttonGrabLayer = s16Min;
 		u32 teActorButton::buttonCheckFrame = 0;
+		teVector2df teActorViewportSizeWatcher::sizeRootScale(1.0f, 1.0f);
 
 		#ifdef TE_MODULE_SCRIPTING
 			u32 teActorScriptLua::metaIdCounter = 0;

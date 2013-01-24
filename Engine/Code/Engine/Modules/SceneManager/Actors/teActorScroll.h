@@ -48,12 +48,14 @@ namespace te
 
 			void Resize(teVector3df A, teVector3df B)
 			{
-				sizeA = teVector2df(A.x, A.y);
-				sizeB = teVector2df(B.x, B.y);
+				teVector2df koef = teActorViewportSizeWatcher::GetSizeRootScale();
+				
+				sizeA = teVector2df(A.x, A.y) / koef;
+				sizeB = teVector2df(B.x, B.y) / koef;
 				curElemCount = elementCount->GetF32();
 				
-				f32 width = (B.x - A.x);// * 2;
-				f32 height = (B.y - A.y);// * 2;
+				f32 width = (B.x - A.x)  / koef.x;
+				f32 height = (B.y - A.y) / koef.y;
 				
 				f32 elSize = elementSize->GetF32();
 				f32 elCount = elementCount->GetF32();
@@ -72,7 +74,7 @@ namespace te
 						if (scrollLim < 0.0f)
 							scrollLim = 0.0f;
 						
-						scrollEdge = -(sizeB.x - sizeA.x) / 2.0f - elementSize->GetF32();
+						scrollEdge = -(sizeB.x - sizeA.x) / 2.0f - elementSize->GetF32() / 2.0f;
 						
 						break;
 						
@@ -86,12 +88,14 @@ namespace te
 						if (scrollLim < 0.0f)
 							scrollLim = 0.0f;
 						
-						scrollEdge = -teAbs(sizeB.y - sizeA.y) / 2.0f - elementSize->GetF32();
+						scrollEdge = -teAbs(sizeB.y - sizeA.y) / 2.0f - elementSize->GetF32() / 2.0f;
 						
 						break;
 				}
 				
 				scrollGap = elSize;
+				
+				SetSnapPos();
 			}
 
 			void OnUpdate()
@@ -228,20 +232,19 @@ namespace te
 				{
 					if(isSnapping)
 					{
-						float tDiv = (position - elementSize->GetF32() / 2.0f) / elementSize->GetF32();
-						float tMod = tDiv - teTrunc(tDiv);
-						float tSnapDist = elementSize->GetF32() * tMod;
+						float snapDist = snapPos - position;
+						float snapCount = 4.0f * snapDist * TE_DT;
+						if(teAbs(snapCount) < 1.0f)
+							snapCount = 1.0f * teSign(snapDist);
 						
-						float snapCount = 100.0f * TE_DT;
-						
-						if(snapCount >= teAbs(tSnapDist))
+						if((teAbs(snapDist) <= teAbs(snapCount)) || teAbs(snapDist) < 1.0f)
 						{
-							position -= tSnapDist;
+							position = snapPos;
 							isSnapping = false;
 						}
 						else
 						{
-							position += snapCount; //* (teSign(tSnapDist));
+							position += snapCount;
 						}
 					}
 				}
@@ -252,6 +255,32 @@ namespace te
 					moveTouch.Flush();
 					StopMoving();
 				}
+			}
+			
+			TE_INLINE void SetSnapPos()
+			{
+				f32 spriteSize = 0.0f;
+				switch (scrollType->vs32)
+				{
+					case SCRL_HORIZONTAL:
+						spriteSize = sizeB.x - sizeA.x;
+						break;
+						
+					case SCRL_VERTICAL:
+						spriteSize = sizeB.y - sizeA.y;
+						break;
+				}
+				
+				f32 tNom = sSize / 2.0f - spriteSize + spriteSize / 2.0f;
+				
+				f32 tfirst = (tNom - position) / elementSize->GetF32();
+				s32 intFirst = s32(tfirst);
+				if(tfirst - (f32)intFirst >= 0.5f)
+					++intFirst;
+				
+				snapPos = tNom - (f32)intFirst * elementSize->GetF32();
+				
+				isSnapping = true;
 			}
 			
 			TE_INLINE void Reset()
@@ -275,7 +304,8 @@ namespace te
 				touchMovesCount = 0;
 				curTouchMove = 0;
 				isMoving = 0;
-				isSnapping = true;
+				
+				SetSnapPos();
 			}
 			
 			TE_INLINE void CalcCache()
@@ -351,7 +381,8 @@ namespace te
 			TE_INLINE void StopMoving()
 			{
 				isMoving = false;
-				isSnapping = true;
+				
+				SetSnapPos();
 			}
 			
 			TE_ACTOR_SIGNAL(0, UpdateElement)
@@ -373,8 +404,9 @@ namespace te
 						
 			f32 scrollLim;//limHor, limVert; // scrolling limit
 			f32 scrollGap;//horGap, verGap; // Scrolling gap
-			f32 position;
 			f32 scrollEdge; //--- edge for visible ellements
+			f32 position;
+			f32 snapPos;
 
 			f32 setPosOffset;
 			
