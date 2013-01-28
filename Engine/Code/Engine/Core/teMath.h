@@ -115,12 +115,12 @@ namespace te
 	//! Is Nan (it's IEEE standard)
 	TE_FUNC u1 teIsNaN(const f32 & v) {return v != v;}
 
-	#define TE_GET_BIT(__var, __num) (( __var >> __num)&1)
-	#define TE_SET_BIT_1(__var, __num) __var |= 1 << __num
-	#define TE_SET_BIT_0(__var, __num) __var &= ~( 1 << __num )
-	#define TE_SET_BIT(__var, __num, __val) if(__val){ __var = __var | ( 1 << __num ); }else{ __var = __var & ~( 1 << __num );}
+	#define TE_GET_BIT(__var, __num) (((__var) >> (__num))&1)
+	#define TE_SET_BIT_1(__var, __num) (__var) |= 1 << (__num)
+	#define TE_SET_BIT_0(__var, __num) (__var) &= ~( 1 << (__num))
+	#define TE_SET_BIT(__var, __num, __val) if(__val){ (__var) = (__var) | (1 << (__num)); }else{ (__var) = (__var) & ~(1 << (__num));}
 
-	#define TE_GET_FLAG(__var, __flag) (__var & __flag)
+	#define TE_GET_FLAG(__var, __flag) ((__var) & (__flag))
 	#define TE_SET_FLAG(__var, __flag, __val) {if(__val) (__var) |= (__flag); else (__var) &= ~(__flag);}
 
 	#define TE_RAND (((f32)rand()) / ((f32)RAND_MAX))

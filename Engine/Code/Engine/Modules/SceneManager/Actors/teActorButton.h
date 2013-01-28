@@ -54,7 +54,7 @@ namespace te
 					return;
 				}
 
-				if(buttonCheckFrame != app::GetApplicationManager()->GetTick())
+				if((buttonCheckFrame != app::GetApplicationManager()->GetTick()) && (!IsFlag(BF_UNDETECTABLE_WORK)))
 				{
 					buttonCheckFrame = app::GetApplicationManager()->GetTick();
 
@@ -76,9 +76,10 @@ namespace te
 							SetStyle(true);
 							OnPressed((f32)assetIndex);
 
-							anyPressed = true;
+							if(!IsFlag(BF_UNDETECTABLE_WORK))
+								anyPressed = true;
 
-							if((buttonGrabLayer < assetLayer) && (!(((u8)flags) & BF_DONT_GRAB)))
+							if((buttonGrabLayer < assetLayer) && (!IsFlag(BF_DONT_GRAB)))
 								buttonGrabLayer = assetLayer;
 						}
 						
@@ -88,14 +89,15 @@ namespace te
 					{
 						if(wasTouchInside)
 						{
-							if((!(((u8)flags) & BF_IGNORE_MOVING)) && ((touchPos - input::GetInputManager()->GetTouch(0)).GetDistance() > 16.0f))
+							if((!IsFlag(BF_IGNORE_MOVING)) && ((touchPos - input::GetInputManager()->GetTouch(0)).GetDistance() > 16.0f))
 							{
 								SetStyle(false);
 								wasTouchInside = false;
 							}
 							else
 							{
-								anyPressed = true;
+								if(!IsFlag(BF_UNDETECTABLE_WORK))
+									anyPressed = true;
 							}
 						}
 					}
@@ -108,16 +110,21 @@ namespace te
 
 						if(IsTouchInside(input::GetInputManager()->GetTouch(0)) && wasTouchInside)
 						{
-							if((buttonGrabLayer == assetLayer) || (((u8)flags) & BF_DONT_GRAB))
+							u1 grabOk = (buttonGrabLayer == assetLayer) || IsFlag(BF_DONT_GRAB);
+							u1 grabHigher = (buttonGrabLayer > assetLayer) && IsFlag(BF_DISABLE_IF_OTHER_GRABBED);
+
+							if(grabOk && (!grabHigher))
 							{
-								anyClicked = true;
+								if(!IsFlag(BF_UNDETECTABLE_WORK))
+									anyClicked = true;
 								OnClicked((f32)assetIndex);
 							}
 						}
 
 						if(wasTouchInside)
 						{
-							anyPressed = true;
+							if(!IsFlag(BF_UNDETECTABLE_WORK))
+								anyPressed = true;
 
 							SetStyle(false);
 							OnClear((f32)assetIndex);
@@ -248,6 +255,19 @@ namespace te
 				}
 			}
 
+			void SetAssets(teAssetSprite * setSprite, teAssetSprite * setSpritePressed = NULL, teAssetSprite * setSpritePart1 = NULL, teAssetSprite * setSpritePart2 = NULL)
+			{
+				sprite = setSprite;
+				spritePressed = setSpritePressed;
+				spritePart1 = setSpritePart1;
+				spritePart2 = setSpritePart2;
+			}
+
+			void SetAssetsSurface(teAssetSurface * setSurface)
+			{
+				surface = setSurface;
+			}
+
 			TE_ACTOR_SIGNAL(0, OnClicked);
 			TE_ACTOR_SIGNAL(1, OnPressed);
 			TE_ACTOR_SIGNAL(2, OnClear);
@@ -295,7 +315,9 @@ namespace te
 				BF_WORK_IF_INVISIBLE			= 0x2,
 				BF_IGNORE_MOVING				= 0x4,
 				BF_DISABLE_MINIMAL_TOUCH_ZONE	= 0x8,
-				BF_DONT_GRAB					= 0x10
+				BF_DONT_GRAB					= 0x10,
+				BF_UNDETECTABLE_WORK			= 0x20,
+				BF_DISABLE_IF_OTHER_GRABBED		= 0x40,
 			};
 
 			TE_INLINE void SetStyle(u1 pressed)
@@ -329,6 +351,11 @@ namespace te
 						}
 					}
 				}
+			}
+
+			TE_INLINE u1 IsFlag(u8 flag)
+			{
+				return TE_GET_FLAG(((u8)flags), flag);
 			}
 		};
 
