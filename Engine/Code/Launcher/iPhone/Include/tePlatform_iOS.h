@@ -67,6 +67,8 @@ namespace te
 			
 			void OnVideoFinished();
 			
+			void ReadUserPref(const c8 * name, c8 * returnArray, u32 returnArraySize, u32 * resultSize = NULL);
+			
 		protected:
 			void * videoCallbackActor;
 		};

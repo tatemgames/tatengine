@@ -198,5 +198,28 @@ namespace te
 			static_cast<scene::teActorVideoPlayer*>(videoCallbackActor)->OnFinished();
 			#endif
 		}
+		
+		void tePlatform_iOS::ReadUserPref(const c8 * name, c8 * returnArray, u32 returnArraySize, u32 * resultSize)
+		{
+			NSUserDefaults * prefs = [NSUserDefaults standardUserDefaults];
+			NSString * data = [prefs stringForKey:[NSString stringWithUTF8String:name]];
+			
+			u32 res = 0;
+			
+			if(data != nil)
+			{
+				const c8 * resData = [data UTF8String];
+				res = teUTF8GetSize(resData);
+				if(res)
+				{
+					memset(returnArray, 0, returnArraySize);
+					memcpy(returnArray, resData, teMin(res, returnArraySize));
+				}
+				
+			}
+			
+			if(resultSize)
+				*resultSize = res;
+		}
 	}
 }
