@@ -194,6 +194,19 @@ namespace te
 			return (reinterpret_cast<uintptr_t>(pointer) - reinterpret_cast<uintptr_t>(data)) / sizeof(T);
 		}
 
+		//! @brief Return true if pointer from this array
+		//! param[in] pointer element pointer
+		TE_FORCE_INLINE u1 IsFromThisArray(T * pointer) const
+		{
+			if(!GetAlive())
+				return false;
+
+			uintptr_t first = reinterpret_cast<uintptr_t>(At(0));
+			uintptr_t last = reinterpret_cast<uintptr_t>(At(GetAlive() - 1));
+			uintptr_t ptr = reinterpret_cast<uintptr_t>(pointer);
+			return (ptr >= first) && (ptr <= last);
+		}
+
 		//! @brief Request free elements from reserved array
 		//! @param[in] count request elements count
 		//! @param[out] getIndex write index of first element
