@@ -11,6 +11,7 @@
 #define TE_TEASSETTEXT_H
 
 #include "teRenderAsset.h"
+#include "teColor.h"
 #include "teMatrix4.h"
 #include "teFont.h"
 #include "teSurfaceData.h"
@@ -24,6 +25,7 @@ namespace te
 		struct teAssetText
 		{
 			teRenderAsset renderAsset;
+			teColor4u color;
 			u32 fontIndex;
 			u32 stringIndex;
 			font::teFontRenderingOptions options; // aligned to 4 bytes
@@ -31,6 +33,7 @@ namespace te
 			TE_INLINE void Clear()
 			{
 				renderAsset.Clear();
+				color.SetRGBA(255, 255, 255, 255);
 				fontIndex = u32Max;
 				stringIndex = u32Max;
 				options.Clear();
