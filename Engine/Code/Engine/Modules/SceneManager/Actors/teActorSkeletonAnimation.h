@@ -103,15 +103,24 @@ namespace te
 				}
 			}
 
-			TE_INLINE void SetLayer(f32 setLayer = 0.0f, f32 setFrame = 0.0f)
+			TE_INLINE void SetLayer(f32 setLayer = 0.0f, f32 setFrame = 0.0f, f32 enableBlend = 0.0f)
 			{
 				if((((u16)setLayer) != layer) || (!enableAnimation))
 				{
 					enableAnimation = true;
 
-					layerOld = layer;
-					frameOld = frame;
-					blendTime = 15;
+					if(((u8)enableBlend) == 1)
+					{
+						layerOld = layer;
+						frameOld = frame;
+						blendTime = 15;
+					}
+					else
+					{
+						layerOld = (u16)setLayer;
+						frameOld = (u16)setFrame;
+						blendTime = 0;
+					}
 					
 					layer = (u16)setLayer;
 					frame = (u16)setFrame;
@@ -150,7 +159,7 @@ namespace te
 		};
 
 		TE_ACTOR_PROXY(teActorSkeletonAnimation);
-		TE_ACTOR_SLOT_2(teActorSkeletonAnimation, SetLayer);
+		TE_ACTOR_SLOT_3(teActorSkeletonAnimation, SetLayer);
 		TE_ACTOR_SLOT_0(teActorSkeletonAnimation, Stop);
 
 		TE_FUNC void RegisterSkeletonAnimation(teActorsTI * ti)
