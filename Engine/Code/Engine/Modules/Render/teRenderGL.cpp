@@ -35,6 +35,8 @@ namespace te
 			for(u32 i = 0; i < teMaterialMaxTextures; ++i)
 				cachedTextureID[i] = u32Max;
 			cachedStateFlags = u8Max;
+			cachedShaderType = u8Max;
+			cachedShaderPass = u8Max;
 			#endif
 
 			#ifdef TE_RENDER_GL_VAO
@@ -166,9 +168,10 @@ namespace te
 					--temp;
 				else
 				{
-					temp = 10; // wip
+					temp = 0; // wip
 					tglBindBuffer(GL_ARRAY_BUFFER, vbo);
 					tglBufferData(GL_ARRAY_BUFFER, contentPack.surfaceData.GetAlive(), contentPack.surfaceData.GetPool(), GL_DYNAMIC_DRAW);
+					//tglBindBuffer(GL_ARRAY_BUFFER, 0);
 				}
 			}
 
@@ -201,39 +204,15 @@ namespace te
 					teShader & shader = library.GetShader((EShaderType)contentPack.materials[surface->materialIndex].shaderIndex);
 					shader.Bind(SP_GEN_DIFFUSE);
 
+					vaoSurfaceShaderBind[counter].SetXY(SP_GEN_DIFFUSE, contentPack.materials[surface->materialIndex].shaderIndex);
+
 					tglGenVertexArrays(1, &vao[counter]);
 					tglBindVertexArray(vao[counter]);
 
 					tglBindBuffer(GL_ARRAY_BUFFER, vbo);
 					tglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
 
-					for(u8 i = 0; i < SLT_INDEXES; ++i)
-					{
-						GLuint uniform = shader.GetAttributes(SP_GEN_DIFFUSE, (ESurfaceLayerType)i);
-
-						if(uniform == -1)
-							continue;
-
-						if(layers.variablesPerObject[i])
-						{
-							teptr_t a = (teptr_t)surface->data;
-							teptr_t b = (teptr_t)contentPack.surfaceData.GetPool();
-
-							teptr_t c = a - b;
-
-							tglEnableVertexAttribArray(uniform);
-							tglVertexAttribPointer(uniform,
-													layers.variablesPerObject[i],
-													layers.GetVariableGLType(i),
-													TE_GET_BIT(layers.normalized, i),
-													layers.stride[i],
-													(const GLvoid*)(c + layers.offset[i]));
-						}
-						else
-						{
-							tglDisableVertexAttribArray(uniform);
-						}
-					}
+					shader.BindAttributes(surface, layers, true, (teptr_t)contentPack.surfaceData.GetPool());
 
 					tglBindVertexArray(0);
 
@@ -336,7 +315,16 @@ namespace te
 
 			teShader & shader = library.GetShader((EShaderType)states.shaderIndex);
 
-			shader.Bind(shaderPass);
+			#ifdef TE_RENDER_GL_CACHE
+			if((cachedShaderType != states.shaderIndex) || (cachedShaderPass != shaderPass) || forceCacheSetup)
+			#endif
+			{
+				shader.Bind(shaderPass);
+				#ifdef TE_RENDER_GL_CACHE
+				cachedShaderPass = shaderPass;
+				cachedShaderType = states.shaderIndex;
+				#endif
+			}
 
 			shader.SetUniform(UT_C_DIFFUSE, teColor4u(teColor4f(states.color) * teColor4f(overrideDiffuseColor)));
 			shader.SetUniform(UT_TIME, TE_TIME_32);
@@ -416,7 +404,18 @@ namespace te
 
 			if(surfaceIdVAO < u32Max)
 			{ // with vao
+				
 				tglBindVertexArray(vao[surfaceIdVAO]);
+
+				// rebind vertex structure if shader changed
+				if((vaoSurfaceShaderBind[surfaceIdVAO].x != shaderPass) || (vaoSurfaceShaderBind[surfaceIdVAO].y != states.shaderIndex))
+				{
+					tglBindBuffer(GL_ARRAY_BUFFER, vbo);
+					tglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
+					shader.BindAttributes(surface, contentPack.surfaceLayers[surface->layersIndex], true, (teptr_t)contentPack.surfaceData.GetPool());
+					vaoSurfaceShaderBind[surfaceIdVAO].x = shaderPass;
+					vaoSurfaceShaderBind[surfaceIdVAO].y = states.shaderIndex;
+				}
 
 				teptr_t a = (teptr_t)surface->GetIndexes(contentPack.surfaceLayers[surface->layersIndex]);
 				teptr_t b = (teptr_t)contentPack.surfaceData.GetPool();

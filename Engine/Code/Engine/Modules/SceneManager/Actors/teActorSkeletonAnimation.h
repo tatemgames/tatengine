@@ -82,11 +82,10 @@ namespace te
 
 						f32 delta1 = (f32)((time3.ToSeconds() - (f64)fr_t * fps) / fps);
 						f32 delta2 = (((f32)blendTime) / 15.0f);
-						//f32 delta = (TE_TIME_32 - (f64)fr_t * fps) / fps;
 						surface->blendTimes[0] = teClamp(delta1, 0.0f, 1.0f);
 						surface->blendTimes[1] = teClamp(delta1, 0.0f, 1.0f);
 						surface->blendTimes[2] = teClamp(1.0f - delta2, 0.0f, 1.0f);
-						surface->blendMode = 0x1 + 0x2 + 0x4 + 0x8;// + 0x4 + 0x8;
+						surface->blendMode = 0x1 + 0x2 + 0x4 + 0x8;
 					}
 					else
 					{
@@ -94,7 +93,6 @@ namespace te
 						surface->blendPairs[1].SetXY(layer, fr2);
 
 						f32 delta = (f32)((time3.ToSeconds() - (f64)fr_t * fps) / fps);
-						//f32 delta = (TE_TIME_32 - (f64)fr_t * fps) / fps;
 						surface->blendTimes[0] = teClamp(delta, 0.0f, 1.0f);
 						surface->blendMode = 0x1 + 0x2;
 					}

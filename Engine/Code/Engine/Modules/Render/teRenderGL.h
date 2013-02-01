@@ -164,12 +164,15 @@ namespace te
 				u32 cachedBlend;
 				u32 cachedTextureID[teMaterialMaxTextures];
 				u8 cachedStateFlags;
+				u8 cachedShaderType;
+				u8 cachedShaderPass;
 				u1 forceCacheSetup;
 			#endif
 
 			#ifdef TE_RENDER_GL_VAO
 				u32 vao[teRenderGLVAOMax];
 				teSurfaceData * vaoSurfaces[teRenderGLVAOMax];
+				teVector2d<u8> vaoSurfaceShaderBind[teRenderGLVAOMax]; // pass and type
 				teVector2d<teptr_t> vaoSurfaceBoundCheck;
 				u32 vbo;
 				u1 vboFisrtFrame;
