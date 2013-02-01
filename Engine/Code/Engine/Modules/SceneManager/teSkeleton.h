@@ -252,14 +252,10 @@ namespace te
 				u8 ind[4] = {0, 0, 0, 0};
 				u8 i = 0;
 
-				//if(mode & 0x1) ind[i++] = 0;
-				//if(mode & 0x2) ind[i++] = 1;
-				//if(mode & 0x4) ind[i++] = 2;
-				//if(mode & 0x8) ind[i++] = 3;
-				if(mode & 0x1) ind[0] = 0;
-				if(mode & 0x2) ind[1] = 1;
-				if(mode & 0x4) ind[2] = 2;
-				if(mode & 0x8) ind[3] = 3;
+				if(mode & 0x1) ind[i++] = 0;
+				if(mode & 0x2) ind[i++] = 1;
+				if(mode & 0x4) ind[i++] = 2;
+				if(mode & 0x8) ind[i++] = 3;
 
 				switch(count)
 				{

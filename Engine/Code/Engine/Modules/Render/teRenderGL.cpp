@@ -338,7 +338,7 @@ namespace te
 
 			shader.Bind(shaderPass);
 
-			shader.SetUniform(UT_C_DIFFUSE, states.color);
+			shader.SetUniform(UT_C_DIFFUSE, teColor4u(teColor4f(states.color) * teColor4f(overrideDiffuseColor)));
 			shader.SetUniform(UT_TIME, TE_TIME_32);
 			shader.SetUniform(UT_MAT_MV, matrixModelView);
 			shader.SetUniform(UT_MAT_V, matrixView);

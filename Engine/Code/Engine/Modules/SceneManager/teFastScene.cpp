@@ -415,7 +415,6 @@ namespace te
 								u32 matTemp = surfaceData->materialIndex;
 								if(scenePack.surfaces[from].renderAsset.IsValid())
 									surfaceData->materialIndex = scenePack.surfaces[from].renderAsset.materialIndex;
-								//RenderBatch(surfData);
 
 								video::GetRender()->Render(contentPack, surfaceData, scenePack.surfaces[from].color);
 
