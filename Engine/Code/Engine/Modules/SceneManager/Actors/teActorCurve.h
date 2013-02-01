@@ -129,6 +129,26 @@ namespace te
 			{
 				enableAnimation = false;
 			}
+			
+			TE_INLINE f32 GetCurveX(s32 index)
+			{
+				return curveX[index];
+			}
+
+			TE_INLINE void SetCurveX(s32 index, f32 value)
+			{
+				curveX[index] = value;
+			}
+
+			TE_INLINE f32 GetCurveY(s32 index)
+			{
+				return curveY[index];
+			}
+			
+			TE_INLINE void SetCurveY(s32 index, f32 value)
+			{
+				curveY[index] = value;
+			}
 
 			TE_ACTOR_SIGNAL(0, SetValue)
 			TE_ACTOR_SIGNAL(1, OnTrigger)

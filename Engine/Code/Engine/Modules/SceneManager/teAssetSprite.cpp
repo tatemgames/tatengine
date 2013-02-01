@@ -93,20 +93,23 @@ namespace te
 				if(viewportSize.y % 2)
 					shiftConstY = 0.5f;
 			}
+			
+			u1 flipH = (sprite.flags & SF_FLIP_HORIZONTAL);
+			u1 flipV = (sprite.flags & SF_FLIP_VERTICAL);
 
 			if(atlasSprite)
 			{
-				vertexes[0].Set(p[0].x + shiftConstX, p[0].y + shiftConstY, p[0].z, atlasSprite->uv1.x, atlasSprite->uv2.y);
-				vertexes[1].Set(p[1].x + shiftConstX, p[1].y + shiftConstY, p[1].z, atlasSprite->uv2.x, atlasSprite->uv2.y);
-				vertexes[2].Set(p[2].x + shiftConstX, p[2].y + shiftConstY, p[2].z, atlasSprite->uv1.x, atlasSprite->uv1.y);
-				vertexes[3].Set(p[3].x + shiftConstX, p[3].y + shiftConstY, p[3].z, atlasSprite->uv2.x, atlasSprite->uv1.y);
+				vertexes[0].Set(p[0].x + shiftConstX, p[0].y + shiftConstY, p[0].z, (flipV ? atlasSprite->uv2.x : atlasSprite->uv1.x), (flipH ? atlasSprite->uv1.y : atlasSprite->uv2.y));
+				vertexes[1].Set(p[1].x + shiftConstX, p[1].y + shiftConstY, p[1].z, (flipV ? atlasSprite->uv1.x : atlasSprite->uv2.x), (flipH ? atlasSprite->uv1.y : atlasSprite->uv2.y));
+				vertexes[2].Set(p[2].x + shiftConstX, p[2].y + shiftConstY, p[2].z, (flipV ? atlasSprite->uv2.x : atlasSprite->uv1.x), (flipH ? atlasSprite->uv2.y : atlasSprite->uv1.y));
+				vertexes[3].Set(p[3].x + shiftConstX, p[3].y + shiftConstY, p[3].z, (flipV ? atlasSprite->uv1.x : atlasSprite->uv2.x), (flipH ? atlasSprite->uv2.y : atlasSprite->uv1.y));
 			}
 			else
 			{
-				vertexes[0].Set(p[0].x, p[0].y, p[0].z, 0, u16Max);
-				vertexes[1].Set(p[1].x, p[1].y, p[1].z, u16Max, u16Max);
-				vertexes[2].Set(p[2].x, p[2].y, p[2].z, 0, 0);
-				vertexes[3].Set(p[3].x, p[3].y, p[3].z, u16Max, 0);
+				vertexes[0].Set(p[0].x, p[0].y, p[0].z, (flipV ? u16Max : 0), (flipH ? 0 : u16Max));
+				vertexes[1].Set(p[1].x, p[1].y, p[1].z, (flipV ? 0 : u16Max), (flipH ? 0 : u16Max));
+				vertexes[2].Set(p[2].x, p[2].y, p[2].z, (flipV ? u16Max : 0), (flipH ? u16Max : 0));
+				vertexes[3].Set(p[3].x, p[3].y, p[3].z, (flipV ? 0 : u16Max), (flipH ? u16Max : 0));
 			}
 
 			vertexes[0].color = sprite.color;

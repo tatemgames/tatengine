@@ -20,15 +20,23 @@ namespace te
 {
 	namespace scene
 	{
+		enum ESpriteFlags
+		{
+			SF_FLIP_HORIZONTAL	= 0x1,
+			SF_FLIP_VERTICAL	= 0x2
+		};
+
 		struct teAssetSprite
 		{
 			teRenderAsset renderAsset;
 			teColor4u color;
+			u8 flags;
 
 			TE_INLINE void Clear()
 			{
 				renderAsset.Clear();
 				color.SetRGBA(255, 255, 255, 255);
+				flags = 0;
 			}
 		};
 
