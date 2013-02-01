@@ -179,7 +179,10 @@ namespace te
 				u32 offset = 0;
 				u32 counter = 0;
 
-				vaoSurfaceBoundCheck.SetXY((teptr_t)&contentPack.surfaceData.GetFirst(), (teptr_t)&contentPack.surfaceData.GetLast());
+				if(contentPack.surfaceData.GetAlive())
+					vaoSurfaceBoundCheck.SetXY((teptr_t)&contentPack.surfaceData.GetFirst(), (teptr_t)&contentPack.surfaceData.GetLast());
+				else
+					vaoSurfaceBoundCheck.SetXY(0, 0);
 
 				while(offset < contentPack.surfaceData.GetAlive())
 				{
