@@ -25,23 +25,24 @@ namespace te
 		teRenderGL::teRenderGL()
 		{
 			CurrentContext = NULL;
-
 			shaderPass = SP_GEN_DIFFUSE;
 
 			currentRender = this;
 
 			#ifdef TE_RENDER_GL_CACHE
+			forceCacheSetup = true;
+			cachedBlend = u32Max;
+			for(u32 i = 0; i < teMaterialMaxTextures; ++i)
+				cachedTextureID[i] = u32Max;
+			cachedStateFlags = u8Max;
+			#endif
 
+			#ifdef TE_RENDER_GL_VAO
 			vbo = 0;
 			vboFisrtFrame = true;
 
-			for(u32 i = 0; i < 256; ++i)
+			for(u32 i = 0; i < teRenderGLVAOMax; ++i)
 				vao[i] = u32Max;
-
-			curBlend = u32Max;
-			curTextureID = u32Max;
-			curDepthFlag = u8Max;
-
 			#endif
 		}
 
@@ -83,7 +84,6 @@ namespace te
 			{
 				glEnable(GL_DEPTH_TEST);
 				glDepthMask(true);
-				//glDepthFunc(GetDepthModeGLType(DM_LEQUAL));
 			}
 
 			if(clearStencil)
@@ -104,22 +104,11 @@ namespace te
 				glEnable(GL_TEXTURE_2D);
 			#endif
 
-			//if(viewport.size.x != viewWidth)
-			{
-				//viewWidth = viewport.size.x;
-				//viewHeight = viewport.size.y;
-				glViewport(viewport.position.x, viewport.position.y, viewport.size.x, viewport.size.y);
-
-				if(viewport.scissorSize.GetMaxComponent() > 0)
-				{
-					glEnable(GL_SCISSOR_TEST);
-					glScissor(viewport.scissorPosition.x, viewport.scissorPosition.y, viewport.scissorSize.x, viewport.scissorSize.y);
-				}
-				else
-					glDisable(GL_SCISSOR_TEST);
-			}
-
 			#ifdef TE_RENDER_GL_CACHE
+				forceCacheSetup = true;
+			#endif
+
+			#ifdef TE_RENDER_GL_VAO
 				if(!vbo)
 					tglGenBuffers(1, &vbo);
 
@@ -158,12 +147,14 @@ namespace te
 				CurrentContext->PresentCurrentTexture();
 		}
 
-		void teRenderGL::Render(const scene::teContentPack & contentPack, teSurfaceData * surface)
+		void teRenderGL::Render(const scene::teContentPack & contentPack, teSurfaceData * surface, const teColor4u & overrideDiffuseColor)
 		{
 			if(!surface->IsMaterialValid())
 				return;
 
-#ifdef TE_RENDER_GL_CACHE
+			#ifdef TE_RENDER_GL_VAO
+
+			// ---------------------------------------------------------------------- Upload new vbo
 
 			if(vboFisrtFrame && contentPack.surfaceData.GetAlive())
 			{
@@ -175,16 +166,20 @@ namespace te
 					--temp;
 				else
 				{
-					temp = 30; // wip
+					temp = 10; // wip
 					tglBindBuffer(GL_ARRAY_BUFFER, vbo);
 					tglBufferData(GL_ARRAY_BUFFER, contentPack.surfaceData.GetAlive(), contentPack.surfaceData.GetPool(), GL_DYNAMIC_DRAW);
 				}
 			}
 
+			// ---------------------------------------------------------------------- Generate vao
+
 			if(vao[0] == u32Max)
 			{
 				u32 offset = 0;
 				u32 counter = 0;
+
+				vaoSurfaceBoundCheck.SetXY((teptr_t)&contentPack.surfaceData.GetFirst(), (teptr_t)&contentPack.surfaceData.GetLast());
 
 				while(offset < contentPack.surfaceData.GetAlive())
 				{
@@ -196,7 +191,7 @@ namespace te
 						continue;
 					}
 
-					vaoSurf[counter] = surface;
+					vaoSurfaces[counter] = surface;
 
 					const teSurfaceLayers & layers = contentPack.surfaceLayers[surface->layersIndex];
 
@@ -240,23 +235,21 @@ namespace te
 					tglBindVertexArray(0);
 
 					offset += surface->dataSize + sizeof(teSurfaceData);
-
 					counter++; // inc for each surface
 				}
 			}
-			else
-			{
-			}
+			#endif
 
-#endif
-			// ---------------
-			
+			// ---------------------------------------------------------------------- State setup
+
 			const video::teMaterial & states = contentPack.materials[surface->materialIndex];
 
-			//if(viewport.size.x != viewWidth)
+			// ---------------------------------------------------------------------- State viewport setup
+
+			#ifdef TE_RENDER_GL_CACHE
+			if((cacheViewport != viewport) || forceCacheSetup)
+			#endif
 			{
-				//viewWidth = viewport.size.x;
-				//viewHeight = viewport.size.y;
 				glViewport(viewport.position.x, viewport.position.y, viewport.size.x, viewport.size.y);
 
 				if(viewport.scissorSize.GetMaxComponent() > 0)
@@ -266,9 +259,17 @@ namespace te
 				}
 				else
 					glDisable(GL_SCISSOR_TEST);
+
+				#ifdef TE_RENDER_GL_CACHE
+				cacheViewport = viewport;
+				#endif
 			}
-			
-			//if(curBlend != states.blend)
+
+			// ---------------------------------------------------------------------- State blend setup
+
+			#ifdef TE_RENDER_GL_CACHE
+			if((cachedBlend != states.blend) || forceCacheSetup)
+			#endif
 			{
 				switch(states.blend) // TODO cache state --OK
 				{
@@ -280,23 +281,35 @@ namespace te
 				case BT_MULTIPLY: glEnable(GL_BLEND); glBlendFunc(GL_DST_COLOR, GL_ZERO); break;
 				default: TE_ASSERT(0); break;
 				}
-				
-				//curBlend = states.blend;
+
+				#ifdef TE_RENDER_GL_CACHE
+				cachedBlend = states.blend;
+				#endif
 			}
 
+			// ---------------------------------------------------------------------- State texture setup
+
 			for(u8 i = 0; i < teMaterialMaxTextures; ++i)
+			{
 				if(states.atlasSpriteIndex[i] != u32Max)
 				{
-					//if(curTextureID != contentPack.atlasSprites[states.atlasSpriteIndex[i]].textureIndex)
+					#ifdef TE_RENDER_GL_CACHE
+					if((cachedTextureID[i] != contentPack.atlasSprites[states.atlasSpriteIndex[i]].textureIndex) || forceCacheSetup)
+					#endif
 					{
 						contentPack.textures[contentPack.atlasSprites[states.atlasSpriteIndex[i]].textureIndex].Bind(i);
-						
-						//curTextureID = contentPack.atlasSprites[states.atlasSpriteIndex[i]].textureIndex;
+						#ifdef TE_RENDER_GL_CACHE
+						cachedTextureID[i] = contentPack.atlasSprites[states.atlasSpriteIndex[i]].textureIndex;
+						#endif
 					}
 				}
-			
-			
-			//if (curDepthFlag != states.IsFlag(MF_DEPTH_BUFFER))
+			}
+
+			// ---------------------------------------------------------------------- State flags setup
+
+			#ifdef TE_RENDER_GL_CACHE
+			if((cachedStateFlags != states.flags) || forceCacheSetup)
+			#endif
 			{
 				glDepthMask(states.IsFlag(MF_DEPTH_BUFFER_WRITE));
 
@@ -310,15 +323,38 @@ namespace te
 					glDepthFunc(GetDepthModeGLType(DM_ALWAYS));
 					glDisable(GL_DEPTH_TEST);
 				}
-				
-				//curDepthFlag = states.IsFlag(MF_DEPTH_BUFFER);
+
+				#ifdef TE_RENDER_GL_CACHE
+				cachedStateFlags = states.flags;
+				#endif
 			}
+
+			// ---------------------------------------------------------------------- Shader setup
 
 			teShader & shader = library.GetShader((EShaderType)states.shaderIndex);
 
 			shader.Bind(shaderPass);
 
+			shader.SetUniform(UT_C_DIFFUSE, states.color);
 			shader.SetUniform(UT_TIME, TE_TIME_32);
+			shader.SetUniform(UT_MAT_MV, matrixModelView);
+			shader.SetUniform(UT_MAT_V, matrixView);
+
+			if(shader.IsAvailable(UT_MAT_MVP))
+			{
+				teMatrix4f matrixModelViewProjection;
+				matrixModelViewProjection = matrixProjection * matrixModelView;
+				shader.SetUniform(UT_MAT_MVP, matrixModelViewProjection);
+			}
+
+			if(shader.IsAvailable(UT_MAT_N))
+			{
+				teMatrix4f temp, temp2;
+				temp.SetIdentity();
+				matrixModelView.Inverse33(temp);
+				temp.Transpose(temp2);
+				shader.SetUniform(UT_MAT_N, temp2);
+			}
 
 			for(u8 i = 0; i < teMaterialMaxUniformUserData; ++i)
 			{
@@ -351,87 +387,51 @@ namespace te
 				}
 			}
 
-#ifdef TE_RENDER_GL_CACHE
-			//----- search sufface
-			u32 surfID = u32Max;
-			for (int i = 0; i<256; i++)
+			if(surface->skeletonIndex != u32Max)
 			{
-				if(vaoSurf[i] == surface)
+				scene::teSkeleton * skeleton = (scene::teSkeleton*)contentPack.skeletonData.At(surface->skeletonIndex);
+				shader.SetUniform(UT_MAT_BONES, skeleton->bonesCount * 2, 4, reinterpret_cast<const f32*>(skeleton->GetSkin()));
+			}
+
+			// ---------------------------------------------------------------------- DIP
+
+			#ifdef TE_RENDER_GL_VAO
+			u32 surfaceIdVAO = u32Max;
+
+			teptr_t surfacePtr = (teptr_t)surface;
+			if((surfacePtr >= vaoSurfaceBoundCheck.x) && (surfacePtr <= vaoSurfaceBoundCheck.y))
+			{
+				for(u32 i = 0; i < teRenderGLVAOMax; ++i)
 				{
-					surfID = i;
-					break;
+					if(vaoSurfaces[i] == surface)
+					{
+						surfaceIdVAO = i;
+						break;
+					}
 				}
 			}
-			
-			if (surfID < u32Max)  //---- with VAO
-			{
-				tglBindVertexArray(vao[surfID]);
 
-				const teSurfaceLayers & layers = contentPack.surfaceLayers[surface->layersIndex];
-		
-				teMatrix4f matrixModelViewProjection;
-				matrixModelViewProjection = matrixProjection * matrixModelView;
+			if(surfaceIdVAO < u32Max)
+			{ // with vao
+				tglBindVertexArray(vao[surfaceIdVAO]);
 
-				teMatrix4f temp, temp2;
-				temp.SetIdentity();
-				temp2.SetIdentity();
-
-				matrixModelView.Inverse33(temp);
-				temp.Transpose(temp2);
-				
-				shader.SetUniform(UT_MAT_MVP, matrixModelViewProjection);
-				shader.SetUniform(UT_MAT_MV, matrixModelView);
-				shader.SetUniform(UT_MAT_V, matrixView);
-				shader.SetUniform(UT_MAT_N, temp2);
-
-				shader.SetUniform(UT_C_DIFFUSE, states.color);
-				
-				u32 skeletonIndex = surface->skeletonIndex;
-				
-				if(skeletonIndex != u32Max)
-				{
-					scene::teSkeleton *
-					skeleton = (scene::teSkeleton*)contentPack.skeletonData.At(skeletonIndex);
-					shader.SetUniform(UT_MAT_BONES, skeleton->bonesCount * 2, 4, reinterpret_cast<const f32*>(skeleton->GetSkin()));
-				}
-
-
-				uintptr_t a = (uintptr_t) surface->GetIndexes(contentPack.surfaceLayers[surface->layersIndex]);
-
-				uintptr_t b = (uintptr_t) contentPack.surfaceData.GetPool();
+				teptr_t a = (teptr_t)surface->GetIndexes(contentPack.surfaceLayers[surface->layersIndex]);
+				teptr_t b = (teptr_t)contentPack.surfaceData.GetPool();
 
 				glDrawElements(surface->GetOperationGLType(),
 					surface->indexCount,
 					contentPack.surfaceLayers[surface->layersIndex].GetVariableGLType(SLT_INDEXES),
 					(const GLvoid*)(a - b));
-				 
 			}
-			else // ----- without VAO
-#endif
-			{
-
-#ifdef TE_RENDER_GL_CACHE
-				tglBindVertexArray(0);
-
-				tglBindBuffer(GL_ARRAY_BUFFER, 0);
-				tglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#endif
-				
+			else
+			#endif
+			{ // without VAO
+				#ifdef TE_RENDER_GL_VAO
+					tglBindVertexArray(0);
+					tglBindBuffer(GL_ARRAY_BUFFER, 0);
+					tglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+				#endif
 				shader.BindAttributes(surface, contentPack.surfaceLayers[surface->layersIndex]);
-
-				teMatrix4f matrixModelViewProjection;
-				matrixModelViewProjection = matrixProjection * matrixModelView;
-
-				shader.SetUniform(UT_MAT_MVP, matrixModelViewProjection);
-				shader.SetUniform(UT_C_DIFFUSE, states.color);
-
-				u32 skeletonIndex = surface->skeletonIndex;
-
-				if(skeletonIndex != u32Max)
-				{
-					scene::teSkeleton * skeleton = (scene::teSkeleton*)contentPack.skeletonData.At(skeletonIndex);
-					shader.SetUniform(UT_MAT_BONES, skeleton->bonesCount * 2, 4, reinterpret_cast<const f32*>(skeleton->GetSkin()));
-				}
 
 				glDrawElements(surface->GetOperationGLType(),
 					surface->indexCount,
@@ -440,6 +440,13 @@ namespace te
 
 				shader.DisableAttributes();
 			}
+
+			// ---------------------------------------------------------------------- Force cache setup
+
+			#ifdef TE_RENDER_GL_CACHE
+			if(forceCacheSetup)
+				forceCacheSetup = false;
+			#endif
 		}
 
 		teRenderGL * GetRender()

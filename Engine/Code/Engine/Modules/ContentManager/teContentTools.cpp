@@ -235,7 +235,7 @@ namespace te
 
 			for(u32 i = 0; i < skeleton->framesCount; i++)
 			{
-				skeleton->CalculateSkin(0, i);
+				skeleton->CalculateSkin(teVector2duh(0, i));
 				teDualQuaternion * skin = skeleton->GetSkin();
 
 				teVector3df pos;

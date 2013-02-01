@@ -404,20 +404,26 @@ namespace te
 
 							if(scenePack.surfaces[from].surfaceIndex != u32Max)
 							{
-								video::teSurfaceData * surfData = reinterpret_cast<video::teSurfaceData*>(contentPack.surfaceData.At(scenePack.surfaces[from].surfaceIndex));
+								video::teSurfaceData * surfaceData = reinterpret_cast<video::teSurfaceData*>(contentPack.surfaceData.At(scenePack.surfaces[from].surfaceIndex));
 
-								if(surfData->skeletonIndex != u32Max)
+								if(surfaceData->skeletonIndex != u32Max)
 								{
-									scene::teSkeleton * skeleton = (scene::teSkeleton*)contentPack.skeletonData.At(surfData->skeletonIndex);
-									skeleton->CalculateSkin(scenePack.surfaces[from].skeletonLayer[0], scenePack.surfaces[from].skeletonFrame[0], scenePack.surfaces[from].skeletonLayer[1], scenePack.surfaces[from].skeletonFrame[1], scenePack.surfaces[from].skeletonDelta);
+									scene::teSkeleton * skeleton = (scene::teSkeleton*)contentPack.skeletonData.At(surfaceData->skeletonIndex);
+									skeleton->CalculateSkin(scenePack.surfaces[from].blendPairs, scenePack.surfaces[from].blendTimes, scenePack.surfaces[from].blendMode);
 								}
 
-								u32 matTemp = surfData->materialIndex;
+								u32 matTemp = surfaceData->materialIndex;
 								if(scenePack.surfaces[from].renderAsset.IsValid())
-									surfData->materialIndex = scenePack.surfaces[from].renderAsset.materialIndex;
-								RenderBatch(surfData);
+									surfaceData->materialIndex = scenePack.surfaces[from].renderAsset.materialIndex;
+								//RenderBatch(surfData);
 
-								surfData->materialIndex = matTemp;
+								video::GetRender()->Render(contentPack, surfaceData, scenePack.surfaces[from].color);
+
+								u32 aproxDataSize = contentPack.surfaceLayers[surfaceData->layersIndex].stride[video::SLT_POSITION] * surfaceData->vertexCount + contentPack.surfaceLayers[surfaceData->layersIndex].stride[video::SLT_INDEXES] * surfaceData->indexCount;
+								statistic.batchUtilization += 100.0f * ((f32)aproxDataSize) / ((f32)surfaceData->dataSize);
+								++statistic.dipCounts;
+
+								surfaceData->materialIndex = matTemp;
 							}
 
 							++from;

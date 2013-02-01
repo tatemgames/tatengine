@@ -171,10 +171,10 @@ namespace te
 				//teVector2duh uv1 = metric.uv1;
 				//teVector2duh uv2 = metric.uv2;
 
-				vertexes[0].Set(plu, teVector2duh(uv1.x, uv1.y), charColor);
-				vertexes[1].Set(pld, teVector2duh(uv1.x, uv2.y), charColor);
-				vertexes[2].Set(pru, teVector2duh(uv2.x, uv1.y), charColor);
-				vertexes[3].Set(prd, teVector2duh(uv2.x, uv2.y), charColor);
+				vertexes[0].Set(plu, teVector2duh(uv1.x, uv1.y), teColor4u(teColor4f(charColor) * teColor4f(text.color)));
+				vertexes[1].Set(pld, teVector2duh(uv1.x, uv2.y), teColor4u(teColor4f(charColor) * teColor4f(text.color)));
+				vertexes[2].Set(pru, teVector2duh(uv2.x, uv1.y), teColor4u(teColor4f(charColor) * teColor4f(text.color)));
+				vertexes[3].Set(prd, teVector2duh(uv2.x, uv2.y), teColor4u(teColor4f(charColor) * teColor4f(text.color)));
 
 				indexes[0] = batch->vertexCount + 0;
 				indexes[1] = batch->vertexCount + 1;

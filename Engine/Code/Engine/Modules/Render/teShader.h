@@ -142,6 +142,8 @@ namespace te
 
 			void DisableAttributes();
 
+			TE_FORCE_INLINE u1 IsAvailable(EUniformType type) const {return pass[currentPass].uniforms[type] != -1;}
+
 			#ifdef TE_RENDER_GL_SHADERS
 
 			TE_INLINE void SetUniform(EUniformType type, f32 x)							{if(IsAvailable(type)) tglUniform1f(pass[currentPass].uniforms[type], x);}
@@ -251,8 +253,6 @@ namespace te
 
 			tePassInfo pass[SP_MAX];
 			EShaderPass currentPass;
-
-			TE_INLINE u1 IsAvailable(EUniformType type) const {return pass[currentPass].uniforms[type] != -1;}
 
 			void BuildPass(EShaderPass passType);
 

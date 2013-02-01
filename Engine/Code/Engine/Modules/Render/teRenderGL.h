@@ -93,9 +93,18 @@ namespace te
 				:size(setSize), position(setPosition), scissorSize(setScissorSize), scissorPosition(setScissorPosition)
 			{
 			}
+
+			TE_INLINE u1 IsEqual(const teViewport & other) const {return (size == other.size) && (position == other.position) && (scissorSize == other.scissorSize) && (scissorPosition == other.scissorPosition);}
+			TE_INLINE u1 operator == (const teViewport & other) const {return IsEqual(other);}
+			TE_INLINE u1 operator != (const teViewport & other) const {return !IsEqual(other);}
 		};
 
-		//#define TE_RENDER_GL_CACHE
+		#define TE_RENDER_GL_CACHE
+		#define TE_RENDER_GL_VAO
+
+		#ifdef TE_RENDER_GL_VAO
+		const u32 teRenderGLVAOMax = u8Max;
+		#endif
 
 		#if defined(TE_RENDER_GL)
 
@@ -131,7 +140,7 @@ namespace te
 			void Begin();
 			void End();
 
-			void Render(const scene::teContentPack & contentPack, teSurfaceData * surface);
+			void Render(const scene::teContentPack & contentPack, teSurfaceData * surface, const teColor4u & overrideDiffuseColor = teColor4u(u8Max, u8Max, u8Max, u8Max));
 
 			const teRenderStatistic & GetRenderStatistic() const {return renderStatistic;}
 
@@ -151,14 +160,17 @@ namespace te
 			teRenderStatistic renderStatistic;
 
 			#ifdef TE_RENDER_GL_CACHE
-
 				teViewport cacheViewport;
-				u32 curBlend;
-				u32 curTextureID;
-				u8 curDepthFlag;
+				u32 cachedBlend;
+				u32 cachedTextureID[teMaterialMaxTextures];
+				u8 cachedStateFlags;
+				u1 forceCacheSetup;
+			#endif
 
-				u32 vao[256];
-				teSurfaceData * vaoSurf[256];
+			#ifdef TE_RENDER_GL_VAO
+				u32 vao[teRenderGLVAOMax];
+				teSurfaceData * vaoSurfaces[teRenderGLVAOMax];
+				teVector2d<teptr_t> vaoSurfaceBoundCheck;
 				u32 vbo;
 				u1 vboFisrtFrame;
 			#endif

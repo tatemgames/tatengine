@@ -25,6 +25,9 @@ namespace te
 				:scene(setScene)
 			{
 				SetLayer(0.0f);
+				layerOld = 0;
+				frameOld = 0;
+				blendTime = 0;
 			}
 
 			TE_INLINE ~teActorSkeletonAnimation()
@@ -61,26 +64,44 @@ namespace te
 					u32 fr2 = (fr_t + 1) % (skeleton->GetFramesCount(layer) - 1);
 					u32 fr3 = (fr_t + 2) % (skeleton->GetFramesCount(layer) - 1);
 
+					u32 fro = fr_t % (skeleton->GetFramesCount(layerOld) - 1);
+					u32 fro2 = (fr_t + 1) % (skeleton->GetFramesCount(layerOld) - 1);
+					u32 fro3 = (fr_t + 2) % (skeleton->GetFramesCount(layerOld) - 1);
+
 					if(!fr3)
 						OnLoop();
 
-					surface->skeletonFrame[0] = fr;
-					surface->skeletonFrame[1] = fr2;
+					if(blendTime)
+					{
+						blendTime--;
 
-					surface->skeletonLayer[0] = layer;
-					surface->skeletonLayer[1] = layer;
+						surface->blendPairs[0].SetXY(layerOld, fro);
+						surface->blendPairs[1].SetXY(layerOld, fro2);
+						surface->blendPairs[2].SetXY(layer, fr);
+						surface->blendPairs[3].SetXY(layer, fr2);
 
-					f32 delta = (f32)((time3.ToSeconds() - (f64)fr_t * fps) / fps);
-					//f32 delta = (TE_TIME_32 - (f64)fr_t * fps) / fps;
-					surface->skeletonDelta = teClamp(delta, 0.0f, 1.0f);
+						f32 delta1 = (f32)((time3.ToSeconds() - (f64)fr_t * fps) / fps);
+						f32 delta2 = (((f32)blendTime) / 15.0f);
+						//f32 delta = (TE_TIME_32 - (f64)fr_t * fps) / fps;
+						surface->blendTimes[0] = teClamp(delta1, 0.0f, 1.0f);
+						surface->blendTimes[1] = teClamp(delta1, 0.0f, 1.0f);
+						surface->blendTimes[2] = teClamp(1.0f - delta2, 0.0f, 1.0f);
+						surface->blendMode = 0x1 + 0x2 + 0x4 + 0x8;// + 0x4 + 0x8;
+					}
+					else
+					{
+						surface->blendPairs[0].SetXY(layer, fr);
+						surface->blendPairs[1].SetXY(layer, fr2);
+
+						f32 delta = (f32)((time3.ToSeconds() - (f64)fr_t * fps) / fps);
+						//f32 delta = (TE_TIME_32 - (f64)fr_t * fps) / fps;
+						surface->blendTimes[0] = teClamp(delta, 0.0f, 1.0f);
+						surface->blendMode = 0x1 + 0x2;
+					}
 				}
 				else
 				{
-					surface->skeletonFrame[0] = 0;
-					surface->skeletonFrame[1] = 0;
-					surface->skeletonLayer[0] = 0;
-					surface->skeletonLayer[1] = 0;
-					surface->skeletonDelta = 0.0f;
+					surface->blendMode = 0x0;
 				}
 			}
 
@@ -89,6 +110,10 @@ namespace te
 				if((((u16)setLayer) != layer) || (!enableAnimation))
 				{
 					enableAnimation = true;
+
+					layerOld = layer;
+					frameOld = frame;
+					blendTime = 15;
 					
 					layer = (u16)setLayer;
 					frame = (u16)setFrame;
@@ -121,6 +146,8 @@ namespace te
 			core::teTime2 time;
 			u16 layer;
 			u16 frame;
+
+			u16 layerOld, frameOld, blendTime;
 			u1 enableAnimation;
 		};
 
