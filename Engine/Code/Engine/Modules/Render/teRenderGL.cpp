@@ -101,7 +101,20 @@ namespace te
 			glEnable(GL_CULL_FACE);
 			glFrontFace(GL_CCW);
 			glCullFace(GL_BACK);
-			
+
+			glViewport(viewport.position.x, viewport.position.y, viewport.size.x, viewport.size.y);
+			if(viewport.scissorSize.GetMaxComponent() > 0)
+			{
+				glEnable(GL_SCISSOR_TEST);
+				glScissor(viewport.scissorPosition.x, viewport.scissorPosition.y, viewport.scissorSize.x, viewport.scissorSize.y);
+			}
+			else
+				glDisable(GL_SCISSOR_TEST);
+
+			#ifdef TE_RENDER_GL_CACHE
+				cacheViewport = viewport;
+			#endif
+
 			#ifndef TE_PLATFORM_IPHONE
 				glEnable(GL_TEXTURE_2D);
 			#endif
