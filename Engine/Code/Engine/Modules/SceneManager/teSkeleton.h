@@ -90,7 +90,44 @@ namespace te
 			
 			u1 CalculateSkin(const teVector2duh & pair0)
 			{
-				return CalculateSkin(pair0, pair0, 0.0f);
+				const teSkeletonFrame * frames = GetFrames();
+				teDualQuaternion * skin = GetSkin();
+
+				u32 frameIndex[1] = {u32Max};
+
+				for(u32 i = 0; i < framesCount; ++i) if((frames[i].layer == pair0.x) && (frames[i].frame == pair0.y)) {frameIndex[0] = i; break;}
+
+				if(frameIndex[0] == u32Max)
+					return false;
+
+				for(u32 boneIndex = 0; boneIndex < bonesCount; ++boneIndex)
+				{
+					teQuaternionf a;
+					teVector3df b;
+					GetBoneKey(boneIndex, frameIndex[0])->Get(a, b);
+
+					teDualQuaternion dqc;
+					dqc.SetFrom(a, b);
+
+					if(boneIndex)
+					{
+						teDualQuaternion dqp = skin[bones[boneIndex].parent];
+						dqc.MultiplyBy(dqp);
+						skin[boneIndex] = dqc;
+					}
+					else
+						skin[boneIndex] = dqc;
+				}
+
+				for(u32 boneIndex = 0; boneIndex < bonesCount; ++boneIndex)
+				{
+					teDualQuaternion bp;
+					GetBoneKey(boneIndex)->GetDualQuaternion(bp);
+					bp.MultiplyBy(skin[boneIndex]);
+					skin[boneIndex] = bp;
+				}
+
+				return true;
 			}
 
 			u1 CalculateSkin(const teVector2duh & pair0, const teVector2duh & pair1, f32 blend0)
@@ -259,7 +296,7 @@ namespace te
 
 				switch(count)
 				{
-				case 0: return false;
+				case 0: return CalculateSkin(teVector2duh(0, 0));
 				case 1: return CalculateSkin(pairs[ind[0]]);
 				case 2: return CalculateSkin(pairs[ind[0]], pairs[ind[1]], times[0]);
 				case 3: return CalculateSkin(pairs[ind[0]], pairs[ind[1]], pairs[ind[2]], times[0], times[1]);

@@ -24,10 +24,15 @@ namespace te
 			TE_INLINE teActorSkeletonAnimation(teFastScene * setScene)
 				:scene(setScene)
 			{
-				SetLayer(0.0f);
+				enableAnimation = true;
+
 				layerOld = 0;
 				frameOld = 0;
 				blendTime = 0;
+				layer = 0;
+				frame = 0;
+
+				time.FromSeconds(TE_TIME_32);
 			}
 
 			TE_INLINE ~teActorSkeletonAnimation()
