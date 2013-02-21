@@ -208,7 +208,7 @@ namespace te
 			}
 			else
 			{
-				core::IBuffer * fileBuffer = core::GetFileManager()->OpenFile(fileName, core::CFileBuffer::FWM_READ);
+				core::IBuffer * fileBuffer = core::GetFileManager()->OpenFile(fileName, core::CFileBuffer::FWM_READ, false, false);
 				AddFile(archiveName, fileBuffer);
 				TE_SAFE_DROP(fileBuffer);
 			}
@@ -277,7 +277,6 @@ namespace te
 			else
 				debugStringPool.Clear();
 		}
-
 
 		void teZipMaker::ReserveDataSize(u32 size)
 		{
