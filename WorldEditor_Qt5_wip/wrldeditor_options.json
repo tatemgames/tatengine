@@ -1,0 +1,5 @@
+
+{
+	"bakeryBin": "../Tools/Bakery/Bin/Bakery_Win_Release.exe",
+	"bakeryConfig": "../Tools/Bakery/Media/bakery.json"
+}
