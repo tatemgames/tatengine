@@ -53,6 +53,63 @@ namespace te
 
 			return (a >= 0.0f) && (b >= 0.0f) && (a + b <= 1.0f);
 		}
+
+		TE_FUNC f32 LineSegmentsSide(const teVector2df & p, const teVector2df & q, const teVector2df & a, const teVector2df & b)
+		{
+			f32 z1 = (b.x - a.x) * (p.y - a.y) - (p.x - a.x) * (b.y - a.y);
+			f32 z2 = (b.x - a.x) * (q.y - a.y) - (q.x - a.x) * (b.y - a.y);
+			return z1 * z2;
+		}
+
+		TE_FUNC u1 IsLineSegmentIntersectTriangle(const teVector2df & lineSegmentA, const teVector2df & lineSegmentB, const teVector2df & trianglePointA, const teVector2df & trianglePointB, const teVector2df & trianglePointC)
+		{
+			f32 f1 = LineSegmentsSide(lineSegmentA, trianglePointC, trianglePointA, trianglePointB);
+			f32 f2 = LineSegmentsSide(lineSegmentB, trianglePointC, trianglePointA, trianglePointB);
+			f32 f3 = LineSegmentsSide(lineSegmentA, trianglePointA, trianglePointB, trianglePointC);
+			f32 f4 = LineSegmentsSide(lineSegmentB, trianglePointA, trianglePointB, trianglePointC);
+			f32 f5 = LineSegmentsSide(lineSegmentA, trianglePointB, trianglePointC, trianglePointA);
+			f32 f6 = LineSegmentsSide(lineSegmentB, trianglePointB, trianglePointC, trianglePointA);
+			f32 f7 = LineSegmentsSide(trianglePointA, trianglePointB, lineSegmentA, lineSegmentB);
+			f32 f8 = LineSegmentsSide(trianglePointB, trianglePointC, lineSegmentA, lineSegmentB);
+
+			if((f1 < 0 && f2 < 0) || (f3 < 0 && f4 < 0) || (f5 < 0 && f6 < 0) || (f7 > 0 && f8 > 0))
+				return false;
+			else if((f1 == 0 && f2 == 0) || (f3 == 0 && f4 == 0) || (f5 == 0 && f6 == 0))
+				return true;
+			else if((f1 <= 0 && f2 <= 0) || (f3 <= 0 && f4 <= 0) || (f5 <= 0 && f6 <= 0) || (f7 >= 0 && f8 >= 0))
+				return true;
+			else if(f1 > 0 && f2 > 0 && f3 > 0 && f4 > 0 && f5 > 0 && f6 > 0)
+				return false;
+			else
+				return true;
+		}
+
+		TE_FUNC u1 IsLineSegmentIntersectLineSegment(const teVector2df & lineSegment1A, const teVector2df & lineSegment1B, const teVector2df & lineSegment2A, const teVector2df & lineSegment2B, teVector2df * intersectionPoint = NULL)
+		{
+			teVector2df b = lineSegment1B - lineSegment1A;
+			teVector2df d = lineSegment2B - lineSegment2A;
+			teVector2df c = lineSegment2A - lineSegment1A;
+
+			f32 dot = b.GetDet(d);
+
+			if(teAbs(dot) < teRoundingError32)
+				return false;
+
+			f32 dot2 = c.GetDet(d) / dot;
+
+			if((dot2 < 0) || (dot2 > 1))
+				return false;
+
+			f32 dot3 = c.GetDet(b) / dot;
+
+			if((dot3 < 0) || (dot3 > 1))
+				return false;
+
+			if(intersectionPoint)
+				*intersectionPoint = lineSegment1A + b * dot2;
+
+			return true;
+		}
 	}
 }
 

@@ -239,7 +239,7 @@ namespace te
 			{
 				InitLua();
 
-				metaId = GetNewMetaId();
+				metaId = GetNewMetaId(scene);
 				FormMetaName();
 
 				NamespaceInitialization();
@@ -422,8 +422,18 @@ namespace te
 			// ---------------------------------------------------------------------------------------- Namespace management
 
 			static u32 metaIdCounter;
+			static u8 metaIdCounterLastStage;
 
-			static u32 GetNewMetaId() {TE_ASSERT(metaIdCounter < 1000); return metaIdCounter++;}
+			static u32 GetNewMetaId(teFastScene * checkScene)
+			{
+				if(metaIdCounterLastStage != checkScene->GetStage())
+				{
+					metaIdCounterLastStage = checkScene->GetStage();
+					metaIdCounter = 0;
+				}
+				TE_ASSERT_NODEBUG(metaIdCounter < 1000);
+				return metaIdCounter++;
+			}
 			void FormMetaName()
 			{
 				s32 l = sprintf(metaName, "meta%04i", metaId);

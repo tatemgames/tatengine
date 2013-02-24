@@ -50,6 +50,7 @@ namespace te
 
 		#ifdef TE_MODULE_SCRIPTING
 			u32 teActorScriptLua::metaIdCounter = 0;
+			u8 teActorScriptLua::metaIdCounterLastStage = 0;
 			lua_State * teActorScriptLua::L = NULL;
 			u32 teActorScriptLua::stateUsageCount = 0;
 			#ifdef TE_DEBUG
