@@ -324,7 +324,7 @@ namespace te
 			Get(2, 2) = scale.z;
 
 			// rotate
-			*this *= rotM;
+			*this = rotM * (*this);
 
 			//translate
 			Get(0, 3) += pos.x;
