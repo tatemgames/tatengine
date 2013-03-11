@@ -27,7 +27,6 @@ namespace te
 							TE_LOG_ERR("OpenGL Device Dont Support " #__Name); \
 						}
 
-			
 			// Extension functions pointers
 			PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers;
 			PFNGLDELETEFRAMEBUFFERSPROC glDeleteFramebuffers;
@@ -45,6 +44,7 @@ namespace te
 			PFNGLGENBUFFERSPROC glGenBuffers;
 			PFNGLDELETEBUFFERSPROC glDeleteBuffers;
 			PFNGLBUFFERDATAPROC glBufferData;
+			PFNGLBUFFERSUBDATAPROC glBufferSubData;
 			PFNGLBINDBUFFERPROC glBindBuffer;
 			PFNGLMAPBUFFERPROC glMapBuffer;
 			PFNGLUNMAPBUFFERPROC glUnmapBuffer;
@@ -143,6 +143,7 @@ namespace te
 				TE_GET_EXT(glGenBuffers, PFNGLGENBUFFERSPROC)
 				TE_GET_EXT(glDeleteBuffers, PFNGLDELETEBUFFERSPROC)
 				TE_GET_EXT(glBufferData, PFNGLBUFFERDATAPROC)
+				TE_GET_EXT(glBufferSubData, PFNGLBUFFERSUBDATAPROC)
 				TE_GET_EXT(glBindBuffer, PFNGLBINDBUFFERPROC)
 				TE_GET_EXT(glMapBuffer, PFNGLMAPBUFFERPROC)
 				TE_GET_EXT(glUnmapBuffer, PFNGLUNMAPBUFFERPROC)
@@ -408,6 +409,11 @@ namespace te
 		void tglBufferData(GLenum Target, GLsizeiptr Size, const GLvoid * Data, GLenum Usage)
 		{
 			TE_EXT_BUFFER(glBufferData, (Target, Size, Data, Usage))
+		}
+
+		void tglBufferSubData(GLenum Target, GLsizeiptr Offset, GLsizeiptr Size, const GLvoid * Data)
+		{
+			TE_EXT_BUFFER(glBufferSubData, (Target, Offset, Size, Data))
 		}
 		
 		//! Bind Buffer

@@ -380,6 +380,13 @@ namespace te
 				}
 			}
 
+			for(u32 surfaceOffset = 0; surfaceOffset < surfaceData.GetAlive();)
+			{
+				video::teSurfaceData * data = reinterpret_cast<video::teSurfaceData*>(surfaceData.At(surfaceOffset));
+				data->flags |= video::SDF_WAS_CHANGED;
+				surfaceOffset += sizeof(video::teSurfaceData) + data->dataSize;
+			}
+
 			finalized = true;
 		}
 

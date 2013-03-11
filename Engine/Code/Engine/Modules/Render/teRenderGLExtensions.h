@@ -54,6 +54,8 @@ namespace te
 		void tglDeleteBuffers(GLsizei Count, const GLuint * Buffers);
 
 		void tglBufferData(GLenum Target, GLsizeiptr Size, const GLvoid * Data, GLenum Usage);
+
+		void tglBufferSubData(GLenum Target, GLsizeiptr Offset, GLsizeiptr Size, const GLvoid * Data);
 		
 		void tglBindBuffer(GLenum Target, GLuint Buffer);
 

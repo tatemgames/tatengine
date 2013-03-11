@@ -37,11 +37,15 @@ namespace te
 			cachedStateFlags = u8Max;
 			cachedShaderType = u8Max;
 			cachedShaderPass = u8Max;
+			cachedBindedVertexLayer = u8Max;
+			#ifdef TE_RENDER_GL_VAO
+				cachedVBO = 0;
+				cachedVAO = 0;
+			#endif
 			#endif
 
 			#ifdef TE_RENDER_GL_VAO
 			vbo = 0;
-			vboFisrtFrame = true;
 
 			for(u32 i = 0; i < teRenderGLVAOMax; ++i)
 				vao[i] = u32Max;
@@ -122,13 +126,6 @@ namespace te
 			#ifdef TE_RENDER_GL_CACHE
 				forceCacheSetup = true;
 			#endif
-
-			#ifdef TE_RENDER_GL_VAO
-				if(!vbo)
-					tglGenBuffers(1, &vbo);
-
-				vboFisrtFrame = true;
-			#endif
 		}
 
 		void teRenderGL::End()
@@ -171,20 +168,37 @@ namespace te
 
 			// ---------------------------------------------------------------------- Upload new vbo
 
-			if(vboFisrtFrame && contentPack.surfaceData.GetAlive())
+			if(vbo)
 			{
-				vboFisrtFrame = false;
-
-				static u16 temp = 0;
-
-				if(temp)
-					--temp;
-				else
+				if(surface->flags & SDF_WAS_CHANGED)
 				{
-					temp = 0; // wip
+					if(contentPack.surfaceData.IsFromThisArray((u8*)surface))
+					{
+						#ifdef TE_RENDER_GL_CACHE
+						if((cachedVBO != vbo) || forceCacheSetup)
+						{
+						#endif
+							tglBindBuffer(GL_ARRAY_BUFFER, vbo);
+						#ifdef TE_RENDER_GL_CACHE
+							cachedVBO = vbo;
+						}
+						#endif
+						tglBufferSubData(GL_ARRAY_BUFFER, (size_t)contentPack.surfaceData.GetIndexInArray((u8*)surface), (size_t)(sizeof(teSurfaceData) + surface->dataSize), surface);
+					}
+
+					surface->flags &= ~SDF_WAS_CHANGED;
+				}
+			}
+			else
+			{
+				if(contentPack.surfaceData.GetAlive())
+				{
+					tglGenBuffers(1, &vbo);
 					tglBindBuffer(GL_ARRAY_BUFFER, vbo);
+					#ifdef TE_RENDER_GL_CACHE
+					cachedVBO = vbo;
+					#endif
 					tglBufferData(GL_ARRAY_BUFFER, contentPack.surfaceData.GetAlive(), contentPack.surfaceData.GetPool(), GL_DYNAMIC_DRAW);
-					//tglBindBuffer(GL_ARRAY_BUFFER, 0);
 				}
 			}
 
@@ -232,6 +246,11 @@ namespace te
 					offset += surface->dataSize + sizeof(teSurfaceData);
 					counter++; // inc for each surface
 				}
+
+				#ifdef TE_RENDER_GL_CACHE
+					cachedVBO = vbo;
+					cachedVAO = 0;
+				#endif
 			}
 			#endif
 
@@ -418,13 +437,30 @@ namespace te
 			if(surfaceIdVAO < u32Max)
 			{ // with vao
 				
-				tglBindVertexArray(vao[surfaceIdVAO]);
+				#ifdef TE_RENDER_GL_CACHE
+				if((cachedVAO != vao[surfaceIdVAO]) || forceCacheSetup)
+				{
+				#endif
+					tglBindVertexArray(vao[surfaceIdVAO]);
+				#ifdef TE_RENDER_GL_CACHE
+					cachedVAO = vao[surfaceIdVAO];
+				}
+				#endif
 
 				// rebind vertex structure if shader changed
 				if((vaoSurfaceShaderBind[surfaceIdVAO].x != shaderPass) || (vaoSurfaceShaderBind[surfaceIdVAO].y != states.shaderIndex))
 				{
-					tglBindBuffer(GL_ARRAY_BUFFER, vbo);
-					tglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
+					#ifdef TE_RENDER_GL_CACHE
+					if((cachedVBO != vbo) || forceCacheSetup)
+					{
+					#endif
+						tglBindBuffer(GL_ARRAY_BUFFER, vbo);
+						tglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
+					#ifdef TE_RENDER_GL_CACHE
+						cachedVBO = vbo;
+					}
+					#endif
+
 					shader.BindAttributes(surface, contentPack.surfaceLayers[surface->layersIndex], true, (teptr_t)contentPack.surfaceData.GetPool());
 					vaoSurfaceShaderBind[surfaceIdVAO].x = shaderPass;
 					vaoSurfaceShaderBind[surfaceIdVAO].y = states.shaderIndex;
@@ -442,11 +478,33 @@ namespace te
 			#endif
 			{ // without VAO
 				#ifdef TE_RENDER_GL_VAO
-					tglBindVertexArray(0);
-					tglBindBuffer(GL_ARRAY_BUFFER, 0);
-					tglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+					#ifdef TE_RENDER_GL_CACHE
+					if((cachedVAO != 0) || forceCacheSetup)
+					{
+					#endif
+						tglBindVertexArray(0);
+					#ifdef TE_RENDER_GL_CACHE
+						cachedVAO = 0;
+					}
+					#endif
+
+					#ifdef TE_RENDER_GL_CACHE
+					if((cachedVBO != 0) || forceCacheSetup)
+					{
+					#endif
+						tglBindBuffer(GL_ARRAY_BUFFER, 0);
+						tglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+					#ifdef TE_RENDER_GL_CACHE
+						cachedVBO = 0;
+					}
+					#endif
 				#endif
-				shader.BindAttributes(surface, contentPack.surfaceLayers[surface->layersIndex]);
+
+				//if((cachedBindedVertexLayer != surface->layersIndex) || forceCacheSetup)
+				//{
+					shader.BindAttributes(surface, contentPack.surfaceLayers[surface->layersIndex]);
+				//	cachedBindedVertexLayer = surface->layersIndex;
+				//}
 
 				glDrawElements(surface->GetOperationGLType(),
 					surface->indexCount,

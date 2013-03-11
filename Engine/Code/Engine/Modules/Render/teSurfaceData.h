@@ -153,6 +153,11 @@ namespace te
 			TE_INLINE u8 GetVariableSize(u8 layer) const {return GetSurfaceVariableSize((ESurfaceVariableType)variableType[layer]);}
 		};
 
+		enum ESurfaceDataFlags
+		{
+			SDF_WAS_CHANGED = 0x1,
+		};
+
 		#pragma pack(push, 1)
 
 		struct teSurfaceData
@@ -162,7 +167,8 @@ namespace te
 			u32 vertexCount, indexCount;
 			u32 dataSize;
 			u32 indexesOffset;
-			u16 reserved;
+			u8 flags;
+			u8 reserved;
 			u8 operationType;
 			u8 layersIndex;
 			u8 data[];

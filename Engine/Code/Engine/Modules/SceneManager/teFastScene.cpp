@@ -619,6 +619,8 @@ namespace te
 
 		void teFastScene::RenderBatch(video::teSurfaceData * batch)
 		{
+			batch->flags |= video::SDF_WAS_CHANGED;
+
 			video::GetRender()->Render(contentPack, batch);
 
 			// fast and good for statistic, but work ONLY with interleaved surface data

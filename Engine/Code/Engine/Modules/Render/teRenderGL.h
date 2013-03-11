@@ -166,6 +166,11 @@ namespace te
 				u8 cachedStateFlags;
 				u8 cachedShaderType;
 				u8 cachedShaderPass;
+				u8 cachedBindedVertexLayer;
+				#ifdef TE_RENDER_GL_VAO
+					u32 cachedVBO;
+					u32 cachedVAO;
+				#endif
 				u1 forceCacheSetup;
 			#endif
 
@@ -175,7 +180,6 @@ namespace te
 				teVector2d<u8> vaoSurfaceShaderBind[teRenderGLVAOMax]; // pass and type
 				teVector2d<teptr_t> vaoSurfaceBoundCheck;
 				u32 vbo;
-				u1 vboFisrtFrame;
 			#endif
 		};
 		
