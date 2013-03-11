@@ -27,17 +27,23 @@
 	
 	if([[[UIDevice currentDevice] systemVersion] doubleValue] >= 4.0)
 	{
+		#ifdef TE_LAUNCHER_IOS_SUPPORT_IPHONE_RETINA
 		if([UIScreen mainScreen].currentMode.size.width == 640)
 			scaleFactor = 2.0f;
-		else if([UIScreen mainScreen].currentMode.size.width == 2048)
+		#endif
+		#ifdef TE_LAUNCHER_IOS_SUPPORT_IPAD_RETINA
+		if([UIScreen mainScreen].currentMode.size.width == 2048)
 			scaleFactor = 2.0f;
+		#endif
 	}
 }
 
 - (NSUInteger)supportedInterfaceOrientations
 {
-	return UIInterfaceOrientationMaskLandscape;
-	
+	return TE_LAUNCHER_IOS_START_ORIENTATION;
+
+	// TODO platform doesnt exist when this code executes
+	/*
 	if(!te::core::GetPlatform())
 		return UIInterfaceOrientationMaskPortrait;
 	
@@ -55,6 +61,7 @@
 		supportedOrientationsMask |= UIInterfaceOrientationLandscapeRight;
 
 	return supportedOrientationsMask;
+	*/
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation

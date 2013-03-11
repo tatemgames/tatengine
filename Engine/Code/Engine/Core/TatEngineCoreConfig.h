@@ -114,6 +114,14 @@
 
 //#define TE_LAUNCHER_CUSTOM_MAIN // define custom main for launchers
 
+// enable scale factor 2 when resolution equal 640
+#define TE_LAUNCHER_IOS_SUPPORT_IPHONE_RETINA
+
+// enable scale factor 2 when resolution equal 2048
+#define TE_LAUNCHER_IOS_SUPPORT_IPAD_RETINA
+
+#define TE_LAUNCHER_IOS_START_ORIENTATION UIInterfaceOrientationMaskLandscape
+
 // -------------------------------------------------------------- Application Config
 
 #define TE_APP_CONFIG
