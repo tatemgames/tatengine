@@ -28,6 +28,8 @@ namespace te
 			shaderPass = SP_GEN_DIFFUSE;
 
 			currentRender = this;
+			
+			statistic.Clear();
 
 			#ifdef TE_RENDER_GL_CACHE
 			forceCacheSetup = true;
@@ -101,6 +103,8 @@ namespace te
 		void teRenderGL::Begin()
 		{
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			
+			statistic.Clear();
 
 			glEnable(GL_CULL_FACE);
 			glFrontFace(GL_CCW);
@@ -163,6 +167,8 @@ namespace te
 		{
 			if(!surface->IsMaterialValid())
 				return;
+			
+			++statistic.operationsCount;
 
 			#ifdef TE_RENDER_GL_VAO
 
@@ -183,6 +189,10 @@ namespace te
 							cachedVBO = vbo;
 						}
 						#endif
+						
+						++statistic.vboUploads;
+						statistic.vboUploadsSize += sizeof(teSurfaceData) + surface->dataSize;
+						
 						tglBufferSubData(GL_ARRAY_BUFFER, (size_t)contentPack.surfaceData.GetIndexInArray((u8*)surface), (size_t)(sizeof(teSurfaceData) + surface->dataSize), surface);
 					}
 

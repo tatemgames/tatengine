@@ -63,21 +63,26 @@ namespace te
 
 		struct teRenderStatistic
 		{
-			u32 trianglesCount;
+			// TODO restore
+			//u32 trianglesCount;
 			u32 operationsCount;
-			u32 materialChange;
-			u32 texturesChange;
-			u32 matrixChange;
-			u32 shaderChange;
+			//u32 materialChange;
+			//u32 texturesChange;
+			//u32 matrixChange;
+			//u32 shaderChange;
+			u32 vboUploads;
+			u32 vboUploadsSize;
 
 			void Clear()
 			{
-				trianglesCount = 0;
+				//trianglesCount = 0;
 				operationsCount = 0;
-				materialChange = 0;
-				texturesChange = 0;
-				matrixChange = 0;
-				shaderChange = 0;
+				//materialChange = 0;
+				//texturesChange = 0;
+				//matrixChange = 0;
+				//shaderChange = 0;
+				vboUploads = 0;
+				vboUploadsSize = 0;
 			}
 		};
 		
@@ -142,7 +147,7 @@ namespace te
 
 			void Render(const scene::teContentPack & contentPack, teSurfaceData * surface, const teColor4u & overrideDiffuseColor = teColor4u(u8Max, u8Max, u8Max, u8Max));
 
-			const teRenderStatistic & GetRenderStatistic() const {return renderStatistic;}
+			const teRenderStatistic & GetRenderStatistic() const {return statistic;}
 
 		protected:
 			teRenderContext * CurrentContext;
@@ -157,7 +162,7 @@ namespace te
 
 			EShaderPass shaderPass;
 
-			teRenderStatistic renderStatistic;
+			teRenderStatistic statistic;
 
 			#ifdef TE_RENDER_GL_CACHE
 				teViewport cacheViewport;

@@ -54,18 +54,33 @@ namespace te
 			f32 batchUtilization;
 			u32 materialMissesSprite;
 			u32 materialMissesText;
+			
+			f32 timeActors; // in ms
+			f32 timeTransforms;
+			f32 timeUpdate;
+			f32 timeRender;
 
-			inline void Clear()
+			TE_INLINE void Clear()
+			{
+				ClearRender();
+				
+				timeActors = 0.0f;
+				timeTransforms = 0.0f;
+				timeUpdate = 0.0f;
+				timeRender = 0.0f;
+			}
+			
+			TE_INLINE void ClearRender()
 			{
 				dipCounts = 0;
-				batchUtilization = 0;
+				batchUtilization = 0.0f;
 				materialMissesSprite = 0;
 				materialMissesText = 0;
 			}
 
-			inline teString ToString(teStringConcate & pool) const
+			TE_INLINE teString ToString(teStringConcate & pool) const
 			{
-				return pool.Add("dip %u ut %i% mms %u mmt %u", dipCounts, batchUtilization, materialMissesSprite, materialMissesText).BakeToString();
+				return pool.Add("dip %u ut %.2f mms %u mmt %u ta %.1f tt %.1f tu %.1f tr %.1f", dipCounts, batchUtilization, materialMissesSprite, materialMissesText, timeActors, timeTransforms, timeUpdate, timeRender).BakeToString();
 			}
 		};
 

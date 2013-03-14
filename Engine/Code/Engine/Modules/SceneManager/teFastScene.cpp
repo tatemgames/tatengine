@@ -158,16 +158,26 @@ namespace te
 
 		void teFastScene::OnUpdate()
 		{
+			TE_TIME_BEGIN(timeUpdate)
+			
 			// --------------------------------------------------------------- update actors
+
+			TE_TIME_BEGIN(timeActors)
 
 			scenePack.UpdateActors();
 
+			TE_TIME_END(timeActors)
+
 			// --------------------------------------------------------------- update transforms
 
+			TE_TIME_BEGIN(timeTransforms)
+			
 			teMatrix4f modelLocalTemp;
 
 			for(u32 i = 0; i < scenePack.transforms.GetAlive(); ++i) // TODO optimize matrices
 				CalculateTransformGlobalMatrix(scenePack, i);
+
+			TE_TIME_END(timeTransforms)
 
 			// --------------------------------------------------------------- update aabb
 
@@ -212,11 +222,19 @@ namespace te
 				Load(stageWaitForLoading);
 				stageWaitForLoading = u8Max;
 			}
+			
+			TE_TIME_END(timeUpdate)
+			
+			statistic.timeActors = (f32)timeActors.ToMilliSeconds();
+			statistic.timeTransforms = (f32)timeTransforms.ToMilliSeconds();
+			statistic.timeUpdate = (f32)timeUpdate.ToMilliSeconds();
 		}
 
 		void teFastScene::OnRender()
 		{
-			statistic.Clear();
+			TE_TIME_BEGIN(timeRender)
+
+			statistic.ClearRender();
 
 			ERenderCommandType lastCommand = RCT_INVALID;
 
@@ -510,6 +528,10 @@ namespace te
 
 			if(statistic.dipCounts)
 				statistic.batchUtilization /= (f32)statistic.dipCounts;
+			
+			TE_TIME_END(timeRender)
+			
+			statistic.timeRender = (f32)timeRender.ToMilliSeconds();
 		}
 
 		void teFastScene::Load(u8 stage, u1 deferred)
