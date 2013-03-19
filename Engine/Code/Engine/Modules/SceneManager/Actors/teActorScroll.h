@@ -251,7 +251,8 @@ namespace te
 				
 				if (teAbs(position - sOrigin) > scrollLim + scrollGap)
 				{
-					position = teAbs(position) / position * (scrollLim + scrollGap);
+					if(teAbs(position) > 0.0f)
+						position = teAbs(position) / position * (scrollLim /*+ scrollGap*/);
 					moveTouch.Flush();
 					StopMoving();
 				}
