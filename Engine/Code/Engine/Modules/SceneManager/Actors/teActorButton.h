@@ -58,10 +58,18 @@ namespace te
 				{
 					buttonCheckFrame = app::GetApplicationManager()->GetTick();
 
-					if(!anyPressed)
-						buttonGrabLayer = s16Min;
-					else
+					if(buttonForceGrab)
+					{
+						buttonForceGrab = false;
 						anyPressed = false;
+					}
+					else
+					{
+						if(!anyPressed)
+							buttonGrabLayer = s16Min;
+						else
+							anyPressed = false;
+					}
 				}
 
 				if(input::GetInputManager()->GetTouchesCount())
@@ -79,7 +87,9 @@ namespace te
 							if(!IsFlag(BF_UNDETECTABLE_WORK))
 								anyPressed = true;
 
-							if((buttonGrabLayer < assetLayer) && (!IsFlag(BF_DONT_GRAB)))
+							u1 canGrab = ((buttonGrabLayer < assetLayer) && (!buttonActiveOnlyGrabedLayer) || (buttonGrabLayer == assetLayer) && buttonActiveOnlyGrabedLayer);
+
+							if(canGrab && (!IsFlag(BF_DONT_GRAB)))
 								buttonGrabLayer = assetLayer;
 						}
 						
@@ -111,7 +121,7 @@ namespace te
 						if(IsTouchInside(input::GetInputManager()->GetTouch(0)) && wasTouchInside)
 						{
 							u1 grabOk = (buttonGrabLayer == assetLayer) || IsFlag(BF_DONT_GRAB);
-							u1 grabHigher = (buttonGrabLayer > assetLayer) && IsFlag(BF_DISABLE_IF_OTHER_GRABBED);
+							u1 grabHigher = (buttonGrabLayer > assetLayer) && IsFlag(BF_DISABLE_IF_OTHER_GRABBED) && (!buttonActiveOnlyGrabedLayer);
 
 							if(grabOk && (!grabHigher))
 							{
@@ -286,9 +296,18 @@ namespace te
 			}
 
 			// use it when you need to disable all buttons for current frame
-			static void ForceDisable(s16 grabOnLayer = s16Max)
+			static void ForceDisable(s16 grabOnLayer = s16Max, u1 activeOnlyThisLayer = false)
 			{
+				buttonForceGrab = true;
 				buttonGrabLayer = grabOnLayer;
+				buttonActiveOnlyGrabedLayer = activeOnlyThisLayer;
+			}
+
+			static void ClearForceDisable()
+			{
+				buttonForceGrab = false;
+				buttonGrabLayer = s16Min;
+				buttonActiveOnlyGrabedLayer = false;
 			}
 
 		protected:
@@ -306,6 +325,8 @@ namespace te
 
 			static u1 anyClicked;
 			static u1 anyPressed;
+			static u1 buttonActiveOnlyGrabedLayer;
+			static u1 buttonForceGrab;
 			static s16 buttonGrabLayer;
 			static u32 buttonCheckFrame;
 

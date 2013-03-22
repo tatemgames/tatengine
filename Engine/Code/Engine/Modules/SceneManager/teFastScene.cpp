@@ -44,6 +44,8 @@ namespace te
 	{
 		u1 teActorButton::anyClicked = false;
 		u1 teActorButton::anyPressed = false;
+		u1 teActorButton::buttonActiveOnlyGrabedLayer = false;
+		u1 teActorButton::buttonForceGrab = false;
 		s16 teActorButton::buttonGrabLayer = s16Min;
 		u32 teActorButton::buttonCheckFrame = 0;
 		teVector2df teActorViewportSizeWatcher::sizeRootScale(1.0f, 1.0f);
