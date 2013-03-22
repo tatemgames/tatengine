@@ -121,7 +121,7 @@ namespace te
 						if(IsTouchInside(input::GetInputManager()->GetTouch(0)) && wasTouchInside)
 						{
 							u1 grabOk = (buttonGrabLayer == assetLayer) || IsFlag(BF_DONT_GRAB);
-							u1 grabHigher = (buttonGrabLayer > assetLayer) && IsFlag(BF_DISABLE_IF_OTHER_GRABBED) && (!buttonActiveOnlyGrabedLayer);
+							u1 grabHigher = (buttonGrabLayer > assetLayer) && IsFlag(BF_DISABLE_IF_OTHER_GRABBED);// && (!buttonActiveOnlyGrabedLayer);
 
 							if(grabOk && (!grabHigher))
 							{
@@ -305,9 +305,12 @@ namespace te
 
 			static void ClearForceDisable()
 			{
-				buttonForceGrab = false;
-				buttonGrabLayer = s16Min;
-				buttonActiveOnlyGrabedLayer = false;
+				if(buttonForceGrab)
+				{
+					buttonForceGrab = false;
+					buttonGrabLayer = s16Min;
+					buttonActiveOnlyGrabedLayer = false;
+				}
 			}
 
 		protected:
