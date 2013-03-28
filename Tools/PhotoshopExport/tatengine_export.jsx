@@ -4,11 +4,11 @@
  *  based on work of Tomek Cejner, Damien van Holten, Jens Bache-wiig
  *
  *  Created by Dmitrii Ivanov on 08/15/12.
- *  Copyright 2012 Tatem Games. All rights reserved.
+ *  Copyright 2013 Tatem Games. All rights reserved.
  *
  */
 
-// version 0.06, from 11.4.12
+// version 0.07, from 03.29.13
 // contacts : jimon@tatemgames.com
 
 #target photoshop
@@ -215,12 +215,18 @@ function main()
 					jsonFile.write(tabs(lvl + 1) + "\"colorBlue\" : " + Math.floor(textItem.color.rgb.blue) + ",\n");
 
 					//textItem.position - origin of text
-					if((textItem.justification == Justification.CENTER) || (textItem.justification == Justification.CENTERJUSTIFIED) || (textItem.justification == Justification.FULLYJUSTIFIED))
-						jsonFile.write(tabs(lvl + 1) + "\"halign\" : \"center\",\n");
-					else if((textItem.justification == Justification.LEFT) || (textItem.justification == Justification.LEFTJUSTIFIED))
-						jsonFile.write(tabs(lvl + 1) + "\"halign\" : \"left\",\n");
-					else if((textItem.justification == Justification.RIGHT) || (textItem.justification == Justification.RIGHTJUSTIFIED))
-						jsonFile.write(tabs(lvl + 1) + "\"halign\" : \"right\",\n");
+					try
+					{
+						if((textItem.justification == Justification.CENTER) || (textItem.justification == Justification.CENTERJUSTIFIED) || (textItem.justification == Justification.FULLYJUSTIFIED))
+							jsonFile.write(tabs(lvl + 1) + "\"halign\" : \"center\",\n");
+						else if((textItem.justification == Justification.LEFT) || (textItem.justification == Justification.LEFTJUSTIFIED))
+							jsonFile.write(tabs(lvl + 1) + "\"halign\" : \"left\",\n");
+						else if((textItem.justification == Justification.RIGHT) || (textItem.justification == Justification.RIGHTJUSTIFIED))
+							jsonFile.write(tabs(lvl + 1) + "\"halign\" : \"right\",\n");
+					}
+					catch(e)
+					{
+					}
 
 					try
 					{
