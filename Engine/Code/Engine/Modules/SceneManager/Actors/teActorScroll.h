@@ -314,6 +314,10 @@ namespace te
 				f32 limVar, casheVar;
 				
 				limVar = position - sSize / 2.0f + elementSize->GetF32() / 2.0f;
+
+				// force check
+				if(teIsNaN(position))
+					needReset = true;
 				
 				casheVar = 0;
 				

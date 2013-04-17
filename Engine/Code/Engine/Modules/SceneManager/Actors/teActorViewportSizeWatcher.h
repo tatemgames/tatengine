@@ -67,10 +67,10 @@ namespace te
 						center->scale.SetXYZ((f32)viewportSize.x / basicUIWidth, (f32)viewportSize.y / basicUIHeight, 1.0f);
 
 						f32 t2 = teClamp((f32)animationTime.ToSeconds() * 4.0f, 0.0f, 1.0f);
-						if(animationState == 1)
-						center->scale *= teLinearInterpolation(10.0f, 1.0f, t2);
-						else if(animationState == 2)
-							center->scale *= teLinearInterpolation(1.0f, 10.0f, t2);
+						//if(animationState == 1)
+						//	center->scale *= teLinearInterpolation(10.0f, 1.0f, t2);
+						//else if(animationState == 2)
+						//	center->scale *= teLinearInterpolation(1.0f, 10.0f, t2);
 					}
 										
 //					if(viewportSize.x == 2048)
