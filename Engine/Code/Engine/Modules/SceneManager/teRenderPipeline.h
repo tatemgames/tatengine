@@ -60,7 +60,19 @@ namespace te
 		class teAssetPack;
 		class teContentPack;
 
-		void FormRenderProgram(teRenderProgram & program, const teAssetPack & pack, const teContentPack & content);
+		struct teRenderProgramSortKey
+		{
+			u32 index;
+			u32 materialIndex;
+			s16 layer;
+			u8 type;
+
+			void Set(const teAssetPack & pack, const teContentPack & content, u32 setIndex, s16 setLayer, u32 setMaterialIndex, u8 setType);
+		};
+
+		// TODO refactor sort buffer usage
+
+		void FormRenderProgram(teRenderProgram & program, const teAssetPack & pack, const teContentPack & content, teConstArray<teRenderProgramSortKey> * sortBuffer = NULL);
 		void UpdateRenderProgram(teRenderProgram & program, const teAssetPack & pack, const teContentPack & content);
 	};
 }

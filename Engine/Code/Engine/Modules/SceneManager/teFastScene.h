@@ -97,6 +97,8 @@ namespace te
 			void OnUpdate();
 			void OnRender();
 
+			TE_INLINE void UpdateRenderProgram() {needToUpdateRenderProgram = true;}
+
 			void Load(u8 stage = 0, u1 deferred = false); // use deferred if you call from actor OnUpdate
 			TE_INLINE u8 GetStage() const {return stageLoaded;}
 
@@ -133,6 +135,8 @@ namespace te
 
 			teFastSceneStatistic statistic;
 			teRenderProgram program;
+			teConstArray<teRenderProgramSortKey> programSortBufferKeys;
+			u1 needToUpdateRenderProgram;
 
 			// ---------------------------------------------------------------------------
 

@@ -64,6 +64,7 @@ namespace te
 		#endif
 
 		teFastScene::teFastScene(teRegisterActorsCallback registerActorsCallback)
+			:needToUpdateRenderProgram(false)
 		{
 			stageLoaded = u8Max;
 			stageWaitForLoading = u8Max;
@@ -215,7 +216,13 @@ namespace te
 
 			// --------------------------------------------------------------- update render program
 
-			UpdateRenderProgram(program, scenePack, contentPack);
+			//UpdateRenderProgram(program, scenePack, contentPack);
+
+			if(needToUpdateRenderProgram)
+			{
+				FormRenderProgram(program, scenePack, contentPack, &programSortBufferKeys);
+				needToUpdateRenderProgram = false;
+			}
 
 			// --------------------------------------------------------------- deferred stage loading
 

@@ -106,6 +106,13 @@ namespace te
 			data = NULL;
 		}
 
+		//! @brief Remove all requested data.
+		//! @details After clear you can request elements again.
+		void ClearRequested()
+		{
+			freePosition = 0;
+		}
+
 		//! @brief Return required size in bytes for save or load
 		TE_INLINE size_t GetSystemSize() const
 		{

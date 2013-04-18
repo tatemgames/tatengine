@@ -15,26 +15,18 @@ namespace te
 {
 	namespace scene
 	{
-		struct teKey
+		void teRenderProgramSortKey::Set(const teAssetPack & pack, const teContentPack & content, u32 setIndex, s16 setLayer, u32 setMaterialIndex, u8 setType)
 		{
-			u32 index;
-			u32 materialIndex;
-			s16 layer;
-			u8 type;
+			index = setIndex;
+			layer = setLayer;
+			materialIndex = setMaterialIndex;
+			type = setType;
 
-			void Set(const teAssetPack & pack, const teContentPack & content, u32 setIndex, s16 setLayer, u32 setMaterialIndex, u8 setType)
-			{
-				index = setIndex;
-				layer = setLayer;
-				materialIndex = setMaterialIndex;
-				type = setType;
+			if((materialIndex != u32Max) && (content.materials[materialIndex].metaMaterial != u32Max))
+				materialIndex = content.materials[materialIndex].metaMaterial;
+		}
 
-				if((materialIndex != u32Max) && (content.materials[materialIndex].metaMaterial != u32Max))
-					materialIndex = content.materials[materialIndex].metaMaterial;
-			}
-		};
-
-		void teKeyCompare(s8 & result, const teKey & key1, const teKey & key2)
+		void teKeyCompare(s8 & result, const teRenderProgramSortKey & key1, const teRenderProgramSortKey & key2)
 		{
 			if(key1.layer > key2.layer)
 				result = 1;
@@ -69,15 +61,27 @@ namespace te
 				result = 0;
 		}
 
-		void FormRenderProgram(teRenderProgram & program, const teAssetPack & pack, const teContentPack & content)
+		void FormRenderProgram(teRenderProgram & program, const teAssetPack & pack, const teContentPack & content, teConstArray<teRenderProgramSortKey> * sortBuffer)
 		{
 			const u32 keysCount = pack.sprites.GetAlive() + pack.surfaces.GetAlive() + pack.texts.GetAlive() + pack.drawActors.GetAlive();
 
 			if(!keysCount)
 				return;
 
-			teConstArray<teKey> sort;
-			sort.Reserve(keysCount);
+			if(!sortBuffer)
+			{
+				// TODO refactor this
+				teConstArray<teRenderProgramSortKey> sortTemp;
+				FormRenderProgram(program, pack, content, &sortTemp);
+				return;
+			}
+
+			teConstArray<teRenderProgramSortKey> & sort = *sortBuffer;
+
+			if(sort.GetSize() == keysCount)
+				sort.ClearRequested();
+			else
+				sort.Reserve(keysCount);
 
 			for(u32 i = 0; i < pack.sprites.GetAlive(); ++i)
 				sort.Request()->Set(pack, content, i, pack.sprites[i].renderAsset.layer, pack.sprites[i].renderAsset.materialIndex, RCT_DRAW_SPRITES);
@@ -96,8 +100,14 @@ namespace te
 			//for(u32 i = 0; i < sort.GetAlive(); ++i)
 			//	printf("%i (%i, %i)\n", sort[i].index, sort[i].layer, sort[i].materialIndex);
 
-			program.Clear();
-			program.Reserve(sort.GetAlive() + 2 + pack.program.GetAlive()); // TODO optimize this value
+			if(program.GetSize() == (sort.GetAlive() + 2 + pack.program.GetAlive()))
+				program.ClearRequested();
+			else
+			{
+				program.Clear();
+				program.Reserve(sort.GetAlive() + 2 + pack.program.GetAlive()); // TODO optimize this value
+			}
+
 			program.Request()->Set(RCT_BEGIN);
 
 			for(u32 i = 0; i < pack.program.GetAlive(); ++i)
