@@ -129,7 +129,11 @@ namespace te
 									anyClicked = true;
 								OnClicked((f32)assetIndex);
 							}
+							else
+								OnNotClicked((f32)assetIndex);
 						}
+						else
+							OnNotClicked((f32)assetIndex);
 
 						if(wasTouchInside)
 						{
@@ -281,6 +285,7 @@ namespace te
 			TE_ACTOR_SIGNAL(0, OnClicked);
 			TE_ACTOR_SIGNAL(1, OnPressed);
 			TE_ACTOR_SIGNAL(2, OnClear);
+			TE_ACTOR_SIGNAL(3, OnNotClicked); // if clicked somewhere else
 
 			// check if any button was clicked between method calls
 			static u1 IsAnyClicked()
@@ -397,6 +402,7 @@ namespace te
 			ti->AddSignal("OnClicked");
 			ti->AddSignal("OnPressed");
 			ti->AddSignal("OnClear");
+			ti->AddSignal("OnNotClicked");
 		}
 	}
 }
