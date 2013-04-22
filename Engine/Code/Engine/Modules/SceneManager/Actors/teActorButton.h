@@ -87,7 +87,7 @@ namespace te
 							if(!IsFlag(BF_UNDETECTABLE_WORK))
 								anyPressed = true;
 
-							u1 canGrab = ((buttonGrabLayer < assetLayer) && (!buttonActiveOnlyGrabedLayer) || (buttonGrabLayer == assetLayer) && buttonActiveOnlyGrabedLayer);
+							u1 canGrab = (((buttonGrabLayer < assetLayer) && (!buttonActiveOnlyGrabedLayer)) || ((buttonGrabLayer == assetLayer) && buttonActiveOnlyGrabedLayer));
 
 							if(canGrab && (!IsFlag(BF_DONT_GRAB)))
 								buttonGrabLayer = assetLayer;

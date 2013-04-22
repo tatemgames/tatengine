@@ -66,9 +66,9 @@ namespace te
 				{
 					case SCRL_HORIZONTAL:
 						if (width > sSize)
-							sOrigin = 0.0f - (width - sSize)/2;
+							sOrigin = 0.0f - (width - sSize)/2 + (sizeB.x + (sizeA.x - sizeB.x) / 2.0f);
 						else
-							sOrigin = 0.0f;
+							sOrigin = 0.0f + (sizeB.x + (sizeA.x - sizeB.x) / 2.0f);
 						
 						scrollLim = (sSize - width) / 2.0f;
 						if (scrollLim < 0.0f)
@@ -80,9 +80,9 @@ namespace te
 						
 					case SCRL_VERTICAL:
 						if (height > sSize)
-							sOrigin = 0.0f + (height - sSize)/2;
+							sOrigin = 0.0f + (height - sSize)/2 + (sizeB.y + (sizeA.y - sizeB.y) / 2.0f);
 						else
-							sOrigin = 0.0f;
+							sOrigin = 0.0f + (sizeB.y + (sizeA.y - sizeB.y) / 2.0f);
 						
 						scrollLim = (sSize - height) / 2.0f;
 						if (scrollLim < 0.0f)
@@ -100,8 +100,10 @@ namespace te
 
 			void OnUpdate()
 			{
-				if(sprite->renderAsset.aabb.edgeMin.x != sizeA.x || sprite->renderAsset.aabb.edgeMin.y != sizeA.y ||
-				   sprite->renderAsset.aabb.edgeMax.x != sizeB.x || sprite->renderAsset.aabb.edgeMax.y != sizeB.y ||
+				teVector2df koef = teActorViewportSizeWatcher::GetSizeRootScale();
+				
+				if((sprite->renderAsset.aabb.edgeMin.x != (sizeA.x * koef.x)) || (sprite->renderAsset.aabb.edgeMin.y != (sizeA.y * koef.y)) ||
+				   (sprite->renderAsset.aabb.edgeMax.x != (sizeB.x * koef.x)) || (sprite->renderAsset.aabb.edgeMax.y != (sizeB.y * koef.y)) ||
 				   curElemCount != elementCount->GetF32())
 					Resize(sprite->renderAsset.aabb.edgeMin , sprite->renderAsset.aabb.edgeMax);
 				
@@ -177,11 +179,21 @@ namespace te
 				
 				// ----- calc inert (return force)
 				f32 moveSig;
-				if(position < sOrigin) moveSig = 1.0f;
-				else moveSig = -1.0f;
-				
-				if(scrollType->vs32 == SCRL_VERTICAL)
-					moveSig *= -1.0f;
+
+				if(scrollType->vs32 == SCRL_HORIZONTAL)
+				{
+					if(position < sOrigin)
+						moveSig = 1.0f;
+					else
+						moveSig = -1.0f;
+				}
+				else if(scrollType->vs32 == SCRL_VERTICAL)
+				{
+					if(position < sOrigin)
+						moveSig = -1.0f;
+					else
+						moveSig = 1.0f;
+				}
 				
 				if(isOverLimit && !wasTouchInside)
 				{
@@ -251,8 +263,10 @@ namespace te
 				
 				if (teAbs(position - sOrigin) > scrollLim + scrollGap)
 				{
-					if(teAbs(position) > 0.0f)
-						position = teAbs(position) / position * (scrollLim /*+ scrollGap*/);
+					//if(teAbs(position) > 0.0f)
+						position = teAbs(position) / position * (scrollLim + sOrigin);
+
+					
 					moveTouch.Flush();
 					StopMoving();
 				}
