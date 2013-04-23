@@ -293,7 +293,7 @@ namespace te
 				if(tfirst - (f32)intFirst >= 0.5f)
 					++intFirst;
 				
-				snapPos = tNom - (f32)intFirst * elementSize->GetF32();
+				snapPos = tNom - (f32)intFirst * elementSize->GetF32() + sOrigin;
 				
 				isSnapping = true;
 			}
