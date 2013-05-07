@@ -91,5 +91,47 @@ namespace te
 			pointA = (a * 0.5f + 0.5f) * viewportSize + viewportPosition;
 			pointB = (b * 0.5f + 0.5f) * viewportSize + viewportPosition;
 		}
+
+		void GetSpriteAssetRenderingRect(const teContentPack & contentPack, const teAssetPack & assetPack, const teAssetSprite & sprite, teVector3df * position, teVector2df * size)
+		{
+			TE_ASSERT(position != nullptr);
+			TE_ASSERT(size != nullptr);
+
+			const video::teMaterial & material = contentPack.materials[sprite.renderAsset.materialIndex];
+			const teMatrix4f & mat = assetPack.global[sprite.renderAsset.transformIndex];
+			const video::teAtlasSprite * atlasSprite = nullptr;
+			if(material.atlasSpriteIndex[0] != u32Max)
+				atlasSprite = contentPack.atlasSprites.At(material.atlasSpriteIndex[0]);
+
+			TE_ASSERT(atlasSprite != nullptr);
+
+			teVector3df p[4];
+
+			p[0].SetXYZ(0.0f, 0.0f, 0.0f);
+			p[1].SetXYZ(1.0f, 0.0f, 0.0f);
+			p[2].SetXYZ(0.0f, 1.0f, 0.0f);
+			p[3].SetXYZ(1.0f, 1.0f, 0.0f);
+
+			for(u8 i = 0; i < 4; ++i)
+			{
+				p[i].SetXYZ(p[i].x * (atlasSprite->size.x), p[i].y * atlasSprite->size.y, 0.0f);
+
+				if(atlasSprite->texelToPixel)
+					p[i].SetXYZ(p[i].x - teFloor(atlasSprite->origin.x), p[i].y + teFloor(atlasSprite->origin.y) - atlasSprite->size.y, 0.0f);
+				else
+					p[i].SetXYZ(p[i].x - atlasSprite->origin.x, p[i].y + atlasSprite->origin.y - atlasSprite->size.y, 0.0f);
+			}
+
+			for(u8 i = 0; i < 4; ++i)
+			{
+				p[i] = mat.MultiplyMatrixOnVector3D(p[i]);
+			}
+
+			*position = p[0];
+			// width
+			size->x = teAbs(p[3].x - p[0].x);
+			// height
+			size->y = teAbs(p[2].y - p[1].y);
+		}
 	}
 };

@@ -21,6 +21,8 @@ namespace te
 
 		void ProjectPointToViewport(const teAssetPack & scene, u32 cameraIndex, const teVector3df & point, const teMatrix4f & matView, const teMatrix4f & matPrj, const teVector2df & viewportPosition, const teVector2df & viewportSize, teVector2df & result);
 		void ProjectAABBToViewport(const teAssetPack & scene, u32 cameraIndex, const teAABB3df & aabb, const teMatrix4f & matView, const teMatrix4f & matPrj, const teVector2df & viewportPosition, const teVector2df & viewportSize, teVector2df & pointA, teVector2df & pointB);
+
+		void GetSpriteAssetRenderingRect(const teContentPack & contentPack, const teAssetPack & assetPack, const teAssetSprite & sprite, teVector3df * position, teVector2df * size);
 	}
 };
 
