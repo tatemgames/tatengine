@@ -928,7 +928,7 @@ namespace te
 				else if(strcmp(key, "size_y") == 0) lua_pushnumber(L, data->viewportSize.y);
 				else if(strcmp(key, "type") == 0) lua_pushinteger(L, data->cameraType);
 
-				return 0;
+				return 1;
 			}
 
 			static s32 BindAssetSpriteSet(lua_State * L)
