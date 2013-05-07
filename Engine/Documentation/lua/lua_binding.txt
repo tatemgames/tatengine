@@ -51,7 +51,17 @@ teAssetTransform
 		10) in_frame - set true in node will be renderd, read-only
 
 teAssetCamera
-	wip
+	engine camera asset
+	fields :
+		1) near
+		2) far
+		3) fov
+		4) aspect
+		5) pos_x - viewport position x
+		6) pos_y - viewport position y
+		7) size_x - viewport width
+		8) size_y - viewport height
+		9) type - camera type (perspective = 0, isometric = 1)
 
 teAssetSprite
 	engine sprite asset

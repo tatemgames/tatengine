@@ -900,10 +900,15 @@ namespace te
 				teAssetCamera * data = *(teAssetCamera**)luaL_checkudata(L, 1, "teAssetCamera");
 				const c8 * key = luaL_checkstring(L, 2);
 
-				/*
-				if(strcmp(key, "pos_x") == 0) data->position.x = luaL_checknumber(L, 3);
-				else if(strcmp(key, "pos_y") == 0) data->position.y = luaL_checknumber(L, 3);
-				*/
+				if(strcmp(key, "near") == 0) data->nearPlane = luaL_checknumber(L, 3);
+				else if(strcmp(key, "far") == 0) data->farPlane = luaL_checknumber(L, 3);
+				else if(strcmp(key, "fov") == 0) data->fov = luaL_checknumber(L, 3);
+				else if(strcmp(key, "aspect") == 0) data->aspect = luaL_checknumber(L, 3);
+				else if(strcmp(key, "pos_x") == 0) data->viewportPosition.x = luaL_checknumber(L, 3);
+				else if(strcmp(key, "pos_y") == 0) data->viewportPosition.y = luaL_checknumber(L, 3);
+				else if(strcmp(key, "size_x") == 0) data->viewportSize.x = luaL_checknumber(L, 3);
+				else if(strcmp(key, "size_y") == 0) data->viewportSize.y = luaL_checknumber(L, 3);
+				else if(strcmp(key, "type") == 0) data->cameraType = luaL_checkint(L, 3);
 
 				return 0;
 			}
@@ -913,10 +918,15 @@ namespace te
 				teAssetCamera * data = *(teAssetCamera**)luaL_checkudata(L, 1, "teAssetCamera");
 				const c8 *key = luaL_checkstring(L, 2);
 
-				/*
-				if(strcmp(key, "pos_x") == 0) lua_pushnumber(L, data->position.x);
-				else if(strcmp(key, "pos_y") == 0) lua_pushnumber(L, data->position.y);
-				*/
+				if(strcmp(key, "near") == 0) lua_pushnumber(L, data->nearPlane);
+				else if(strcmp(key, "far") == 0) lua_pushnumber(L, data->farPlane);
+				else if(strcmp(key, "fov") == 0) lua_pushnumber(L, data->fov);
+				else if(strcmp(key, "aspect") == 0) lua_pushnumber(L, data->aspect);
+				else if(strcmp(key, "pos_x") == 0) lua_pushnumber(L, data->viewportPosition.x);
+				else if(strcmp(key, "pos_y") == 0) lua_pushnumber(L, data->viewportPosition.y);
+				else if(strcmp(key, "size_x") == 0) lua_pushnumber(L, data->viewportSize.x);
+				else if(strcmp(key, "size_y") == 0) lua_pushnumber(L, data->viewportSize.y);
+				else if(strcmp(key, "type") == 0) lua_pushinteger(L, data->cameraType);
 
 				return 0;
 			}
