@@ -358,10 +358,12 @@ namespace te
 			video::GetRender()->Drop();
 		}
 
-		void teApplicationManager::RenderBegin()
+		void teApplicationManager::RenderBegin(u1 clearScreen)
 		{
 			video::GetRender()->Begin();
-			video::GetRender()->ClearScreen(teColor4u(64, 64, 64, 255), true, 255.0f, true);
+
+			if(clearScreen)
+				video::GetRender()->ClearScreen(teColor4u(64, 64, 64, 255), true, 255.0f, true);
 		}
 
 		void teApplicationManager::RenderEnd()

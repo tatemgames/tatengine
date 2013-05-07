@@ -107,7 +107,7 @@ namespace te
 
 #ifdef TE_MODULE_RENDER
 
-			void RenderBegin();
+			void RenderBegin(u1 clearScreen = true);
 
 			void RenderEnd();
 
