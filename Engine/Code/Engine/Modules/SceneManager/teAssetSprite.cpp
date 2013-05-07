@@ -65,7 +65,7 @@ namespace te
 				{
 					p[i].SetXYZ(p[i].x * (atlasSprite->size.x), p[i].y * atlasSprite->size.y, 0.0f);
 
-					if(atlasSprite && atlasSprite->texelToPixel)
+					if(atlasSprite->texelToPixel)
 						p[i].SetXYZ(p[i].x - teFloor(atlasSprite->origin.x), p[i].y + teFloor(atlasSprite->origin.y) - atlasSprite->size.y, 0.0f);
 					else
 						p[i].SetXYZ(p[i].x - atlasSprite->origin.x, p[i].y + atlasSprite->origin.y - atlasSprite->size.y, 0.0f);
