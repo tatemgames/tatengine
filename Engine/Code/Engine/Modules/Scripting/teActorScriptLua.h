@@ -59,15 +59,15 @@ namespace te
 
 		// experimental lua allocator
 		// make less memory fragmentation with pool stacks system
-		class teLuaAlloc
+		class teLuaAllocator
 		{
 		public:
-			teLuaAlloc()
+			teLuaAllocator()
 			{
 				Flush();
 			}
 
-			~teLuaAlloc()
+			~teLuaAllocator()
 			{
 				Flush();
 			}
@@ -470,7 +470,7 @@ namespace te
 			#endif
 
 			#ifdef TE_LUA_SPECIAL_ALLOC
-				static teLuaAlloc luaSpecAlloc;
+				static teLuaAllocator luaSpecAlloc;
 			#endif
 
 			static void * teLuaAlloc(void * userData, void * ptr, size_t oldSize, size_t newSize)
@@ -584,7 +584,7 @@ namespace te
 				case 7: data->Signal7(a[0], a[1], a[2], a[3]); break;
 				default: break;
 				}
-  				return 0;
+				return 0;
 			}
 
 			static s32 LuaSignal0(lua_State * L) {return LuaSignal(L, 0);}

@@ -12,6 +12,7 @@
 
 #include "teConstArray.h"
 #include <stdarg.h>
+#include <stdio.h>
 
 namespace te
 {
@@ -212,7 +213,7 @@ namespace te
 			TE_ASSERT_NODEBUG((freePosition + 1) < string.GetSize());
 			va_list args;
 			va_start(args, formatStr);
-			freePosition += vsprintf(string.GetRaw() + freePosition, formatStr, args);
+			freePosition += vsnprintf(string.GetRaw() + freePosition, string.GetSize() - freePosition, formatStr, args);
 			va_end(args);
 			TE_ASSERT_NODEBUG((freePosition + 1) <= string.GetSize());
 			return *this;
@@ -221,7 +222,7 @@ namespace te
 		TE_INLINE teStringConcate & AddVA(const c8 * formatStr, const va_list & args)
 		{
 			TE_ASSERT_NODEBUG((freePosition + 1) < string.GetSize());
-			freePosition += vsprintf(string.GetRaw() + freePosition, formatStr, args);
+			freePosition += vsnprintf(string.GetRaw() + freePosition, string.GetSize() - freePosition, formatStr, args);
 			TE_ASSERT_NODEBUG((freePosition + 1) <= string.GetSize());
 			return *this;
 		}

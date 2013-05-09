@@ -92,7 +92,8 @@ namespace FMOD
         FMOD_RESULT F_API setOutputByPlugin      (unsigned int handle);
         FMOD_RESULT F_API getOutputByPlugin      (unsigned int *handle);
         FMOD_RESULT F_API createDSPByPlugin      (unsigned int handle, DSP **dsp);
-        FMOD_RESULT F_API createCodec            (FMOD_CODEC_DESCRIPTION *description, unsigned int priority = 0);
+        FMOD_RESULT F_API registerCodec          (FMOD_CODEC_DESCRIPTION *description, unsigned int *handle, unsigned int priority = 0);
+        FMOD_RESULT F_API registerDSP            (FMOD_DSP_DESCRIPTION *description, unsigned int *handle);
                                                  
         // Init/Close                            
         FMOD_RESULT F_API init                   (int maxchannels, FMOD_INITFLAGS flags, void *extradriverdata);

@@ -18,7 +18,7 @@ namespace te
 	namespace core
 	{
 		tePlatform * currentPlatform = NULL;
-		
+
 		tePlatform::tePlatform()
 			:deviceOrientation(DO_NORMAL)
 		{
@@ -31,7 +31,7 @@ namespace te
 
 			devicePlatform = NULL;
 		}
-		
+
 		tePlatform::~tePlatform()
 		{
 			TE_SAFE_DROP(fileSystem);
@@ -47,10 +47,10 @@ namespace te
 			fileSystem = setFileSystem;
 
 			TE_SAFE_GRAB(fileSystem);
-			
+
 			if(!fileSystem)
 				TE_NEW(fileSystem, IFileSystem); // default file system
-				
+
 		}
 
 		IFileSystem * tePlatform::GetFileSystem()
@@ -102,7 +102,7 @@ namespace te
 				return DT_UNKNOWN;
 			#elif TE_PLATFORM_LINUX
 				return DT_UNKNOWN;
-			#elif
+			#else
 				return DT_UNKNOWN;
 			#endif
 		}

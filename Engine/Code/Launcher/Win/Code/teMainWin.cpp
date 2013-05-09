@@ -91,9 +91,11 @@ int CrtReportHook(int nRptType, char *szMsg, int *retVal)
 
 int main(int argc, char * argv[])
 {
+#ifdef TE_COMPILER_MSVC
 	_CrtSetReportHook (CrtReportHook);
 	_CrtMemState s1, s2, s3;
 	_CrtMemCheckpoint(&s1);
+#endif
 
 #else
 
@@ -159,6 +161,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	core::CloseEngine();
 
 #ifdef TE_LAUNCHER_CONSOLE
+#ifdef TE_COMPILER_MSVC
 
 	_CrtMemCheckpoint(&s2);
 	if(_CrtMemDifference(&s3, &s1, &s2))
@@ -166,6 +169,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		_CrtMemDumpStatistics(&s3);
 		_CrtDumpMemoryLeaks();
 	}
+#endif
 
 	printf("Press any key to continue\n");
 	_getch();

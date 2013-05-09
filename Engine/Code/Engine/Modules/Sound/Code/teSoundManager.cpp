@@ -13,8 +13,6 @@
 #include "teLogManager.h"
 #include "fmod_errors.h"
 
-#include "fmod.h"
-
 #ifdef TE_PLATFORM_IPHONE
 	#include "tePlatform.h"
 	#include "tePlatform_iOS.h"
@@ -92,25 +90,25 @@ namespace te
 			:system(NULL), pool(NULL)
 		{
 			pool = (c8*)TE_ALLOCATE(4 * 1024 * 1024);
-			
-			FMOD::Memory_Initialize(pool, 4 * 1024 * 1024, NULL, NULL, NULL);
-//			FMOD::Memory_Initialize(NULL, 0, teFMODAlloc, teFMODRealloc, teFMODFree);
 
-			CheckResult(FMOD::System_Create(&system));
+			FMOD_Memory_Initialize(pool, 4 * 1024 * 1024, NULL, NULL, NULL, FMOD_MEMORY_ALL);
+			//FMOD_Memory_Initialize(NULL, 0, teFMODAlloc, teFMODRealloc, teFMODFree, FMOD_MEMORY_ALL);
+
+			CheckResult(FMOD_System_Create(&system));
 
 			#ifdef TE_PLATFORM_ANDROID
 				FMOD_System_SetOutput((FMOD_SYSTEM*)system, FMOD_OUTPUTTYPE_AUDIOTRACK);
 			#endif
 
 			u32 version = 0;
-			CheckResult(system->getVersion(&version));
+			CheckResult(FMOD_System_GetVersion(system, &version));
 
 			if(version < FMOD_VERSION)
 				TE_LOG_ERR("old version of fmod library");
 
-			CheckResult(system->init(32, FMOD_INIT_NORMAL, NULL));
+			CheckResult(FMOD_System_Init(system, 32, FMOD_INIT_NORMAL, NULL));
 
-			CheckResult(system->setFileSystem(teFMODOpenFile, teFMODCloseFile, teFMODReadFile, teFMODSeekFile, 0, 0, 2048));
+			CheckResult(FMOD_System_SetFileSystem(system, teFMODOpenFile, teFMODCloseFile, teFMODReadFile, teFMODSeekFile, 0, 0, 2048));
 
 			#ifdef TE_PLATFORM_IPHONE
 				static_cast<core::tePlatform_iOS*>(core::GetPlatform()->GetCurrentDevicePlatform())->OnBecomeActive.Connect(this, &teSoundManager::OnRestoreAudioSession);
@@ -127,11 +125,11 @@ namespace te
 
 			if(system)
 			{
-				CheckResult(system->close());
-				CheckResult(system->release());
+				CheckResult(FMOD_System_Close(system));
+				CheckResult(FMOD_System_Release(system));
 				system = NULL;
 			}
-			
+
 			TE_FREE(pool);
 
 			currentSoundManager = NULL;
@@ -139,24 +137,24 @@ namespace te
 
 		void teSoundManager::OnTick()
 		{
-			CheckResult(system->update());
+			CheckResult(FMOD_System_Update(system));
 		}
 
-		FMOD::System * teSoundManager::GetSystem()
+		FMOD_SYSTEM * teSoundManager::GetSystem()
 		{
 			return system;
 		}
-		
+
 		void teSoundManager::InitSound(teSound & sound)
 		{
-			FMOD::Sound * fmodSound = NULL;
+			FMOD_SOUND * fmodSound = NULL;
 			FMOD_MODE flags = FMOD_HARDWARE | FMOD_LOWMEM | FMOD_2D;
-			
+
 			if(sound.stream)
-				CheckResult(system->createStream(core::GetLogManager()->GetConcate().Add("sound_%i", sound.soundIndex).BakeToString().c_str(), flags, NULL, &fmodSound));
+				CheckResult(FMOD_System_CreateStream(system, core::GetLogManager()->GetConcate().Add("sound_%i", sound.soundIndex).BakeToString().c_str(), flags, NULL, &fmodSound));
 			else
-				CheckResult(system->createSound(core::GetLogManager()->GetConcate().Add("sound_%i", sound.soundIndex).BakeToString().c_str(), flags, NULL, &fmodSound));
-			
+				CheckResult(FMOD_System_CreateStream(system, core::GetLogManager()->GetConcate().Add("sound_%i", sound.soundIndex).BakeToString().c_str(), flags, NULL, &fmodSound));
+
 			if(!fmodSound)
 			{
 				TE_LOG_ERR("FMOD error, sound obj is null");
@@ -164,7 +162,7 @@ namespace te
 			}
 
 			sound.sound = fmodSound;
-			fmodSound->setUserData(&sound);
+			FMOD_Sound_SetUserData(fmodSound, &sound);
 		}
 
 		void teSoundManager::CheckResult(FMOD_RESULT result)

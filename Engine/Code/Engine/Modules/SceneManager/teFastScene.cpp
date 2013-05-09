@@ -59,7 +59,7 @@ namespace te
 				teActorScriptLua::teLuaMemoryUsage teActorScriptLua::memoryUsage;
 			#endif
 			#ifdef TE_LUA_SPECIAL_ALLOC
-				teLuaAlloc teActorScriptLua::luaSpecAlloc;
+				teLuaAllocator teActorScriptLua::luaSpecAlloc;
 			#endif
 		#endif
 
@@ -106,7 +106,7 @@ namespace te
 			cttiPath.SetBuffer(poolJSON.Allocate(poolJSON.GetSize()));
 			cttiPath.Add(core::GetPlatform()->GetFileSystem()->GetPath(core::FPT_BIN).c_str());
 			cttiPath.Add("ctti.json");
-			
+
 			core::IBuffer * cttiJSONBuffer = core::GetFileManager()->OpenFile(cttiPath.BakeToString().c_str(), core::CFileBuffer::FWM_WRITE, false, false);
 
 			if(cttiJSONBuffer)
@@ -114,12 +114,12 @@ namespace te
 				actorsTI.CTTIToJSON(cttiJSONBuffer);
 				TE_SAFE_DROP(cttiJSONBuffer);
 			}
-			
+
 			cttiPath.Add(core::GetPlatform()->GetFileSystem()->GetPath(core::FPT_BIN).c_str());
 			cttiPath.Add("ctti.bin");
-			
+
 			core::IBuffer * cttiBinBuffer = core::GetFileManager()->OpenFile(cttiPath.BakeToString().c_str(), core::CFileBuffer::FWM_WRITE, false, false);
-			
+
 			if(cttiBinBuffer)
 			{
 				actorsTI.Save(cttiBinBuffer);
@@ -129,7 +129,7 @@ namespace te
 				actorsTI.Save(NULL); // TODO rewrite this, force crc calculation
 
 			#endif
-			
+
 			// ---------------------------------------------------------
 
 			batchs.Reserve(maxBatchs);
@@ -143,7 +143,7 @@ namespace te
 				u32 temp = (sizeof(video::teSurfaceData) + teRenderBatchSize + 8) * i;
 				u32 & batch = *batchs.Request();
 				batch = TE_ALIGN_PTR(temp, 4) + 0; // TODO HACK, make offset of data in teSurfaceData aligned to 4
-				
+
 				video::teSurfaceData * data = reinterpret_cast<video::teSurfaceData*>(batchData + batch);
 				data->Clear();
 				data->dataSize = teRenderBatchSize;
@@ -162,7 +162,7 @@ namespace te
 		void teFastScene::OnUpdate()
 		{
 			TE_TIME_BEGIN(timeUpdate)
-			
+
 			// --------------------------------------------------------------- update actors
 
 			TE_TIME_BEGIN(timeActors)
@@ -174,7 +174,7 @@ namespace te
 			// --------------------------------------------------------------- update transforms
 
 			TE_TIME_BEGIN(timeTransforms)
-			
+
 			teMatrix4f modelLocalTemp;
 
 			for(u32 i = 0; i < scenePack.transforms.GetAlive(); ++i) // TODO optimize matrices
@@ -231,9 +231,9 @@ namespace te
 				Load(stageWaitForLoading);
 				stageWaitForLoading = u8Max;
 			}
-			
+
 			TE_TIME_END(timeUpdate)
-			
+
 			statistic.timeActors = (f32)timeActors.ToMilliSeconds();
 			statistic.timeTransforms = (f32)timeTransforms.ToMilliSeconds();
 			statistic.timeUpdate = (f32)timeUpdate.ToMilliSeconds();
@@ -262,10 +262,10 @@ namespace te
 			for(u32 i = 0; i < program.GetAlive(); ++i)
 			{
 				teRenderCommand & command = program[i];
-				
+
 				u1 lastWasBatched = (lastCommand == RCT_DRAW_SPRITES) || (lastCommand == RCT_DRAW_TEXT);
 				u1 needBatched = (command.type == RCT_DRAW_SPRITES) || (command.type == RCT_DRAW_TEXT);
-				
+
 				u1 skipBatchClear = lastWasBatched && needBatched;
 
 				if((lastCommand != command.type) && batch) // invalidate batch
@@ -274,7 +274,7 @@ namespace te
 					{
 						if(!batch->IsEmpty())
 							RenderBatch(batch);
-					
+
 						batch = NULL;
 					}
 				}
@@ -325,7 +325,7 @@ namespace te
 
 						video::GetRender()->SetViewportOptions(video::teViewport(scenePack.cameras[command.from].viewportSize, scenePack.cameras[command.from].viewportPosition));
 						video::GetRender()->GetMatrixView() = matView;
-						
+
 						currentCameraType = scenePack.cameras[command.from].cameraType;
 
 						// wip
@@ -344,7 +344,7 @@ namespace te
 						{
 							frameBuffer->UnBind();
 							frameBuffer = NULL;
-							
+
 							#ifdef TE_PLATFORM_IPHONE
 								app::GetApplicationManager()->GetFrameBuffer()->Bind();
 							#endif
@@ -476,7 +476,7 @@ namespace te
 								++from;
 								continue;
 							}
-							
+
 							//if(scenePack.texts[from].fontIndex != 0)
 							//{
 							//	++from;
@@ -537,9 +537,9 @@ namespace te
 
 			if(statistic.dipCounts)
 				statistic.batchUtilization /= (f32)statistic.dipCounts;
-			
+
 			TE_TIME_END(timeRender)
-			
+
 			statistic.timeRender = (f32)timeRender.ToMilliSeconds();
 		}
 
@@ -550,12 +550,12 @@ namespace te
 				stageWaitForLoading = stage;
 				return;
 			}
-			
+
 			#ifdef TE_CTTI
-			
+
 			core::IBuffer * cttiCRCBuffer = core::GetFileManager()->OpenFile("ctti.crc", core::CFileBuffer::FWM_READ, true, true);
 			u32 crc = 0;
-			
+
 			if(cttiCRCBuffer)
 			{
 				cttiCRCBuffer->Lock(core::BLT_READ);
@@ -563,15 +563,15 @@ namespace te
 				cttiCRCBuffer->Read(&crc, 4);
 				cttiCRCBuffer->Unlock();
 			}
-			
+
 			TE_SAFE_DROP(cttiCRCBuffer);
-			
+
 			if(crc != actorsTI.GetCTTICRC())
 			{
 				TE_LOG_DBG("ctti : incorrect crc");
 				return;
 			}
-			
+
 			#endif
 
 			// unload loaded stage
@@ -655,7 +655,7 @@ namespace te
 			video::GetRender()->Render(contentPack, batch);
 
 			// fast and good for statistic, but work ONLY with interleaved surface data
-			u32 aproxDataSize = contentPack.surfaceLayers[batch->layersIndex].stride[video::SLT_POSITION] * batch->vertexCount + 
+			u32 aproxDataSize = contentPack.surfaceLayers[batch->layersIndex].stride[video::SLT_POSITION] * batch->vertexCount +
 				contentPack.surfaceLayers[batch->layersIndex].stride[video::SLT_INDEXES] * batch->indexCount;
 
 			statistic.batchUtilization += 100.0f * ((f32)aproxDataSize) / ((f32)batch->dataSize);

@@ -11,7 +11,6 @@
 #define TE_TESOUNDMANAGER_H
 
 #include "teReferenceCounter.h"
-#include "fmod_cpp.h"
 #include "teSound.h"
 #include "teString.h"
 
@@ -27,10 +26,10 @@ namespace te
 
 			void OnTick();
 
-			FMOD::System * GetSystem();
+			FMOD_SYSTEM * GetSystem();
 
 			void InitSound(teSound & sound);
-			
+
 			static void CheckResult(FMOD_RESULT result);
 
 			#ifdef TE_PLATFORM_IPHONE
@@ -38,7 +37,7 @@ namespace te
 			#endif
 
 		protected:
-			FMOD::System * system;
+			FMOD_SYSTEM * system;
 			c8 * pool;
 		};
 

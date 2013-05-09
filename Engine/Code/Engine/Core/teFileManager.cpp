@@ -16,8 +16,8 @@
 #include <sys/stat.h>
 //#include "teImageTools.h"
 #include "teLogManager.h"
-#ifdef TE_PLATFORM_WIN
-	#include "dirent.h"
+#ifdef TE_COMPILER_MSVC
+	#include "dirent_msvc.h"
 #else
 	#include <dirent.h>
 #endif
@@ -170,7 +170,7 @@ namespace te
 						break;
 					}
 				}
-				
+
 				if(*fileNameWithoutPath != '\0')
 				{
 					unzOpenCurrentFile(unzipFile);
@@ -187,7 +187,7 @@ namespace te
 
 			pakBuffer->Drop();
 		}
-		
+
 		IBuffer * teFileManager::OpenFile(const teString & fileName, CFileBuffer::EFileWorkMode mode, u1 localPath, u1 checkPaks, u32 offset, u32 size)
 		{
 			if(GetPlatform()->GetFileSystem())
@@ -204,7 +204,7 @@ namespace te
 					{
 						teString temptemp = pathConcate.Add(lookupPaths[i].c_str()).Add(fileName.c_str()).BakeToString();
 						//printf("try open file %s\n", temptemp.c_str());
-						
+
 						IBuffer * buffer = GetPlatform()->GetFileSystem()->OpenFile(temptemp, mode, offset, size);
 
 						if(buffer)
@@ -219,7 +219,7 @@ namespace te
 			else
 				return NULL;
 		}
-		
+
 		u1 teFileManager::UnZipFile(const teString & zipFileName)
 		{
 			// Remove previous version
@@ -236,7 +236,7 @@ namespace te
 
 				closedir(dp);
 
-				#ifdef TE_PLATFORM_WIN
+				#ifdef TE_COMPILER_MSVC
 					RemoveDirectoryA(GetLogManager()->GetConcate().Add(core::GetPlatform()->GetFileSystem()->GetPath(core::FPT_RESOURCES_UNPACKED).c_str()).BakeToString().c_str());
 				#else
 					rmdir(GetLogManager()->GetConcate().Add(core::GetPlatform()->GetFileSystem()->GetPath(core::FPT_RESOURCES_UNPACKED).c_str()).BakeToString().c_str());
@@ -268,10 +268,14 @@ namespace te
 			u8 * tempBuffer;
 			tempBuffer = (u8*)TE_ALLOCATE(1024*1024);
 
-			#ifdef TE_PLATFORM_WIN
+			#ifdef TE_COMPILER_MSVC
 				CreateDirectoryA(GetLogManager()->GetConcate().Add(core::GetPlatform()->GetFileSystem()->GetPath(core::FPT_RESOURCES_UNPACKED).c_str()).BakeToString().c_str(), NULL);
 			#else
-				mkdir(GetLogManager()->GetConcate().Add(core::GetPlatform()->GetFileSystem()->GetPath(core::FPT_RESOURCES_UNPACKED).c_str()).BakeToString().c_str(), 0755);
+				#ifdef TE_PLATFORM_WIN
+					mkdir(GetLogManager()->GetConcate().Add(core::GetPlatform()->GetFileSystem()->GetPath(core::FPT_RESOURCES_UNPACKED).c_str()).BakeToString().c_str());
+				#else
+					mkdir(GetLogManager()->GetConcate().Add(core::GetPlatform()->GetFileSystem()->GetPath(core::FPT_RESOURCES_UNPACKED).c_str()).BakeToString().c_str(), 0755);
+				#endif
 			#endif
 
 			for(u32 i = 0; i < globalInfo.number_entry; ++i)
@@ -320,7 +324,7 @@ namespace te
 //								image = image::LoadTGA(zipFileBuffer);
 //							else
 //								image = image::LoadPNG(zipFileBuffer);
-//							
+//
 //							printf("ADDFILE1 : %s\n", GetLogManager()->GetConcate().Add(core::GetPlatform()->GetFileSystem()->GetPath(core::FPT_RESOURCES_UNPACKED).c_str()).Add(fileNameWithoutPath).Add(".img").BakeToString().c_str());
 //
 //							core::IBuffer * rawBuffer = core::GetFileManager()->OpenFile(GetLogManager()->GetConcate().Add(core::GetPlatform()->GetFileSystem()->GetPath(core::FPT_RESOURCES_UNPACKED).c_str()).Add(fileNameWithoutPath).Add(".img").BakeToString().c_str(), core::CFileBuffer::FWM_WRITE, false, false);
@@ -369,13 +373,13 @@ namespace te
 				if(i + 1 < globalInfo.number_entry)
 					errorCode = unzGoToNextFile(unzipFile);
 			}
-			
+
 			TE_DELETE(tempBuffer);
 
 			unzClose(unzipFile);
-			
+
 			TE_SAFE_DROP(zipBuffer)
-			
+
 			unlink(GetLogManager()->GetConcate().Add(core::GetPlatform()->GetFileSystem()->GetPath(core::FPT_USER_RESOURCES).c_str()).Add(zipFileName.c_str()).BakeToString().c_str());
 
 			return true;

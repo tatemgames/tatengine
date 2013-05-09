@@ -24,9 +24,13 @@
 //#define TE_PLATFORM_LINUX
 
 #ifdef TE_PLATFORM_WIN
-	#define TE_COMPILER_MSVC
+	#ifdef __CYGWIN32__
+		#define TE_COMPILER_MINGW
+	#else
+		#define TE_COMPILER_MSVC
+	#endif
 #elif TE_PLATFORM_IPHONE
-	#define TE_COMPILER_LLVM
+	#define TE_COMPILER_CLANG
 #elif TE_PLATFORM_ANDROID
 	#define TE_COMPILER_GCC
 #else
@@ -47,7 +51,7 @@
 	#define TE_FORCE_INLINE inline
 #endif
 
-#ifdef TE_COMPILER_LLVM
+#ifdef TE_COMPILER_CLANG
 	#pragma clang diagnostic ignored "-Wall"
 #endif
 

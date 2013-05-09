@@ -11,7 +11,7 @@
 #define TE_TESOUND_H
 
 #include "teReferenceCounter.h"
-#include "fmod_cpp.h"
+#include "fmod.h"
 
 namespace te
 {
@@ -19,19 +19,8 @@ namespace te
 	{
 		struct teSound
 		{
-			TE_INLINE teSound(FMOD::System * setSystem)
-				:sound(NULL), channel(NULL), soundIndex(u32Max), stream(false), loop(false)
-			{
-			}
-
-			void Deinit()
-			{
-				if(sound)
-				{
-					sound->release();
-					sound = NULL;
-				}
-			}
+			teSound(FMOD_SYSTEM * setSystem);
+			void Deinit();
 
 			void Play();
 			void Stop();
@@ -45,13 +34,13 @@ namespace te
 
 			void SetVolume(f32 volume);
 			f32 GetVolume();
-		
+
 			u32 soundIndex;
 			u1 stream;
 			u1 loop;
 
-			FMOD::Sound * sound;
-			FMOD::Channel * channel;
+			FMOD_SOUND * sound;
+			FMOD_CHANNEL * channel;
 		};
 	}
 }
