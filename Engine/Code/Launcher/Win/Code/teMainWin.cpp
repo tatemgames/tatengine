@@ -80,8 +80,6 @@ public:
 	c8 binPathUTF8[1024];
 };
 
-#define TE_LAUNCHER_CONSOLE
-
 #ifdef TE_LAUNCHER_CONSOLE
 int CrtReportHook(int nRptType, char *szMsg, int *retVal)
 {

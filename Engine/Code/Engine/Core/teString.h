@@ -110,6 +110,10 @@ namespace te
 	public:
 		TE_INLINE teStringPool() {}
 		TE_INLINE teStringPool(u32 size) {Reserve(size);}
+		TE_INLINE teStringPool(void * nestedBuffer, size_t nestedBufferSize)
+			:pool(nestedBuffer, nestedBufferSize)
+		{
+		}
 
 		void Reserve(u32 size);
 		void Clear();

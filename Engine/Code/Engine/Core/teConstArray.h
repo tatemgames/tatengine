@@ -44,6 +44,18 @@ namespace te
 			Reserve(setSize, setAlignment);
 		}
 
+		//! @brief Default constructor with nested buffer
+		//! @param[in] setBuffer setup const array on buffer
+		//! @param[in] setSizeInBytes buffer size in bytes
+		teConstArray(void * setBuffer, size_t setSizeInBytes)
+			:size(0), alignment(0), freePosition(0), rawMemory(0), data(NULL)
+		{
+			size = setSizeInBytes / sizeof(T);
+
+			if(size)
+				data = (T*)setBuffer;
+		}
+
 		//! @brief Default destructor
 		//! @details Clear all allocated data.
 		~teConstArray()
@@ -58,6 +70,7 @@ namespace te
 		{
 			TE_ASSERT(!data);
 			TE_ASSERT(setSize);
+			TE_ASSERT(IsNested() == false);
 			size = setSize;
 			alignment = setAlignment;
 			freePosition = 0;
@@ -73,6 +86,7 @@ namespace te
 		void ReserveMore(size_t addSize, size_t setAlignment = 4)
 		{
 			TE_ASSERT(addSize);
+			TE_ASSERT(IsNested() == false);
 
 			if(rawMemory)
 			{
@@ -150,6 +164,9 @@ namespace te
 				freePosition = size;
 			}
 		}
+
+		//! @brief Return true if nested
+		TE_FORCE_INLINE u1 IsNested() const {return (data != NULL) && (rawMemory == NULL);}
 
 		//! @brief Get array reserved elements count
 		TE_FORCE_INLINE size_t GetSize() const {return size;}
@@ -235,10 +252,10 @@ namespace te
 		TE_INLINE T * Request(size_t count, u32 * getIndex)
 		{
 			TE_ASSERT(freePosition + count <= size);
-			
+
 			if(getIndex)
 				*getIndex = freePosition;
-			
+
 			T * result = data + freePosition;
 			freePosition += count;
 			return result;

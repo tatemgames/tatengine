@@ -23,7 +23,7 @@ namespace te
 			LT_DEFAULT,
 			LT_DEBUG
 		};
-		
+
 		class teLogManager
 		{
 		public:
@@ -39,6 +39,11 @@ namespace te
 				teString msg = GetConcate().AddVA(format, args).BakeToString();
 				OnLogConsole(msg, type);
 				va_end(args);
+			}
+
+			void FormLogMessage(ELogType type, const teString & string)
+			{
+				OnLogConsole(string, type);
 			}
 
 		protected:
@@ -61,5 +66,5 @@ namespace te
 	#define TE_LOG_DBG(...) {}
 	#define TE_LOG(...)		{}
 #endif
- 
+
 #endif
