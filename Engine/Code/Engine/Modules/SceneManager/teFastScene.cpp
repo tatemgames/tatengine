@@ -468,6 +468,7 @@ namespace te
 
 						u32 from = command.from;
 						u32 to = command.count ? (command.from + command.count) : scenePack.texts.GetAlive();
+						u32 textPosition = u32Max;
 
 						while(from < to)
 						{
@@ -483,7 +484,7 @@ namespace te
 							//	continue;
 							//}
 
-							u8 result = RenderTextToBatch(contentPack, scenePack, scenePack.texts[from], batch, matView, video::GetRender()->GetViewportOptions().size);
+							u8 result = RenderTextToBatch(contentPack, scenePack, scenePack.texts[from], batch, matView, video::GetRender()->GetViewportOptions().size, textPosition);
 
 							if(result == RTBE_MATERIAL_MISS)
 								++statistic.materialMissesText;

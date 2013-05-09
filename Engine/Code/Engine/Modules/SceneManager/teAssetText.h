@@ -42,7 +42,8 @@ namespace te
 
 		class teContentPack;
 		class teAssetPack;
-		u8 RenderTextToBatch(teContentPack & contentPack, const teAssetPack & assetPack, const teAssetText & text, video::teSurfaceData * batch, const teMatrix4f & matView, const teVector2duh & viewportSize, teVector2df * getTextSize = NULL);
+		// textPosition shoud be u32Max by default
+		u8 RenderTextToBatch(teContentPack & contentPack, const teAssetPack & assetPack, const teAssetText & text, video::teSurfaceData * batch, const teMatrix4f & matView, const teVector2duh & viewportSize, u32 & textPosition, teVector2df * getTextSize = NULL);
 	}
 }
 

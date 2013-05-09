@@ -18,7 +18,14 @@ namespace te
 {
 	namespace scene
 	{
-		u8 RenderTextToBatch(teContentPack & contentPack, const teAssetPack & assetPack, const teAssetText & text, video::teSurfaceData * batch, const teMatrix4f & matView, const teVector2duh & viewportSize, teVector2df * getTextSize)
+		enum ERenderTextState
+		{
+			RTS_NORMAL = 0,
+			RTS_NOT_RENDER_AT_BEGIN,
+			RTS_NOT_RENDER_TO_END,
+		};
+
+		u8 RenderTextToBatch(teContentPack & contentPack, const teAssetPack & assetPack, const teAssetText & text, video::teSurfaceData * batch, const teMatrix4f & matView, const teVector2duh & viewportSize, u32 & textPosition, teVector2df * getTextSize)
 		{
 			// ---------------------------------------------------------------------------------------
 
@@ -56,10 +63,16 @@ namespace te
 			{
 				if(batch->materialIndex != material.metaMaterial)//text.renderAsset.materialIndex)
 					return RTBE_MATERIAL_MISS;
+
+				if(batch->layersIndex != teSurfaceLayerSpriteIndex)
+					return RTBE_VERTEX_STRUCT_MISS;
+
+				if((batch->vertexCount + 4) >= (charsPerBatch * 4))
+					return RTBE_NO_MEMORY;
 			}
 
 			const teMatrix4f & mat = assetPack.global[text.renderAsset.transformIndex];
-			
+
 			const video::teAtlasSprite * atlasSprite = NULL;
 			if(material.atlasSpriteIndex[0] != u32Max)
 				atlasSprite = contentPack.atlasSprites.At(material.atlasSpriteIndex[0]);
@@ -78,21 +91,46 @@ namespace te
 
 			const c8 * tempString = textString.c_str();
 			u32 currentCharacter = u32Max;
+			u32 currentTextPosition = 0;
+
+			u8 state = (textPosition == u32Max) ? RTS_NORMAL : RTS_NOT_RENDER_AT_BEGIN;
+			u1 lastLineFixAlign = (textPosition == u32Max) ? true : false;
 
 			while(*tempString != NULL)
 			{
-				if((batch->vertexCount + 4) >= (charsPerBatch * 4))
+				switch(state)
 				{
-					// TODO change it to RTBE_OUT_OF_MEMORY with context saving
-					batch->vertexCount = beginLineVertex;
-					batch->indexCount = beginTextIndex;
-					return RTBE_NO_MEMORY;
+				case RTS_NORMAL:
+					{
+						if((batch->vertexCount + 4) >= (charsPerBatch * 4))
+						{
+							textPosition = currentTextPosition;
+							state = RTS_NOT_RENDER_TO_END;
+						}
+
+						break;
+					}
+				case RTS_NOT_RENDER_AT_BEGIN:
+					{
+						if(currentTextPosition >= textPosition)
+						{
+							state = RTS_NORMAL;
+							lastLineFixAlign = true;
+						}
+
+						break;
+					}
+				case RTS_NOT_RENDER_TO_END:
+				default:
+					break;
 				}
 
 				teSpriteVertex * vertexes = reinterpret_cast<teSpriteVertex*>(batch->Get(contentPack.surfaceLayers[batch->layersIndex], video::SLT_POSITION, batch->vertexCount));
 				teSpriteIndex * indexes = reinterpret_cast<teSpriteIndex*>(batch->Get(contentPack.surfaceLayers[batch->layersIndex], video::SLT_INDEXES, batch->indexCount));
 
-				tempString += teUTF8toUTF32(tempString, currentCharacter);
+				u8 readedChars = teUTF8toUTF32(tempString, currentCharacter);
+				currentTextPosition += readedChars;
+				tempString += readedChars;
 
 				if((currentCharacter == '\r') || (currentCharacter == '\n') || (currentCharacter == '\0'))
 				{
@@ -109,14 +147,20 @@ namespace te
 					currentTextSize.x = teMax(currentTextSize.x, currentLineSize.x);
 					currentTextSize.y += currentLineSize.y;
 
-					teSpriteVertex * vertexesLine = reinterpret_cast<teSpriteVertex*>(batch->Get(contentPack.surfaceLayers[batch->layersIndex], video::SLT_POSITION, beginLineVertex));
+					if((state == RTS_NORMAL) || lastLineFixAlign)
+					{
+						teSpriteVertex * vertexesLine = reinterpret_cast<teSpriteVertex*>(batch->Get(contentPack.surfaceLayers[batch->layersIndex], video::SLT_POSITION, beginLineVertex));
 
-					if(text.options.align == font::THA_CENTER)
-						for(u32 i = 0; i < batch->vertexCount - beginLineVertex + 1; ++i)
-							vertexesLine[i].pos.x -= currentLineSize.x / 2.0f;
-					else if(text.options.align == font::THA_RIGHT)
-						for(u32 i = 0; i < batch->vertexCount - beginLineVertex + 1; ++i)
-							vertexesLine[i].pos.x -= currentLineSize.x;
+						if(text.options.align == font::THA_CENTER)
+							for(u32 i = 0; i < batch->vertexCount - beginLineVertex + 1; ++i)
+								vertexesLine[i].pos.x -= currentLineSize.x / 2.0f;
+						else if(text.options.align == font::THA_RIGHT)
+							for(u32 i = 0; i < batch->vertexCount - beginLineVertex + 1; ++i)
+								vertexesLine[i].pos.x -= currentLineSize.x;
+
+						if(state != RTS_NORMAL)
+							lastLineFixAlign = false;
+					}
 
 					currentLineSize.SetXY(0.0f, 0.0f);
 					beginLineVertex = batch->vertexCount;
@@ -132,7 +176,7 @@ namespace te
 					temp[1] = tempString[1];
 					temp[2] = tempString[2];
 					temp[3] = '\0';
-					
+
 					s32 value = 0;
 					if(sscanf(temp, "%x", &value))
 					{
@@ -168,23 +212,24 @@ namespace te
 
 				teVector2duh uv1 = atlasSprite ? atlasSprite->GetAtlasUV(metric.uv1) : (teVector2duh)metric.uv1;
 				teVector2duh uv2 = atlasSprite ? atlasSprite->GetAtlasUV(metric.uv2) : (teVector2duh)metric.uv2;
-				//teVector2duh uv1 = metric.uv1;
-				//teVector2duh uv2 = metric.uv2;
 
-				vertexes[0].Set(plu, teVector2duh(uv1.x, uv1.y), teColor4u(teColor4f(charColor) * teColor4f(text.color)));
-				vertexes[1].Set(pld, teVector2duh(uv1.x, uv2.y), teColor4u(teColor4f(charColor) * teColor4f(text.color)));
-				vertexes[2].Set(pru, teVector2duh(uv2.x, uv1.y), teColor4u(teColor4f(charColor) * teColor4f(text.color)));
-				vertexes[3].Set(prd, teVector2duh(uv2.x, uv2.y), teColor4u(teColor4f(charColor) * teColor4f(text.color)));
+				if(state == RTS_NORMAL)
+				{
+					vertexes[0].Set(plu, teVector2duh(uv1.x, uv1.y), teColor4u(teColor4f(charColor) * teColor4f(text.color)));
+					vertexes[1].Set(pld, teVector2duh(uv1.x, uv2.y), teColor4u(teColor4f(charColor) * teColor4f(text.color)));
+					vertexes[2].Set(pru, teVector2duh(uv2.x, uv1.y), teColor4u(teColor4f(charColor) * teColor4f(text.color)));
+					vertexes[3].Set(prd, teVector2duh(uv2.x, uv2.y), teColor4u(teColor4f(charColor) * teColor4f(text.color)));
 
-				indexes[0] = batch->vertexCount + 0;
-				indexes[1] = batch->vertexCount + 1;
-				indexes[2] = batch->vertexCount + 2;
-				indexes[3] = batch->vertexCount + 1;
-				indexes[4] = batch->vertexCount + 3;
-				indexes[5] = batch->vertexCount + 2;
+					indexes[0] = batch->vertexCount + 0;
+					indexes[1] = batch->vertexCount + 1;
+					indexes[2] = batch->vertexCount + 2;
+					indexes[3] = batch->vertexCount + 1;
+					indexes[4] = batch->vertexCount + 3;
+					indexes[5] = batch->vertexCount + 2;
 
-				batch->vertexCount += 4;
-				batch->indexCount += 6;
+					batch->vertexCount += 4;
+					batch->indexCount += 6;
+				}
 
 				// move cursor
 				cursorPosition += metric.shiftCharacter;
@@ -205,13 +250,19 @@ namespace te
 				currentTextSize.x = teMax(currentTextSize.x, currentLineSize.x);
 				currentTextSize.y += currentLineSize.y;
 
-				teSpriteVertex * vertexesLine = reinterpret_cast<teSpriteVertex*>(batch->Get(contentPack.surfaceLayers[batch->layersIndex], video::SLT_POSITION, beginLineVertex));
-				if(text.options.align == font::THA_CENTER)
-					for(u32 i = 0; i < batch->vertexCount - beginLineVertex + 1; ++i)
-						vertexesLine[i].pos.x -= currentLineSize.x / 2.0f;
-				else if(text.options.align == font::THA_RIGHT)
-					for(u32 i = 0; i < batch->vertexCount - beginLineVertex + 1; ++i)
-						vertexesLine[i].pos.x -= currentLineSize.x;
+				if((state == RTS_NORMAL) || lastLineFixAlign)
+				{
+					teSpriteVertex * vertexesLine = reinterpret_cast<teSpriteVertex*>(batch->Get(contentPack.surfaceLayers[batch->layersIndex], video::SLT_POSITION, beginLineVertex));
+					if(text.options.align == font::THA_CENTER)
+						for(u32 i = 0; i < batch->vertexCount - beginLineVertex + 1; ++i)
+							vertexesLine[i].pos.x -= currentLineSize.x / 2.0f;
+					else if(text.options.align == font::THA_RIGHT)
+						for(u32 i = 0; i < batch->vertexCount - beginLineVertex + 1; ++i)
+							vertexesLine[i].pos.x -= currentLineSize.x;
+
+					if(state != RTS_NORMAL)
+						lastLineFixAlign = false;
+				}
 			}
 
 			teVector2df originProportion;
@@ -264,7 +315,22 @@ namespace te
 			if(getTextSize)
 				*getTextSize = currentTextSize;
 
-			return RTBE_OK;
+			if(state == RTS_NORMAL)
+			{
+				textPosition = u32Max;
+				return RTBE_OK;
+			}
+			else if(state == RTS_NOT_RENDER_AT_BEGIN)
+			{
+				textPosition = u32Max;
+				return RTBE_INVALID;
+			}
+			else if(state == RTS_NOT_RENDER_TO_END)
+			{
+				return RTBE_OUT_OF_MEMORY;
+			}
+			else
+				return RTBE_INVALID;
 		}
 	}
 }

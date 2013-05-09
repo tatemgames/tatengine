@@ -24,7 +24,7 @@ namespace te
 
 			if((batch->vertexCount + 4) > (spritesPerBatch * 4))
 				return RTBE_NO_MEMORY;
-			
+
 			if(sprite.renderAsset.materialIndex == u32Max)
 				return RTBE_OK;
 
@@ -41,11 +41,14 @@ namespace te
 			{
 				if(batch->materialIndex != material.metaMaterial)//sprite.renderAsset.materialIndex)
 					return RTBE_MATERIAL_MISS;
+
+				if(batch->layersIndex != teSurfaceLayerSpriteIndex)
+					return RTBE_VERTEX_STRUCT_MISS;
 			}
 
 			teSpriteVertex * vertexes = reinterpret_cast<teSpriteVertex*>(batch->Get(contentPack.surfaceLayers[batch->layersIndex], video::SLT_POSITION, batch->vertexCount));
 			teSpriteIndex * indexes = reinterpret_cast<teSpriteIndex*>(batch->Get(contentPack.surfaceLayers[batch->layersIndex], video::SLT_INDEXES, batch->indexCount));
-			
+
 			const teMatrix4f & mat = assetPack.global[sprite.renderAsset.transformIndex];
 
 			const video::teAtlasSprite * atlasSprite = NULL;
@@ -93,7 +96,7 @@ namespace te
 				if(viewportSize.y % 2)
 					shiftConstY = 0.5f;
 			}
-			
+
 			u1 flipH = (sprite.flags & SF_FLIP_HORIZONTAL);
 			u1 flipV = (sprite.flags & SF_FLIP_VERTICAL);
 
@@ -118,7 +121,7 @@ namespace te
 			vertexes[3].color = sprite.color;
 
 			teSpriteIndex indexesBase[] = {0, 1, 2, 1, 3, 2};
-			
+
 			for(u8 i = 0; i < 6; ++i)
 				indexes[i] = indexesBase[i] + batch->vertexCount;
 
