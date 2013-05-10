@@ -134,11 +134,6 @@ namespace te
 				++CurrentTick;
 			#endif
 
-			#ifdef TE_MODULE_NETWORK
-				u32 temp;
-				net::GetHTTPNetwork()->Read(temp);
-			#endif
-
 			if(CurrentApplication)
 				CurrentApplication->OnUpdate();
 
@@ -318,12 +313,12 @@ namespace te
 				TE_NEW(ColorTexture, video::teTexture);
 				ColorTexture->Init(video::TT_RENDERBUFFER, video::TF_DEFAULT);
 				CurrentFrameBuffer->SetTexture(video::FBL_COLOR_0, ColorTexture);
-			
+
 				video::teTexture * DepthTexture = NULL;
 				TE_NEW(DepthTexture, video::teTexture);
 				DepthTexture->Init(video::TT_RENDERBUFFER, video::TF_DEFAULT);
 				CurrentFrameBuffer->SetTexture(video::FBL_DEPTH, DepthTexture);
-			
+
 				CurrentFrameBuffer->UnBind();
 			#else
 				CurrentFrameBuffer = NULL;

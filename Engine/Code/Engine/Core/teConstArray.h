@@ -213,14 +213,14 @@ namespace te
 		//! @brief Return element index in array by pointer
 		//! param[in] pointer element pointer
 		//! @details Not failsafe, so additional result checks required if you cant guarantee valid pointer.
-		TE_FORCE_INLINE u64 GetIndexInArray(T * pointer) const
+		TE_FORCE_INLINE u64 GetIndexInArray(const T * pointer) const
 		{
 			return (reinterpret_cast<uintptr_t>(pointer) - reinterpret_cast<uintptr_t>(data)) / sizeof(T);
 		}
 
 		//! @brief Return true if pointer from this array
 		//! param[in] pointer element pointer
-		TE_FORCE_INLINE u1 IsFromThisArray(T * pointer) const
+		TE_FORCE_INLINE u1 IsFromThisArray(const T * pointer) const
 		{
 			if(!GetAlive())
 				return false;

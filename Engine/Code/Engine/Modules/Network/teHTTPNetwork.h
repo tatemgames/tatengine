@@ -2,13 +2,13 @@
  *  teHTTPNetwork.h
  *  TatEngine
  *
- *  Created by Vadim Luchko on 07/04/12.
- *  Copyright 2012 Tatem Games. All rights reserved.
+ *  Created by Dmitry Ivanov, Vadim Luchko on 05/10/13.
+ *  Copyright 2013 Tatem Games. All rights reserved.
  *
  */
 
-#ifndef TE_HTTPNETWORK_H
-#define TE_HTTPNETWORK_H
+#ifndef TE_HTTPNETWORK_2_H
+#define TE_HTTPNETWORK_2_H
 
 #include "teTypes.h"
 #include "teString.h"
@@ -17,144 +17,140 @@ namespace te
 {
 	namespace net
 	{
-		#define TE_NET_WAIT_RESPONSE_ETERNALY 0
-		#define TE_NET_WAIT_RESPONSE_TIMEOUT 1
-		#define TE_NET_WAIT_RESPONSE_ONCE 2
-		
-		const u32 teNetRespFailCount = 20; // for TE_NET_WAIT_RESPONSE_TIMEOUT
-		
-		const u32 teNetRespSize = 128 * 1024; 
-		const u32 teNetReqSize = 256;
-		const u32 teNetReqDataSize = 512;
+		const u32 teHTTPDefaultBufferSize = 128 * 1024;
+		const u32 teHTTPSocketReadBufferSize = 128 * 1024;
+		const u32 teHTTPSleepTime = 20;
+		const u32 teHTTPMaxAttempts = 10;
 
-		const u32 teNetQueueSize = 4;
-		
-		const u32 teNetSendBufferSize = 128 * 1024;
-		const u32 teNetRecvBufferSize = 128 * 1024;
-		
-		const u32 teNetSleepTime = 20;
-		
-		const u8 teNetCommandsCount = 4;
-		
-		const teString defaultPage = "/";
-		
-		const c8 tePartSeparator[] = "THIS_IS_PART_SEPARATOR";
-		
-		enum EErrorNum
+		struct teHTTPUrl;
+		struct teHTTPRequest;
+		struct teHTTPResponse;
+		class teHTTPSocket;
+		class teHTTPNetwork;
+		teHTTPNetwork * GetHTTPNetwork();
+
+		struct teHTTPUrl
 		{
-			E_NO_ERRORS = 32000,
-			E_INVALID_HOST,
-			E_TIMEOUT,
-			E_UNKNOWN
+			teString host;
+			u16 port;
+			teString path;
+			teString query;
+
+			teHTTPUrl() {}
+			teHTTPUrl(const teString & setURI) {SetHTTP(setURI);}
+			teHTTPUrl(const c8 * setURI) {SetHTTP(setURI);}
+
+			teHTTPUrl & SetHTTP(const teString & setHost);
+			teHTTPUrl & SetPort(u16 setPort);
+			teHTTPUrl & SetPath(const teString & setPath);
+			teHTTPUrl & SetQuery(const teString & setQuery);
 		};
-		
-		typedef void (*HTTPNetCallback)(const u16 & errorNum, void * data, const u32 & dataSize, teptr_t userData);  
-		
-		struct teNetCommand
+
+		// dataSize == -1 if error
+		typedef void (*teHTTPNetCallback)(const teHTTPRequest & request, const c8 * data, s32 dataSize, u1 willBeMore);
+
+		struct teHTTPSocket
 		{
-			c8 var[128];
-			c8 val[128];
+			s32 socketId;
+			u1 connected;
+
+			teHTTPSocket();
+			~teHTTPSocket();
+
+			u1 Connect(const teHTTPUrl & url);
+			void Disconnect();
+
+			u1 Write(const void * data, u32 dataSize);
+			u1 Write(teString data) {return Write(data.GetRawRO(), data.GetSize());}
+			s32 Read(void * buffer, u32 bufferSize);
 		};
-		
-		struct teResponse
+
+		struct teHTTPRequest
 		{
-			c8 data[teNetRespSize];
-			u32 dataSize;
-			u32 packetID;
-			u32 error;
-			HTTPNetCallback callback;
+			enum EWorkMode
+			{
+				WM_KEEP_ALIVE = 0,
+				WM_ONCE,
+				WM_TRYING,
+			};
+
+			enum EErrorType
+			{
+				ET_NO_ERROR = 0,
+				ET_CONNECT_FAIL,
+				ET_USER_HEADERS_TOO_BIG,
+				ET_SEND_FAIL,
+				ET_OPEN_FILE_FAIL,
+				ET_HTTP_CODE_ERROR,
+				ET_UNKNOWN,
+			};
+
+			teHTTPUrl url;
+			const void * postData;
+			u32 postDataSize;
+			teString headers;
+			teHTTPNetCallback callback;
 			teptr_t userData;
-						
-			u32 nextIndex;
-		};
-		
-		struct teRequest
-		{
-			c8 host[teNetReqSize];
-			c8 page[teNetReqSize];
-			u32 port;
-			
-			c8 data[teNetReqDataSize];
-			u32 dataSize;
-			c8 filename[teNetReqSize];
-			HTTPNetCallback callback;
-			teptr_t userData;
-			c8 waitRespType;
-			u32 failResCount;
-			u32 error;	//-- from EErrorNum
-			
-			teNetCommand commands[teNetCommandsCount];
-			s32 commandsCount;
-						
+			teString fileName;
+			teHTTPSocket socket;
+			core::IBuffer * fileBuffer;
+			c8 * readBuffer;
+			u32 readBufferSize;
+			u32 readBufferReadedSize;
+			EWorkMode mode;
+			EErrorType error; // contains error code if something failed
+			u8 errorsCount;
+			u32 chunkSize;
+			u1 chunkMode;
 			u1 sended;
-			u32 packetID;
-			
-			u32 nextIndex;
+			u1 clear;
+			u1 readedHeader;
+
+			teHTTPRequest();
+			teHTTPRequest(const teHTTPUrl & setURL);
+			~teHTTPRequest();
+
+			void Clear();
+			u1 OpenFile();
+			u1 FinalizeHeaders(c8 * output, u32 outputSize);
+			void Write(const void * data, u32 size);
+			void OnOk();
+			void OnError();
+
+			teHTTPRequest & SetURL(const teHTTPUrl & setURL);
+			teHTTPRequest & SetPost(const void * data, u32 dataSize);
+			teHTTPRequest & SetPost(teString data);
+			teHTTPRequest & SetHeaders(teString setHeaders);
+			teHTTPRequest & SetUserData(teptr_t setUserData);
+			teHTTPRequest & SetSaveToFile(teString setFileName);
+			teHTTPRequest & SetReadBuffer(c8 * buffer, u32 bufferSize);
+			teHTTPRequest & SetMode(EWorkMode setMode);
+			teHTTPRequest & SetCallBack(teHTTPNetCallback setCallback);
 		};
-				
+
 		class teHTTPNetwork
 		{
 		public:
 			teHTTPNetwork();
 			~teHTTPNetwork();
-			
-			void Write(const teString & host, u32 port, void * data = NULL, u32 dataSize = 0, HTTPNetCallback callback = NULL, teptr_t userData = 0, const teString & page = defaultPage, c8 * filename = NULL, teNetCommand * netCommands = NULL, u32 netCommandsCount = 0,  c8 waitRespType = TE_NET_WAIT_RESPONSE_ONCE);
-			void * Read(u32 & dataSize);
-			
-			u1 IsRequestQueueComplete();
-			
-			friend void * ThreadRoutine(void* data);
-			
-			void Test(HTTPNetCallback callback);
-			void PrintTest()
-			{
 
-			}
-			
+			u32 Add(const teHTTPRequest & request); // return request index
+			void Remove(u32 index);
+			void Remove(const teHTTPRequest & request);
+
+			teConstArray<teHTTPRequest> & Get() {return requests;}
+			const teConstArray<teHTTPRequest> & Get() const {return requests;}
+
+			void GetDefaultBuffer(c8 ** buffer, u32 & size);
+
 		protected:
-			u1 Connect();
-			void Disconnect();
-			u1 SetAddr(const teString & addr, u32 port);
-			
-			u1 OpenSocket();
-			
-			void Analyze(u32 recvSize);
-			void FormMessage(teRequest & req, c8 * buffer, u32 & bufferSize);
-			
-			//------- inner Info
-			s32 socketID;
+			teConstArray<teHTTPRequest> requests;
+			c8 defaultBuffer[teHTTPDefaultBufferSize];
 
-			u1 isConnected;
-			u32 curPacketID;
-			
-			teConstArray<teRequest> requests;  // req queue
-			u32 reqFirst, reqLast, reqCount;
-			
-			teConstArray<teResponse> responses;  // resp queue
-			u32 respFirst, respLast, respCount;
-			
-			void ClearRequests();
-			void ClearResponses();
-			void AddToRequests(const c8 * host, const c8 * page, u32 port, c8 * data, u32 dataSize, HTTPNetCallback callback, teptr_t userData, c8 * filename, teNetCommand * netCommands, u32 netCommandsCount, c8 waitRespType);
-			void AddToResponses(c8 * data, u32 dataSize, u32 errorID, u32 packetID, HTTPNetCallback callback = NULL, teptr_t userData = 0);
-			void DelFromRequests();
-			void DelFromResponses();
-		
-			c8 sendBuffer[teNetSendBufferSize];
-			u32 sendBufferUsed;
-			
-			c8 recvBuffer[teNetRecvBufferSize];
-			u32 recvBufferUsed;
+			static u1 Process(teHTTPRequest & request, c8 * buffer, u32 bufferSize);
+			static void * teHTTPThreadRoutine(void * data);
 		};
-		
-		teHTTPNetwork * GetHTTPNetwork();
-		void * ThreadRoutine(void* data);
 	}
-	
 }
-
-
-
-
 
 #endif
