@@ -12,6 +12,7 @@
 
 #include "teActor.h"
 #include "teFastScene.h"
+#include "teApplicationManager.h"
 
 namespace te
 {
@@ -34,17 +35,24 @@ namespace te
 				scene->Load((u8)switchTo, true);
 			}
 
+			TE_INLINE void CloseApplication()
+			{
+				app::GetApplicationManager()->GetApplication()->SetRun(false);
+			}
+
 		protected:
 			teFastScene * scene;
 		};
 
 		TE_ACTOR_PROXY_NU(teActorSwitchScene);
 		TE_ACTOR_SLOT_1(teActorSwitchScene, SwitchTo);
+		TE_ACTOR_SLOT_0(teActorSwitchScene, CloseApplication);
 
 		TE_FUNC void RegisterSwitchScene(teActorsTI * ti)
 		{
 			ti->AddClass(sizeof(teActorSwitchScene), "switchScene", TE_ACTOR_PROXY_NAMES_NU(teActorSwitchScene));
 			ti->AddSlot("SwitchTo", TE_ACTOR_SLOT_PROXY(teActorSwitchScene, SwitchTo));
+			ti->AddSlot("CloseApplication", TE_ACTOR_SLOT_PROXY(teActorSwitchScene, CloseApplication));
 		}
 	}
 }
