@@ -156,8 +156,8 @@ namespace te
 			TE_INLINE teColor4u GetColor4u() const {const f32 * v = GetNumbersArray(); return teColor4f((f32)v[0], (f32)v[1], (f32)v[2], (f32)v[3]);}
 		};
 
-		teJSONPool * ParseJSON(const teString & text);
-		teJSONPool * ParseJSON(core::IBuffer * buffer);
+		teJSONPool * ParseJSON(const teString & text, c8 * nestedBuffer = NULL, u32 nestedBufferSize = 0);
+		teJSONPool * ParseJSON(core::IBuffer * buffer, c8 * nestedBuffer = NULL, u32 nestedBufferSize = 0);
 	}
 }
 

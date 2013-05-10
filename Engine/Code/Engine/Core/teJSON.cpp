@@ -17,7 +17,7 @@ namespace te
 	{
 		teJSONValue teJSONPool::GetRoot() {return teJSONValue(this, 0);}
 
-		teJSONPool * ParseJSON(const teString & text)
+		teJSONPool * ParseJSON(const teString & text, c8 * nestedBuffer, u32 nestedBufferSize)
 		{
 			const u32 tokensTempCount = 64;
 			jsmntok_t tokensTemp[tokensTempCount];
@@ -37,7 +37,6 @@ namespace te
 				parser.cursize = NULL;
 				for(u32 i = 0; i < tokensTempCount; ++i)
 				{
-					//printf("%i tokens %i [%i, %i] %i\n", i, tokensTemp[i].type, tokensTemp[i].start, tokensTemp[i].end, tokensTemp[i].size);
 					if(tokensTemp[i].start != -1)
 					{
 						if(tokensTemp[i].type == JSMN_STRING)
@@ -60,7 +59,6 @@ namespace te
 
 			for(u32 i = 0; i < tokensTempCount; ++i)
 			{
-				//printf("%i tokens %i [%i, %i] %i\n", i, tokensTemp[i].type, tokensTemp[i].start, tokensTemp[i].end, tokensTemp[i].size);
 				if(tokensTemp[i].start != -1)
 				{
 					if(tokensTemp[i].type == JSMN_STRING)
@@ -75,10 +73,6 @@ namespace te
 				}
 			}
 
-			// ----------------------
-
-			//printf("total tokens %i data %i bytes\n", totalTokensCount, totalDataSize);
-
 			jsmntok_t * tokens = (jsmntok_t*)TE_ALLOCATE(sizeof(jsmntok_t) * totalTokensCount);
 			jsmn_init_parser(&parser, text.c_str(), tokens, totalTokensCount);
 
@@ -88,8 +82,20 @@ namespace te
 
 			u8 numbersAlignment = sizeof(f32);
 			u32 totalDataSize = totalDataStringsSize + totalDataNumbersSize + numbersAlignment;
-			
-			teJSONPool * json = (teJSONPool*)TE_ALLOCATE(sizeof(teJSONPool) + sizeof(teJSONToken) * totalTokensCount + totalDataSize);
+
+			u32 poolNeededSize = sizeof(teJSONPool) + sizeof(teJSONToken) * totalTokensCount + totalDataSize;
+			teJSONPool * json = NULL;
+
+			if(nestedBuffer && nestedBufferSize)
+			{
+				if(nestedBufferSize >= poolNeededSize)
+					json = (teJSONPool*)nestedBuffer;
+				else
+					return NULL;
+			}
+			else
+				json = (teJSONPool*)TE_ALLOCATE(poolNeededSize);
+
 			json->dataSize = totalDataSize;
 			json->tokensCount = totalTokensCount;
 
@@ -110,7 +116,7 @@ namespace te
 				case JSMN_PRIMITIVE:
 					{
 						c8 primitiveChar = text.c_str()[tokens[i].start];
-						
+
 						if(primitiveChar == 't') cursor.Get().type = teJSONToken::VT_TRUE;
 						else if(primitiveChar == 'f') cursor.Get().type = teJSONToken::VT_FALSE;
 						else if(primitiveChar == 'n') cursor.Get().type = teJSONToken::VT_NULL;
@@ -120,7 +126,7 @@ namespace te
 							cursor.Get().dataOffset = dataFloatPosition;
 							f32 * number = reinterpret_cast<f32*>(json->GetData(dataFloatPosition));
 							*number = (f32)atof(text.c_str() + tokens[i].start);
-							
+
 							dataFloatPosition += sizeof(f32);
 						}
 						cursor = cursor.Next();
@@ -173,35 +179,16 @@ namespace te
 
 			TE_FREE(tokens);
 
-			/*
-			for(u32 i = 0; i < json->valuesCount; ++i)
-			{
-				printf("%i tokens %i [%i, %i] %i\n", i, tokens[i].type, tokens[i].start, tokens[i].end, tokens[i].size);
-			}
-
-			for(u32 i = 0; i < json->valuesCount; ++i)
-			{
-				if(json->Get(i).IsString())
-					printf("%i type s, %s\n", i, json->GetData(json->Get(i).dataOffset));
-				else if(json->Get(i).IsNumber())
-					printf("%i type f, %f\n", i, *(f32*)json->GetData(json->Get(i).dataOffset));
-				else
-					printf("%i type %i, child [%i, %i]\n", i, json->Get(i).type, json->Get(i).childrensBegin, json->Get(i).childrensEnd);
-
-				//json->Next();
-			}
-			*/
-
 			return json;
 		}
 
-		teJSONPool * ParseJSON(core::IBuffer * buffer)
+		teJSONPool * ParseJSON(core::IBuffer * buffer, c8 * nestedBuffer, u32 nestedBufferSize)
 		{
 			if(!buffer)
 				return NULL;
 
 			if(buffer->GetArray())
-				return ParseJSON(teString((const c8*)buffer->GetArray()));
+				return ParseJSON(teString((const c8*)buffer->GetArray()), nestedBuffer, nestedBufferSize);
 			else
 			{
 				c8 * text = (c8*)TE_ALLOCATE(buffer->GetSize() + 1);
@@ -213,7 +200,7 @@ namespace te
 
 				text[buffer->GetSize()] = '\0';
 
-				teJSONPool * result = ParseJSON(teString(text));
+				teJSONPool * result = ParseJSON(teString(text), nestedBuffer, nestedBufferSize);
 
 				TE_FREE(text);
 
