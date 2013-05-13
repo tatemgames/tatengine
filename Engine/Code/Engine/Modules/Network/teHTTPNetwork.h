@@ -31,15 +31,25 @@ namespace te
 
 		struct teHTTPUrl
 		{
+			c8 buffer[1024];
 			teString host;
 			u16 port;
 			teString path;
 			teString query;
 
 			teHTTPUrl() {}
-			teHTTPUrl(const teString & setURI) {SetHTTP(setURI);}
-			teHTTPUrl(const c8 * setURI) {SetHTTP(setURI);}
+			teHTTPUrl(const teString & setURI) {SetURI(setURI);}
+			teHTTPUrl(const c8 * setURI) {SetURI(setURI);}
+			teHTTPUrl(const teHTTPUrl & other) {CopyFrom(other);}
 
+			teHTTPUrl & operator = (const teHTTPUrl & other)
+			{
+				return CopyFrom(other);
+			}
+
+			teHTTPUrl & CopyFrom(const teHTTPUrl & other);
+
+			teHTTPUrl & SetURI(const teString & setURI);
 			teHTTPUrl & SetHTTP(const teString & setHost);
 			teHTTPUrl & SetPort(u16 setPort);
 			teHTTPUrl & SetPath(const teString & setPath);
@@ -81,7 +91,7 @@ namespace te
 				ET_USER_HEADERS_TOO_BIG,
 				ET_SEND_FAIL,
 				ET_OPEN_FILE_FAIL,
-				ET_HTTP_CODE_ERROR,
+				ET_HTTP_HEADER_ERROR,
 				ET_UNKNOWN,
 			};
 
@@ -100,13 +110,17 @@ namespace te
 			EWorkMode mode;
 			EErrorType error; // contains error code if something failed
 			u8 errorsCount;
+			u16 httpCode;
 			u32 chunkSize;
 			u1 chunkMode;
 			u1 sended;
 			u1 clear;
 			u1 readedHeader;
+			u1 redirected;
 
 			teHTTPRequest();
+			teHTTPRequest(const teString & setURI);
+			teHTTPRequest(const c8 * setURI);
 			teHTTPRequest(const teHTTPUrl & setURL);
 			~teHTTPRequest();
 
@@ -116,6 +130,8 @@ namespace te
 			void Write(const void * data, u32 size);
 			void OnOk();
 			void OnError();
+
+			u1 IsHTTPCodeOk() const {return httpCode == 200;}
 
 			teHTTPRequest & SetURL(const teHTTPUrl & setURL);
 			teHTTPRequest & SetPost(const void * data, u32 dataSize);

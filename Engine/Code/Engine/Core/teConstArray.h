@@ -60,7 +60,8 @@ namespace te
 		//! @details Clear all allocated data.
 		~teConstArray()
 		{
-			Clear();
+			if(!IsNested())
+				Clear();
 		}
 
 		//! @brief Reserve array with size

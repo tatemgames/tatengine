@@ -54,6 +54,118 @@ namespace te
 
 		// ------------------------------------------------------------------------------------------------------ URL
 
+		teHTTPUrl & teHTTPUrl::CopyFrom(const teHTTPUrl & other)
+		{
+			memcpy(buffer, other.buffer, sizeof(buffer));
+
+			#define TE_MOVE_STR(__str) \
+			{ \
+				if((other.buffer <= other.__str.c_str()) && (other.buffer + sizeof(buffer) > other.__str.c_str())) \
+					__str = teString(other.__str.c_str() - other.buffer + buffer); \
+				else \
+					__str = other.__str; \
+			}
+
+			TE_MOVE_STR(host);
+			TE_MOVE_STR(path);
+			TE_MOVE_STR(query);
+
+			port = other.port;
+
+			#undef TE_MOVE_STR
+
+			return *this;
+		}
+
+		teHTTPUrl & teHTTPUrl::SetURI(const teString & setURI)
+		{
+			u32 i = 0;
+			while((setURI.c_str()[i] == ' ') && (setURI.c_str()[i] != '\0')) ++i;
+
+			u32 j = i;
+			while((setURI.c_str()[j] != ' ') && (setURI.c_str()[j] != '\0')) ++j;
+
+			if(j <= i + 1)
+			{
+				TE_LOG_ERR("teHTTPUrl empty");
+				return *this;
+			}
+
+			u32 size = j - i;
+			c8 temp[2 * 1024];
+
+			if(size > sizeof(temp))
+			{
+				TE_LOG_ERR("teHTTPUrl URI too big");
+				return *this;
+			}
+
+			memcpy(temp, setURI.c_str() + i, size);
+			temp[size] = '\0';
+
+			memset(buffer, 0, sizeof(buffer));
+			teStringPool pool(buffer, sizeof(buffer));
+
+			c8 * work = temp;
+
+			c8 * isTwoSlsh = (c8*)strstr(work, "//");
+
+			if(isTwoSlsh != NULL)
+				work = isTwoSlsh + 2;
+
+			c8 * isOneSlsh = (c8*)strchr(work, '/');
+
+			if(isOneSlsh)
+			{
+				isOneSlsh[0] = '\0';
+
+				c8 * isOneDblMrk = (c8*)strchr(work, ':');
+
+				if(isOneDblMrk)
+				{
+					isOneDblMrk[0] = '\0';
+					SetHTTP(pool.Clone(work).c_str());
+					SetPort(atoi(isOneDblMrk + 1));
+				}
+				else
+					SetHTTP(pool.Clone(work).c_str());
+
+				isOneSlsh[0] = '/';
+
+				work = isOneSlsh;
+
+				c8 * isOneQstMark = (c8*)strchr(work, '?');
+
+				if(isOneQstMark)
+				{
+					isOneQstMark[0] = '\0';
+					SetPath(pool.Clone(work).c_str());
+					isOneQstMark[0] = '?';
+
+					work = isOneQstMark;
+
+					SetQuery(pool.Clone(work + 1).c_str());
+				}
+				else
+				{
+					SetPath(pool.Clone(work).c_str());
+				}
+			}
+			else
+			{
+				c8 * isOneDblMrk = (c8*)strchr(work, ':');
+
+				if(isOneDblMrk)
+				{
+					isOneDblMrk[0] = '\0';
+					SetHTTP(pool.Clone(work).c_str());
+					SetPort(atoi(isOneDblMrk + 1));
+				}
+				else
+					SetHTTP(pool.Clone(work).c_str());
+			}
+		}
+
 		teHTTPUrl & teHTTPUrl::SetHTTP(const teString & setHost)
 		{
 			host = setHost;
@@ -211,6 +323,8 @@ namespace te
 					TE_LOG_ERR("teHTTPSocket::Disconnect() - close fail: %i", errno);
 				}
 			#endif
+
+			socketId = -1;
 		}
 
 		u1 teHTTPSocket::Write(const void * data, u32 dataSize)
@@ -246,6 +360,20 @@ namespace te
 			Clear();
 		}
 
+		teHTTPRequest::teHTTPRequest(const teString & setURI)
+			:fileBuffer(NULL)
+		{
+			Clear();
+			SetURL(teHTTPUrl(setURI));
+		}
+
+		teHTTPRequest::teHTTPRequest(const c8 * setURI)
+			:fileBuffer(NULL)
+		{
+			Clear();
+			SetURL(teHTTPUrl(setURI));
+		}
+
 		teHTTPRequest::teHTTPRequest(const teHTTPUrl & setURL)
 			:fileBuffer(NULL)
 		{
@@ -273,11 +401,13 @@ namespace te
 			mode = WM_ONCE;
 			error = ET_NO_ERROR;
 			errorsCount = 0;
+			httpCode = 0;
 			chunkSize = 0;
 			chunkMode = false;
 			sended = false;
 			clear = true;
 			readedHeader = false;
+			redirected = false;
 			socket.Disconnect();
 
 			GetHTTPNetwork()->GetDefaultBuffer(&readBuffer, readBufferSize);
@@ -619,15 +749,48 @@ namespace te
 						}
 
 						const c8 * isOkNextLine = strstr(buffer, "\r\n");
-						const c8 * isOk = strstr(buffer, "200");
+						const c8 * isOkHTTP11 = strstr(buffer, "HTTP/1.1");
 
-						u1 ok = (isOk != NULL) && (isOkNextLine != NULL) && (isOk < isOkNextLine);
-
-						if(!ok)
+						if((isOkNextLine != NULL) && (isOkHTTP11 == buffer) && (isOkNextLine - isOkHTTP11 > strlen("HTTP/1.1 ") + 3))
 						{
-							r.error = teHTTPRequest::ET_HTTP_CODE_ERROR;
+							c8 temp[4] = {0, 0, 0, 0};
+							memcpy(temp, buffer + strlen("HTTP/1.1 "), 3);
+							r.httpCode = (u16)atoi(temp);
+						}
+						else
+						{
+							r.error = teHTTPRequest::ET_HTTP_HEADER_ERROR;
 							return false;
 						}
+
+						if((r.httpCode > 300) && (r.httpCode < 399))
+						{
+							r.redirected = true;
+
+							c8 * isOkLocation = strstr(buffer, "Location:");
+
+							if(isOkLocation)
+							{
+								c8 * isOkLocationNextLine = strstr(isOkLocation, "\r\n");
+
+								isOkLocation += strlen("Location:");
+								isOkLocationNextLine[0] = '\0';
+
+								TE_LOG("findout redirection to : %s", isOkLocation);
+
+								r.socket.Disconnect();
+								r.sended = false;
+								r.url.SetURI(isOkLocation);
+								return true;
+							}
+							else
+							{
+								r.error = teHTTPRequest::ET_HTTP_HEADER_ERROR;
+								return false;
+							}
+						}
+						else
+							r.redirected = false;
 
 						resultSize -= (res - buffer) + 4;
 						result = res + 4;
@@ -741,10 +904,16 @@ namespace te
 
 					if(Process(reqs[i], buffer, sizeof(buffer)))
 					{
-						reqs[i].OnOk();
+						if(reqs[i].redirected)
+						{
+						}
+						else
+						{
+							reqs[i].OnOk();
 
-						if(reqs[i].mode != teHTTPRequest::WM_KEEP_ALIVE)
-							GetHTTPNetwork()->Remove(i);
+							if(reqs[i].mode != teHTTPRequest::WM_KEEP_ALIVE)
+								GetHTTPNetwork()->Remove(i);
+						}
 					}
 					else
 					{
