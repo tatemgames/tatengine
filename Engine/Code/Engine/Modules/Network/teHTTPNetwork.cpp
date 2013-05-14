@@ -32,6 +32,8 @@ namespace te
 {
 	namespace net
 	{
+		u1 threadRun = true;
+
 		#ifndef TE_PLATFORM_WIN
 
 		pthread_t threadId;
@@ -196,6 +198,20 @@ namespace te
 		teHTTPUrl & teHTTPUrl::SetQuery(const teString & setQuery)
 		{
 			query = setQuery;
+			return *this;
+		}
+
+		teHTTPUrl & teHTTPUrl::SetHandleData()
+		{
+			teHTTPUrl temp(*this);
+
+			memset(buffer, 0, sizeof(buffer));
+			teStringPool pool(buffer, sizeof(buffer));
+
+			host = pool.Clone(temp.host);
+			path = pool.Clone(temp.path);
+			query = pool.Clone(temp.query);
+
 			return *this;
 		}
 
@@ -439,7 +455,7 @@ namespace te
 
 		u1 teHTTPRequest::OpenFile()
 		{
-			if(fileName.GetRawRO())
+			if(strlen(fileName))
 			{
 				if(fileBuffer)
 					return true;
@@ -454,7 +470,7 @@ namespace te
 					}
 					else
 					{
-						TE_LOG_ERR("teHTTPRequest::OpenFile() - open failed");
+						TE_LOG_ERR("teHTTPRequest::OpenFile() - open failed (%s)", fileName);
 					}
 					return fileBuffer != NULL;
 				}
@@ -637,7 +653,8 @@ namespace te
 
 		teHTTPRequest & teHTTPRequest::SetSaveToFile(teString setFileName)
 		{
-			fileName = setFileName;
+			if(setFileName.GetSize() < sizeof(fileName))
+				memcpy(fileName, setFileName.c_str(), setFileName.GetSize());
 			return *this;
 		}
 
@@ -683,7 +700,7 @@ namespace te
 				_beginthread((void(_cdecl*)(void*))teHTTPThreadRoutine, 0, NULL);
 			#endif
 
-			requests.Reserve(64);
+			requests.Reserve(128);
 			requests.Request(requests.GetSize());
 
 			for(u32 i = 0; i < requests.GetAlive(); ++i)
@@ -692,6 +709,8 @@ namespace te
 
 		teHTTPNetwork::~teHTTPNetwork()
 		{
+			threadRun = false;
+
 			#ifndef TE_PLATFORM_WIN
 				pthread_cancel(threadId);
 				pthread_mutex_destroy(&threadMutex);
@@ -858,8 +877,6 @@ namespace te
 								isOkLocation += strlen("Location:");
 								isOkLocationNextLine[0] = '\0';
 
-								TE_LOG("findout redirection to : %s", isOkLocation);
-
 								r.PrepareToResend();
 								r.url.SetURI(isOkLocation);
 								return true;
@@ -995,10 +1012,8 @@ namespace te
 			c8 buffer[teHTTPSocketReadBufferSize];
 			teConstArray<teHTTPRequest> & reqs = GetHTTPNetwork()->Get();
 
-			while(true)
+			while(threadRun)
 			{
-				teSleep(teHTTPSleepTime);
-
 				for(u32 i = 0; i < reqs.GetAlive(); ++i)
 				{
 					if(reqs[i].clear)
@@ -1027,6 +1042,8 @@ namespace te
 
 					teSleep(teHTTPSleepTime);
 				}
+
+				teSleep(teHTTPSleepTime);
 			}
 
 			return NULL;

@@ -55,6 +55,7 @@ namespace te
 			teHTTPUrl & SetPort(u16 setPort);
 			teHTTPUrl & SetPath(const teString & setPath);
 			teHTTPUrl & SetQuery(const teString & setQuery);
+			teHTTPUrl & SetHandleData(); // copy string to internal buffer
 		};
 
 		enum EHTTPCallBackResult
@@ -118,7 +119,7 @@ namespace te
 			teString headers;
 			teHTTPNetCallback callback;
 			teptr_t userData;
-			teString fileName;
+			c8 fileName[1024];
 			teHTTPSocket socket;
 			core::IBuffer * fileBuffer;
 			c8 * readBuffer;

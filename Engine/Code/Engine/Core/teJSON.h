@@ -125,13 +125,13 @@ namespace te
 			TE_INLINE u1 IsArray() const	{return (position != u32Max) && (Get().type == teJSONToken::VT_ARRAY);}
 
 			// get node data
-			TE_INLINE teString		GetString() const {TE_ASSERT(IsString()); return teString(pool->GetData(Get().dataOffset));}
-			TE_INLINE f32			GetNumber() const {TE_ASSERT(IsNumber()); return *(f32*)pool->GetData(Get().dataOffset);}
-			TE_INLINE u1			GetBool() const {TE_ASSERT(IsBool()); return Get().type == teJSONToken::VT_TRUE;}
+			TE_INLINE teString		GetString(teString def = "") const {return IsString() ? teString(pool->GetData(Get().dataOffset)) : def;}
+			TE_INLINE f32			GetNumber(f32 def = 0.0f) const {return IsNumber() ? (*(f32*)pool->GetData(Get().dataOffset)) : def;}
+			TE_INLINE u1			GetBool(u1 def = false) const {return IsBool() ? (Get().type == teJSONToken::VT_TRUE) : def;}
 			TE_INLINE f32			GetF32(f32 def = 0.0f)	const {return IsNumber() ? (f32)GetNumber() : def;}
 			TE_INLINE s32			GetS32(s32 def = 0)		const {return IsNumber() ? (s32)GetNumber() : def;}
 			TE_INLINE u32			GetU32(u32 def = 0)		const {return IsNumber() ? (u32)GetNumber() : def;}
-			TE_INLINE u1			GetU1 (u1  def = false)	const {return IsNumber() ? (u1) GetNumber() : def;}
+			TE_INLINE u1			GetU1 (u1  def = false)	const {return GetBool(def);}
 
 			// object and array functions
 			TE_INLINE u32 GetArrayValuesCount() const {return (Get().childrensBegin == u32Max) ? 0 : ((Get().childrensEnd - Get().childrensBegin + 1) / (IsObject() ? 2 : 1));}
