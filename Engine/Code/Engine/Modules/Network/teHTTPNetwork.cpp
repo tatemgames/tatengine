@@ -54,6 +54,14 @@ namespace te
 
 		// ------------------------------------------------------------------------------------------------------ URL
 
+		void teHTTPUrl::Clear()
+		{
+			host = "";
+			port = 0;
+			path = "";
+			query = "";
+		}
+
 		teHTTPUrl & teHTTPUrl::CopyFrom(const teHTTPUrl & other)
 		{
 			memcpy(buffer, other.buffer, sizeof(buffer));
@@ -124,8 +132,7 @@ namespace te
 				if(isOneDblMrk)
 				{
 					isOneDblMrk[0] = '\0';
-					SetHTTP(pool.Clone(work).c_str());
-					SetPort(atoi(isOneDblMrk + 1));
+					SetHTTP(pool.Clone(work).c_str(), atoi(isOneDblMrk + 1));
 				}
 				else
 					SetHTTP(pool.Clone(work).c_str());
@@ -158,19 +165,18 @@ namespace te
 				if(isOneDblMrk)
 				{
 					isOneDblMrk[0] = '\0';
-					SetHTTP(pool.Clone(work).c_str());
-					SetPort(atoi(isOneDblMrk + 1));
+					SetHTTP(pool.Clone(work).c_str(), atoi(isOneDblMrk + 1));
 				}
 				else
 					SetHTTP(pool.Clone(work).c_str());
 			}
 		}
 
-		teHTTPUrl & teHTTPUrl::SetHTTP(const teString & setHost)
+		teHTTPUrl & teHTTPUrl::SetHTTP(const teString & setHost, u16 setPort)
 		{
 			host = setHost;
 			path = "/";
-			port = 80;
+			port = setPort;
 			query = "";
 			return *this;
 		}
@@ -388,6 +394,8 @@ namespace te
 
 		void teHTTPRequest::Clear()
 		{
+			url.Clear();
+			type = RT_GET;
 			postData = NULL;
 			postDataSize = 0;
 			callback = NULL;
@@ -401,6 +409,7 @@ namespace te
 			mode = WM_ONCE;
 			error = ET_NO_ERROR;
 			errorsCount = 0;
+			resendCount = 0;
 			httpCode = 0;
 			chunkSize = 0;
 			chunkMode = false;
@@ -408,9 +417,24 @@ namespace te
 			clear = true;
 			readedHeader = false;
 			redirected = false;
+			resended = false;
 			socket.Disconnect();
 
 			GetHTTPNetwork()->GetDefaultBuffer(&readBuffer, readBufferSize);
+		}
+
+		void teHTTPRequest::PrepareToResend()
+		{
+			readBufferReadedSize = 0;
+			error = ET_NO_ERROR;
+			errorsCount = 0;
+			httpCode = 0;
+			chunkSize = 0;
+			chunkMode = false;
+			sended = false;
+			readedHeader = false;
+			resended = true;
+			socket.Disconnect();
 		}
 
 		u1 teHTTPRequest::OpenFile()
@@ -463,7 +487,16 @@ namespace te
 		{
 			u32 p = 0;
 
-			TE_SNPRINTF("%s ", (postData ? "POST" : "GET"));
+			switch(type)
+			{
+			case RT_DELETE: TE_SNPRINTF("%s ", "DELETE"); break;
+			case RT_POST: TE_SNPRINTF("%s ", "POST"); break;
+			case RT_PUT: TE_SNPRINTF("%s ", "PUT"); break;
+			case RT_GET:
+			default:
+				TE_SNPRINTF("%s ", "GET"); break;
+			}
+
 			TE_SNPRINTF("%s%s%s", url.path.c_str(), (url.query.GetLength() ? "?" : ""), url.query.c_str());
 
 			if(postData)
@@ -485,10 +518,12 @@ namespace te
 			return true;
 		}
 
-		void teHTTPRequest::Write(const void * data, u32 size)
+		EHTTPCallBackResult teHTTPRequest::Write(const void * data, u32 size)
 		{
+			EHTTPCallBackResult result = HCBR_OK;
+
 			if(!data)
-				return;
+				return result;
 
 			if(fileBuffer)
 				fileBuffer->Write(data, size);
@@ -498,7 +533,7 @@ namespace te
 				if((readBufferReadedSize + size) > readBufferSize)
 				{
 					if(callback)
-						(*callback)(*this, readBuffer, readBufferReadedSize, true);
+						result = (*callback)(*this, readBuffer, readBufferReadedSize, true);
 
 					readBufferReadedSize = 0;
 				}
@@ -508,19 +543,25 @@ namespace te
 			}
 			else
 				readBufferReadedSize += size;
+
+			return result;
 		}
 
-		void teHTTPRequest::OnOk()
+		EHTTPCallBackResult teHTTPRequest::OnOk()
 		{
+			EHTTPCallBackResult result = HCBR_OK;
 			if(callback)
-				(*callback)(*this, readBuffer, readBufferReadedSize, mode == WM_KEEP_ALIVE);
+				result = (*callback)(*this, readBuffer, readBufferReadedSize, mode == WM_KEEP_ALIVE);
 			readBufferReadedSize = 0;
+			return result;
 		}
 
-		void teHTTPRequest::OnError()
+		EHTTPCallBackResult teHTTPRequest::OnError()
 		{
+			EHTTPCallBackResult result = HCBR_OK;
 			if(callback)
-				(*callback)(*this, NULL, -1, false);
+				result = (*callback)(*this, NULL, -1, false);
+			return result;
 		}
 
 		teHTTPRequest & teHTTPRequest::SetURL(const teHTTPUrl & setURL)
@@ -530,16 +571,55 @@ namespace te
 			return *this;
 		}
 
+		teHTTPRequest & teHTTPRequest::SetDelete()
+		{
+			type = RT_DELETE;
+			return *this;
+		}
+
 		teHTTPRequest & teHTTPRequest::SetPost(const void * data, u32 dataSize)
 		{
-			postData = data;
+			type = RT_POST;
+
+			if(dataSize <= sizeof(internalPostBuffer))
+			{
+				memcpy(internalPostBuffer, data, dataSize);
+				postData = internalPostBuffer;
+			}
+			else
+				postData = data;
+
 			postDataSize = dataSize;
+
 			return *this;
 		}
 
 		teHTTPRequest & teHTTPRequest::SetPost(teString data)
 		{
 			SetPost((const void*)data.GetRawRO(), data.GetSize());
+			return *this;
+		}
+
+		teHTTPRequest & teHTTPRequest::SetPut(const void * data, u32 dataSize)
+		{
+			type = RT_PUT;
+
+			if(dataSize <= sizeof(internalPostBuffer))
+			{
+				memcpy(internalPostBuffer, data, dataSize);
+				postData = internalPostBuffer;
+			}
+			else
+				postData = data;
+
+			postDataSize = dataSize;
+
+			return *this;
+		}
+
+		teHTTPRequest & teHTTPRequest::SetPut(teString data)
+		{
+			SetPut((const void*)data.GetRawRO(), data.GetSize());
 			return *this;
 		}
 
@@ -671,6 +751,8 @@ namespace te
 
 		u1 teHTTPNetwork::Process(teHTTPRequest & r, c8 * buffer, u32 bufferSize)
 		{
+			r.resended = false;
+
 			if(!r.socket.connected)
 			{
 				if(!r.socket.Connect(r.url))
@@ -778,8 +860,7 @@ namespace te
 
 								TE_LOG("findout redirection to : %s", isOkLocation);
 
-								r.socket.Disconnect();
-								r.sended = false;
+								r.PrepareToResend();
 								r.url.SetURI(isOkLocation);
 								return true;
 							}
@@ -805,7 +886,8 @@ namespace te
 					{
 						if(r.chunkSize <= resultSize)
 						{
-							r.Write(result, r.chunkSize);
+							if(!ProcessResult(r, r.Write(result, r.chunkSize)))
+								return true;
 
 							result += r.chunkSize;
 							resultSize -= r.chunkSize;
@@ -814,7 +896,8 @@ namespace te
 						}
 						else
 						{
-							r.Write(result, resultSize);
+							if(!ProcessResult(r, r.Write(result, resultSize)))
+								return true;
 
 							r.chunkSize -= resultSize;
 
@@ -857,7 +940,8 @@ namespace te
 
 						if(r.chunkSize <= resultSize)
 						{
-							r.Write(result, r.chunkSize);
+							if(!ProcessResult(r, r.Write(result, r.chunkSize)))
+								return true;
 
 							result += r.chunkSize;
 							resultSize -= r.chunkSize;
@@ -866,7 +950,8 @@ namespace te
 						}
 						else
 						{
-							r.Write(result, resultSize);
+							if(!ProcessResult(r, r.Write(result, resultSize)))
+								return true;
 
 							r.chunkSize -= resultSize;
 
@@ -881,11 +966,28 @@ namespace te
 						continue;
 					}
 				}
-				else
-					r.Write(result, resultSize);
+				else if(!ProcessResult(r, r.Write(result, resultSize)))
+						return true;
 			}
 
 			return true;
+		}
+
+		u1 teHTTPNetwork::ProcessResult(teHTTPRequest & request, EHTTPCallBackResult result)
+		{
+			if(result == HCBR_OK)
+				return true;
+			else if(result == HCBR_TRY_SEND_AGAIN)
+			{
+				request.PrepareToResend();
+				request.resendCount++;
+				return false;
+			}
+			else if(result == HCBR_FORCE_CLOSE_CONNECTION)
+			{
+				GetHTTPNetwork()->Remove(request);
+				return false;
+			}
 		}
 
 		void * teHTTPNetwork::teHTTPThreadRoutine(void * data)
@@ -904,14 +1006,11 @@ namespace te
 
 					if(Process(reqs[i], buffer, sizeof(buffer)))
 					{
-						if(reqs[i].redirected)
-						{
-						}
+						if(reqs[i].redirected || reqs[i].resended)
+							continue;
 						else
 						{
-							reqs[i].OnOk();
-
-							if(reqs[i].mode != teHTTPRequest::WM_KEEP_ALIVE)
+							if(ProcessResult(reqs[i], reqs[i].OnOk()) && (reqs[i].mode != teHTTPRequest::WM_KEEP_ALIVE))
 								GetHTTPNetwork()->Remove(i);
 						}
 					}
@@ -921,8 +1020,8 @@ namespace te
 
 						if((reqs[i].mode != teHTTPRequest::WM_TRYING) || (reqs[i].errorsCount > teHTTPMaxAttempts))
 						{
-							reqs[i].OnError();
-							GetHTTPNetwork()->Remove(i);
+							if(ProcessResult(reqs[i], reqs[i].OnError()))
+								GetHTTPNetwork()->Remove(i);
 						}
 					}
 
