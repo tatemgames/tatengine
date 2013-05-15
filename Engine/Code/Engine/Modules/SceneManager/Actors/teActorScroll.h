@@ -235,10 +235,19 @@ namespace te
 							break;
 					}
 					
-					if(teAbs(movingCount) > 1.0f)
+					f32 moveThreshold = 1.0f;
+					if(isOverLimit)
+						moveThreshold = 0.1f;
+					
+					if(teAbs(movingCount) > moveThreshold)
+					{
 						position += movingCount;
+					}
 					else
+					{
 						StopMoving();
+					}
+					
 				}
 				else
 				{

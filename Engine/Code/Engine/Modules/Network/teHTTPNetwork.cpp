@@ -39,8 +39,8 @@ namespace te
 		pthread_t threadId;
 		pthread_mutex_t threadMutex;
 
-		void teMutexLock() {pthread_mutex_lock(&threadMutex);}
-		void teMutexUnlock() {pthread_mutex_unlock(&threadMutex);}
+		void teHTTPMutexLock() {pthread_mutex_lock(&threadMutex);}
+		void teHTTPMutexUnlock() {pthread_mutex_unlock(&threadMutex);}
 		void teSleep(u32 milliseconds) {usleep(milliseconds * 1000);}
 
 		#else

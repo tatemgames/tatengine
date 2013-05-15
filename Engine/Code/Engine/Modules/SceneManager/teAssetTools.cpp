@@ -94,16 +94,16 @@ namespace te
 
 		void GetSpriteAssetRenderingRect(const teContentPack & contentPack, const teAssetPack & assetPack, const teAssetSprite & sprite, teVector3df * position, teVector2df * size)
 		{
-			TE_ASSERT(position != nullptr);
-			TE_ASSERT(size != nullptr);
+			TE_ASSERT(position != NULL);
+			TE_ASSERT(size != NULL);
 
 			const video::teMaterial & material = contentPack.materials[sprite.renderAsset.materialIndex];
 			const teMatrix4f & mat = assetPack.global[sprite.renderAsset.transformIndex];
-			const video::teAtlasSprite * atlasSprite = nullptr;
+			const video::teAtlasSprite * atlasSprite = NULL;
 			if(material.atlasSpriteIndex[0] != u32Max)
 				atlasSprite = contentPack.atlasSprites.At(material.atlasSpriteIndex[0]);
 
-			TE_ASSERT(atlasSprite != nullptr);
+			TE_ASSERT(atlasSprite != NULL);
 
 			teVector3df p[4];
 
