@@ -55,7 +55,8 @@ namespace te
 				error = jsmn_parse(&parser);
 			}
 
-			TE_ASSERT(error == JSMN_SUCCESS);
+			if(error != JSMN_SUCCESS)
+				return NULL;
 
 			for(u32 i = 0; i < tokensTempCount; ++i)
 			{
@@ -78,7 +79,8 @@ namespace te
 
 			error = jsmn_parse(&parser);
 
-			TE_ASSERT(error == JSMN_SUCCESS);
+			if(error != JSMN_SUCCESS)
+				return NULL;
 
 			u8 numbersAlignment = sizeof(f32);
 			u32 totalDataSize = totalDataStringsSize + totalDataNumbersSize + numbersAlignment;

@@ -403,9 +403,50 @@ namespace te
 			SetURL(setURL);
 		}
 
+		teHTTPRequest::teHTTPRequest(const teHTTPRequest & other)
+			:fileBuffer(NULL)
+		{
+			Clear();
+			CopyFrom(other);
+		}
+
 		teHTTPRequest::~teHTTPRequest()
 		{
 			Clear();
+		}
+
+		teHTTPRequest & teHTTPRequest::CopyFrom(const teHTTPRequest & o)
+		{
+			url = o.url;
+			type = o.type;
+			if((o.postData >= o.internalPostBuffer) && (o.postData < o.internalPostBuffer + sizeof(o.internalPostBuffer)))
+				postData = (c8*)o.postData - (c8*)o.internalPostBuffer + (c8*)internalPostBuffer;
+			else
+				postData = o.postData;
+			postDataSize = o.postDataSize;
+			headers = o.headers;
+			callback = o.callback;
+			userData = userData;
+			memcpy(fileName, o.fileName, sizeof(fileName));
+			socket = o.socket;
+			fileBuffer = o.fileBuffer;
+			readBuffer = o.readBuffer;
+			readBufferSize = o.readBufferSize;
+			readBufferReadedSize = o.readBufferReadedSize;
+			mode = o.mode;
+			error = o.error;
+			errorsCount = o.errorsCount;
+			resendCount = o.resendCount;
+			httpCode = o.httpCode;
+			chunkSize = o.chunkSize;
+			chunkMode = o.chunkMode;
+			sended = o.sended;
+			clear = o.clear;
+			readedHeader = o.readedHeader;
+			redirected = o.redirected;
+			resended = o.resended;
+			memcpy(internalPostBuffer, o.internalPostBuffer, sizeof(internalPostBuffer));
+			return *this;
 		}
 
 		void teHTTPRequest::Clear()
@@ -517,7 +558,7 @@ namespace te
 
 			if(postData)
 			{
-				TE_SNPRINTF(" HTTP/1.1\r\nHost:%s\r\nConnection:close\r\nAccept-Encoding:identity\r\nContent-Length:%u\r\nContent-Type:application/x-www-form-urlencoded\r\n%s\r\n", url.host.c_str(), postDataSize, (headers.c_str() ? headers.c_str() : ""));
+				TE_SNPRINTF(" HTTP/1.1\r\nHost:%s\r\nConnection:close\r\nAccept-Encoding:identity\r\nContent-Length:%u\r\nContent-Type:application/x-www-form-urlencoded\r\n%s\r\n%s", url.host.c_str(), postDataSize - 1, (headers.c_str() ? headers.c_str() : ""), (headers.c_str() ? "\r\n" : ""));
 
 				if((outputSize - p) < (postDataSize + 1))
 					return false;
@@ -528,7 +569,7 @@ namespace te
 			}
 			else
 			{
-				TE_SNPRINTF(" HTTP/1.1\r\nHost:%s\r\nConnection:close\r\nAccept-Encoding:identity\r\n%s\r\n", url.host.c_str(), (headers.c_str() ? headers.c_str() : ""));
+				TE_SNPRINTF(" HTTP/1.1\r\nHost:%s\r\nConnection:close\r\nAccept-Encoding:identity\r\n%s\r\n%s", url.host.c_str(), (headers.c_str() ? headers.c_str() : ""), (headers.c_str() ? "\r\n" : ""));
 			}
 
 			return true;
@@ -804,6 +845,8 @@ namespace te
 				return false;
 			}
 
+			TE_LOG("sended !");
+
 			u1 overflow = true;
 			u32 totalRecvSize = 0;
 			while(overflow)
@@ -823,6 +866,8 @@ namespace te
 
 				if(totalRecvSize == 0)
 					return true;
+
+				TE_LOG("got response !");
 
 				c8 * result = buffer;
 				u32 resultSize = (u32)totalRecvSize;
@@ -1009,6 +1054,8 @@ namespace te
 
 		void * teHTTPNetwork::teHTTPThreadRoutine(void * data)
 		{
+			teSleep(teHTTPSleepTime);
+
 			c8 buffer[teHTTPSocketReadBufferSize];
 			teConstArray<teHTTPRequest> & reqs = GetHTTPNetwork()->Get();
 

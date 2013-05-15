@@ -143,8 +143,15 @@ namespace te
 			teHTTPRequest(const teString & setURI);
 			teHTTPRequest(const c8 * setURI);
 			teHTTPRequest(const teHTTPUrl & setURL);
+			teHTTPRequest(const teHTTPRequest & other);
 			~teHTTPRequest();
 
+			teHTTPRequest & operator = (const teHTTPRequest & other)
+			{
+				return CopyFrom(other);
+			}
+
+			teHTTPRequest & CopyFrom(const teHTTPRequest & other);
 			void Clear();
 			void PrepareToResend();
 			u1 OpenFile();
