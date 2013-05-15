@@ -845,8 +845,6 @@ namespace te
 				return false;
 			}
 
-			TE_LOG("sended !");
-
 			u1 overflow = true;
 			u32 totalRecvSize = 0;
 			while(overflow)
@@ -866,8 +864,6 @@ namespace te
 
 				if(totalRecvSize == 0)
 					return true;
-
-				TE_LOG("got response !");
 
 				c8 * result = buffer;
 				u32 resultSize = (u32)totalRecvSize;
