@@ -457,6 +457,7 @@ namespace te
 			postDataSize = 0;
 			callback = NULL;
 			userData = 0;
+			memset(fileName, 0, sizeof(fileName));
 			if(fileBuffer)
 				fileBuffer->Unlock();
 			TE_SAFE_DROP(fileBuffer);
@@ -475,6 +476,7 @@ namespace te
 			readedHeader = false;
 			redirected = false;
 			resended = false;
+			memset(internalPostBuffer, 0, sizeof(internalPostBuffer));
 			socket.Disconnect();
 
 			GetHTTPNetwork()->GetDefaultBuffer(&readBuffer, readBufferSize);
@@ -587,10 +589,13 @@ namespace te
 
 			if(readBuffer)
 			{
-				if((readBufferReadedSize + size) > readBufferSize)
+				if((readBufferReadedSize + size + 1) > readBufferSize)
 				{
 					if(callback)
+					{
+						readBuffer[readBufferReadedSize] = '\0';
 						result = (*callback)(*this, readBuffer, readBufferReadedSize, true);
+					}
 
 					readBufferReadedSize = 0;
 				}
@@ -608,7 +613,10 @@ namespace te
 		{
 			EHTTPCallBackResult result = HCBR_OK;
 			if(callback)
+			{
+				readBuffer[readBufferReadedSize] = '\0';
 				result = (*callback)(*this, readBuffer, readBufferReadedSize, mode == WM_KEEP_ALIVE);
+			}
 			readBufferReadedSize = 0;
 			return result;
 		}

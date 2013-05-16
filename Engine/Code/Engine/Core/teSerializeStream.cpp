@@ -18,6 +18,11 @@ namespace te
 		{
 		}
 
+		teSerializeStream::teSerializeStream(void * setBuffer, size_t setSizeInBytes)
+			:mode(SSM_INVALID), pool(setBuffer, setSizeInBytes)
+		{
+		}
+
 		teSerializeStream::~teSerializeStream()
 		{
 		}
@@ -34,7 +39,9 @@ namespace te
 			(*func)(this, userData);
 
 			u32 poolSize = sectionsCount * sizeof(teSection) + valuesCount * sizeof(teValue) + dataSize;
-			pool.Reserve(poolSize);
+
+			if(!pool.IsNested())
+				pool.Reserve(poolSize);
 			pool.Request(poolSize);
 
 			curValueOffset = sectionsCount * sizeof(teSection);
@@ -93,7 +100,7 @@ namespace te
 
 						i += sizeof(teSection);
 					}
-					
+
 					if (result)
 					{
 						curWorkSection = tempWorkSection;
@@ -136,19 +143,19 @@ namespace te
 				break;;
 			case SSM_READ:
 				curParentIndex = curWorkSection->parentIndex;
-				
-				if(curWorkSection->parentIndex < u32Max)
-					curWorkSection = reinterpret_cast<teSection *>(pool.At(curWorkSection->parentIndex * sizeof(teSection)));	
-				break;
-			case SSM_WRITE:
-				 
-				memcpy(pool.At(curParentIndex/*curSectionIndex*/ * sizeof(teSection)), curWorkSection, sizeof(teSection));
-				curParentIndex = curWorkSection->parentIndex;	
-					
+
 				if(curWorkSection->parentIndex < u32Max)
 					curWorkSection = reinterpret_cast<teSection *>(pool.At(curWorkSection->parentIndex * sizeof(teSection)));
-					
-					
+				break;
+			case SSM_WRITE:
+
+				memcpy(pool.At(curParentIndex/*curSectionIndex*/ * sizeof(teSection)), curWorkSection, sizeof(teSection));
+				curParentIndex = curWorkSection->parentIndex;
+
+				if(curWorkSection->parentIndex < u32Max)
+					curWorkSection = reinterpret_cast<teSection *>(pool.At(curWorkSection->parentIndex * sizeof(teSection)));
+
+
 				break;
 			case SSM_WRITE_CALCULATE:
 				break;
@@ -193,7 +200,7 @@ namespace te
 				curWorkValue->size = size;
 				curWorkValue->dataOffset = curDataOffset;
 
-				memcpy(pool.At(curValueOffset), curWorkValue, sizeof(teValue)); 
+				memcpy(pool.At(curValueOffset), curWorkValue, sizeof(teValue));
 
 				curValueOffset += sizeof(teValue);
 

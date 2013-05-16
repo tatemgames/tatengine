@@ -20,6 +20,7 @@ namespace te
 		{
 		public:
 			teSerializeStream();
+			teSerializeStream(void * setBuffer, size_t setSizeInBytes);
 			~teSerializeStream();
 
 			TE_INLINE teConstArray<u8> & GetPool() {return pool;}
@@ -40,9 +41,6 @@ namespace te
 				return OnValue(id, value, sizeof(T));
 			}
 
-		protected:
-			teConstArray<u8> pool;
-
 			enum ESerializeStreamMode
 			{
 				SSM_INVALID = 0,
@@ -52,6 +50,11 @@ namespace te
 
 				SSM_MAX
 			};
+
+			ESerializeStreamMode GetMode() const {return (ESerializeStreamMode)mode;}
+
+		protected:
+			teConstArray<u8> pool;
 
 			u8 mode;
 

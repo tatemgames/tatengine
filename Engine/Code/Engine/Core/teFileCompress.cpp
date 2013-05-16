@@ -23,8 +23,24 @@ namespace te
 	{
 		typedef int (*teLZ4CompressionFunction)(const char *, char *, int);
 
-		void teCompressFile(const teString & from, const teString & to, u1 highCompression, u1 localPath)
+		void teCompressData(c8 * input, u32 inputSize, c8 * output, u32 outputSize, u32 & resultSize, u1 highCompression)
 		{
+			teLZ4CompressionFunction compressionFunction = highCompression ? LZ4_compressHC : LZ4_compress;
+
+			*((u32*)output + 0) = inputSize;
+			resultSize = compressionFunction(input, output + 4, inputSize) + 4;
+		}
+
+		void teDecodeData(c8 * input, u32 inputSize, c8 * output, u32 outputSize, u32 & resultSize)
+		{
+			resultSize = LZ4_uncompress_unknownOutputSize(input + 4, output, *((u32*)input + 0), outputSize);
+		}
+
+		void teCompressFile(const teString & from, const teString & to, u32 chunkSize, c8 * chunkInputBuffer, u32 chunkInputBufferSize, c8 * chunkOutputBuffer, u32 chunkOutputBufferSize, u1 highCompression, u1 localPath)
+		{
+			TE_ASSERT(chunkInputBufferSize >= chunkSize);
+			TE_ASSERT(chunkOutputBufferSize >= LZ4_compressBound(chunkSize));
+
 			teLZ4CompressionFunction compressionFunction = highCompression ? LZ4_compressHC : LZ4_compress;
 
 			IBuffer * fileInput = GetFileManager()->OpenFile(from, CFileBuffer::FWM_READ, localPath);
@@ -52,14 +68,14 @@ namespace te
 			u32 magicNumber = ARCHIVE_MAGICNUMBER;
 			fileOutput->Write(&magicNumber, ARCHIVE_MAGICNUMBER_SIZE);
 
-			c8 * inBuffer = (c8*)TE_ALLOCATE(CHUNKSIZE);
-			c8 * outBuffer = (c8*)TE_ALLOCATE(LZ4_compressBound(CHUNKSIZE));
+			c8 * inBuffer = chunkInputBuffer;
+			c8 * outBuffer = chunkOutputBuffer;
 
 			u32 fileSize = 0;
 
 			while(true)
 			{
-				u32 inSize = teMin(CHUNKSIZE, fileInput->GetSize() - fileInput->GetPosition());
+				u32 inSize = teMin(chunkSize, fileInput->GetSize() - fileInput->GetPosition());
 				fileInput->Read(inBuffer, inSize);
 				fileSize += inSize;
 
@@ -72,9 +88,6 @@ namespace te
 				fileOutput->Write(outBuffer, outSize + 4);
 			}
 
-			TE_FREE(inBuffer);
-			TE_FREE(outBuffer);
-
 			fileInput->Unlock();
 			fileOutput->Unlock();
 
@@ -82,8 +95,11 @@ namespace te
 			TE_SAFE_DROP(fileOutput);
 		}
 
-		void teDecodeFile(const teString & from, const teString & to, u1 localPath)
+		void teDecodeFile(const teString & from, const teString & to, u32 chunkSize, c8 * chunkInputBuffer, u32 chunkInputBufferSize, c8 * chunkOutputBuffer, u32 chunkOutputBufferSize, u1 localPath)
 		{
+			TE_ASSERT(chunkInputBufferSize >= LZ4_compressBound(chunkSize));
+			TE_ASSERT(chunkOutputBufferSize >= chunkSize);
+
 			IBuffer * fileInput = GetFileManager()->OpenFile(from, CFileBuffer::FWM_READ, localPath);
 
 			if(!fileInput)
@@ -110,30 +126,27 @@ namespace te
 			fileOutput->Lock(BLT_WRITE);
 			fileOutput->SetPosition(0);
 
-			c8 * inBuffer = (c8*)TE_ALLOCATE(LZ4_compressBound(CHUNKSIZE));
-			c8 * outBuffer = (c8*)TE_ALLOCATE(CHUNKSIZE);
+			c8 * inBuffer = chunkInputBuffer;
+			c8 * outBuffer = chunkOutputBuffer;
 
 			while(true)
 			{
 				if((fileInput->GetSize() - fileInput->GetPosition()) < ARCHIVE_MAGICNUMBER_SIZE)
 					break;
 
-				u32 chunkSize;
-				fileInput->Read(&chunkSize, sizeof(u32));
+				u32 chunkSizeInFile;
+				fileInput->Read(&chunkSizeInFile, sizeof(u32));
 
-				if(chunkSize == ARCHIVE_MAGICNUMBER)
+				if(chunkSizeInFile == ARCHIVE_MAGICNUMBER)
 					continue;
 
-				fileInput->Read(inBuffer, chunkSize);
+				fileInput->Read(inBuffer, chunkSizeInFile);
 
-				s32 outputSize = LZ4_uncompress_unknownOutputSize(inBuffer, outBuffer, chunkSize, CHUNKSIZE);
+				s32 outputSize = LZ4_uncompress_unknownOutputSize(inBuffer, outBuffer, chunkSizeInFile, chunkSize);
 
 				if(outputSize < 0)
 				{
 					TE_LOG_ERR("lz4 decoding failed, corrupted input\n");
-
-					TE_FREE(inBuffer);
-					TE_FREE(outBuffer);
 
 					fileInput->Unlock();
 					fileOutput->Unlock();
@@ -147,14 +160,33 @@ namespace te
 				fileOutput->Write(outBuffer, (u32)outputSize);
 			}
 
-			TE_FREE(inBuffer);
-			TE_FREE(outBuffer);
-
 			fileInput->Unlock();
 			fileOutput->Unlock();
 
 			TE_SAFE_DROP(fileInput);
 			TE_SAFE_DROP(fileOutput);
+		}
+
+		void teCompressFile(const teString & from, const teString & to, u1 highCompression, u1 localPath)
+		{
+			c8 * inBuffer = (c8*)TE_ALLOCATE(CHUNKSIZE);
+			c8 * outBuffer = (c8*)TE_ALLOCATE(LZ4_compressBound(CHUNKSIZE));
+
+			teCompressFile(from, to, CHUNKSIZE, inBuffer, CHUNKSIZE, outBuffer, LZ4_compressBound(CHUNKSIZE), highCompression, localPath);
+
+			TE_FREE(inBuffer);
+			TE_FREE(outBuffer);
+		}
+
+		void teDecodeFile(const teString & from, const teString & to, u1 localPath)
+		{
+			c8 * inBuffer = (c8*)TE_ALLOCATE(LZ4_compressBound(CHUNKSIZE));
+			c8 * outBuffer = (c8*)TE_ALLOCATE(CHUNKSIZE);
+
+			teDecodeFile(from, to, CHUNKSIZE, inBuffer, LZ4_compressBound(CHUNKSIZE), outBuffer, CHUNKSIZE, localPath);
+
+			TE_FREE(inBuffer);
+			TE_FREE(outBuffer);
 		}
 	}
 }
