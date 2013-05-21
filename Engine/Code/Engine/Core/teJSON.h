@@ -131,6 +131,8 @@ namespace te
 			TE_INLINE f32			GetF32(f32 def = 0.0f)	const {return IsNumber() ? (f32)GetNumber() : def;}
 			TE_INLINE s32			GetS32(s32 def = 0)		const {return IsNumber() ? (s32)GetNumber() : def;}
 			TE_INLINE u32			GetU32(u32 def = 0)		const {return IsNumber() ? (u32)GetNumber() : def;}
+			TE_INLINE s64			GetS64(s32 def = 0)		const {return IsNumber() ? (s64)GetNumber() : def;}
+			TE_INLINE u64			GetU64(u32 def = 0)		const {return IsNumber() ? (u64)GetNumber() : def;}
 			TE_INLINE u1			GetU1 (u1  def = false)	const {return GetBool(def);}
 
 			// object and array functions
