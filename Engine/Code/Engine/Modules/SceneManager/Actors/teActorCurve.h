@@ -189,12 +189,12 @@ namespace te
 			ti->AddClass(sizeof(teActorCurve), "curve", TE_ACTOR_PROXY_NAMES(teActorCurve));
 			for(u8 i = 0; i < teCurvePointsCount; ++i)
 			{
-				const c8 nameX[] = {'c', 'u', 'r', 'v', 'e', '0' + i, '.', 'x', 0};
+				const c8 nameX[] = {'c', 'u', 'r', 'v', 'e', (c8)('0' + i), '.', 'x', 0};
 				ti->AddData(nameX);
 			}
 			for(u8 i = 0; i < teCurvePointsCount; ++i)
 			{
-				const c8 nameY[] = {'c', 'u', 'r', 'v', 'e', '0' + i, '.', 'y', 0};
+				const c8 nameY[] = {'c', 'u', 'r', 'v', 'e', (c8)('0' + i), '.', 'y', 0};
 				ti->AddData(nameY);
 			}
 			ti->AddData("curveTrigger");

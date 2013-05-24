@@ -19,7 +19,7 @@ namespace te
 {
 	namespace core
 	{
-		typedef void (*teGetUserInputCallback)(te::c8 * data, te::teptr_t userData);
+		typedef void (*teGetUserInputCallback)(const te::c8 * data, te::teptr_t userData);
 		
 		//! Platform iPhone
 		class tePlatform_iOS : public te::teReferenceCounter
@@ -59,7 +59,7 @@ namespace te
 			
 			void GetUserInputText(teGetUserInputCallback callback, te::teptr_t userData);
 			
-			void AskUserQuestion(teString & question, teGetUserInputCallback callback, te::teptr_t userData);
+			void AskUserQuestion(const teString & question, teGetUserInputCallback callback, te::teptr_t userData);
 			
 			f32 GetBrightness();
 			

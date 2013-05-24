@@ -145,13 +145,13 @@ namespace te
 			{
 				if(buttonIndex == 1)
 				{
-					callback((c8*)[inputTextField.text cStringUsingEncoding:NSASCIIStringEncoding], userData);
+					callback((const c8*)[inputTextField.text cStringUsingEncoding:NSASCIIStringEncoding], userData);
 				}
 			}];
 
 		}
 		
-		void tePlatform_iOS::AskUserQuestion(teString & question, teGetUserInputCallback callback, te::teptr_t userData)
+		void tePlatform_iOS::AskUserQuestion(const teString & question, teGetUserInputCallback callback, te::teptr_t userData)
 		{
 			UIAlertView * alert = [[UIAlertView alloc] initWithTitle:@"Dream Gym"
 															 message:[NSString stringWithUTF8String:question.c_str()]
@@ -163,11 +163,11 @@ namespace te
 			 {
 				 if(buttonIndex == 1)
 				 {
-					 callback((c8*)"yes", userData);
+					 callback("yes", userData);
 				 }
 				 else
 				 {
-					 callback((c8*)"no", userData);
+					 callback("no", userData);
 				 }
 			 }];
 		}

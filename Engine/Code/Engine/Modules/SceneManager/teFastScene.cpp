@@ -595,16 +595,16 @@ namespace te
 
 			if(stage < 10)
 			{
-				c8 stageName[7] = {'s', '0' + stage, '.', 'b', 'i', 'n', '\0'};
-				c8 contentName[7] = {'c', '0' + stage, '.', 'b', 'i', 'n', '\0'};
+				c8 stageName[7] = {'s', (c8)('0' + stage), '.', 'b', 'i', 'n', '\0'};
+				c8 contentName[7] = {'c', (c8)('0' + stage), '.', 'b', 'i', 'n', '\0'};
 
 				stageBuffer = core::GetFileManager()->OpenFile(stageName);
 				contentBuffer = core::GetFileManager()->OpenFile(contentName);
 			}
 			else
 			{
-				c8 stageName[8] = {'s', '0' + stage / 10, '0' + stage % 10, '.', 'b', 'i', 'n', '\0'};
-				c8 contentName[8] = {'c', '0' + stage / 10, '0' + stage % 10, '.', 'b', 'i', 'n', '\0'};
+				c8 stageName[8] = {'s', (c8)('0' + stage / 10), (c8)('0' + stage % 10), '.', 'b', 'i', 'n', '\0'};
+				c8 contentName[8] = {'c', (c8)('0' + stage / 10), (c8)('0' + stage % 10), '.', 'b', 'i', 'n', '\0'};
 
 				stageBuffer = core::GetFileManager()->OpenFile(stageName);
 				contentBuffer = core::GetFileManager()->OpenFile(contentName);
