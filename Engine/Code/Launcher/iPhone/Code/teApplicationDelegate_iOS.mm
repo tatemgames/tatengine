@@ -339,8 +339,6 @@ public:
 
 - (void)leaderboardViewControllerDidFinish:(GKLeaderboardViewController *)viewController
 {
-	((te::core::tePlatform_iOS*)te::core::GetPlatform())->GetUserInputText(NULL, NULL);
-	
 	[Window.rootViewController dismissModalViewControllerAnimated:NO];
 	[viewController release];
 	[View StartAnimation];

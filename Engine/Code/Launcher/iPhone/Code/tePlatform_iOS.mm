@@ -129,13 +129,13 @@ namespace te
 			return DT_IOS_UNKNOWN;
 		}
 		
-		void tePlatform_iOS::GetUserInputText(teGetUserInputCallback callback, te::teptr_t userData)
+		void tePlatform_iOS::GetUserInputText(const teString & title, const teString & question, const teString & yesBtn, const teString & noBtn, teGetUserInputCallback callback, te::teptr_t userData)
 		{
-			UIAlertView * alert = [[UIAlertView alloc] initWithTitle:@"Dream Gym"
-															 message:@"         " 
+			UIAlertView * alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithUTF8String:title.c_str()]
+															 message:[NSString stringWithUTF8String:question.c_str()]
 															delegate:[[UIApplication sharedApplication] delegate]
-												   cancelButtonTitle:@"Cancel" 
-												   otherButtonTitles:@"Sign in", nil];
+												   cancelButtonTitle:[NSString stringWithUTF8String:noBtn.c_str()]
+												   otherButtonTitles:[NSString stringWithUTF8String:yesBtn.c_str()], nil];
 			
 			UITextField *inputTextField = [[UITextField alloc] initWithFrame:CGRectMake(12.0, 45.0, 260.0, 25.0)];
 			[inputTextField setBackgroundColor:[UIColor whiteColor]];
@@ -151,13 +151,13 @@ namespace te
 
 		}
 		
-		void tePlatform_iOS::AskUserQuestion(const teString & question, teGetUserInputCallback callback, te::teptr_t userData)
+		void tePlatform_iOS::AskUserQuestion(const teString & title, const teString & question, const teString & yesBtn, const teString & noBtn, teGetUserInputCallback callback, te::teptr_t userData)
 		{
-			UIAlertView * alert = [[UIAlertView alloc] initWithTitle:@"Dream Gym"
+			UIAlertView * alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithUTF8String:title.c_str()]
 															 message:[NSString stringWithUTF8String:question.c_str()]
 															delegate:[[UIApplication sharedApplication] delegate]
-												   cancelButtonTitle:@"NO" 
-												   otherButtonTitles:@"YES", nil];
+												   cancelButtonTitle:[NSString stringWithUTF8String:noBtn.c_str()] 
+												   otherButtonTitles:[NSString stringWithUTF8String:yesBtn.c_str()], nil];
 			
 			[teAlertViewDelegate showAlertView:alert withCallback:^(NSInteger buttonIndex)
 			 {
@@ -178,7 +178,6 @@ namespace te
 				return [UIScreen mainScreen].brightness;
 			else
 				return 0.5f;
-				
 		}
 		
 		void tePlatform_iOS::PlayVideo(u8 index, void * callbackActor)

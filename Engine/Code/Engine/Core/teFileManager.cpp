@@ -20,6 +20,7 @@
 	#include "dirent_msvc.h"
 #else
 	#include <dirent.h>
+	#include <unistd.h>
 #endif
 
 namespace te

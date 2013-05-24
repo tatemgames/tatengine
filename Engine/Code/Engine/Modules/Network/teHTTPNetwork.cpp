@@ -18,6 +18,7 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <errno.h>
+#include <unistd.h>
 #else
 #include <windows.h>
 #include <winsock2.h>

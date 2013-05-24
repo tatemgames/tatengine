@@ -57,9 +57,9 @@ namespace te
 			
 			EDeviceType DefinePlatform();
 			
-			void GetUserInputText(teGetUserInputCallback callback, te::teptr_t userData);
+			void GetUserInputText(const teString & title, const teString & question, const teString & yesBtn, const teString & noBtn, teGetUserInputCallback callback, te::teptr_t userData);
 			
-			void AskUserQuestion(const teString & question, teGetUserInputCallback callback, te::teptr_t userData);
+			void AskUserQuestion(const teString & title, const teString & question, const teString & yesBtn, const teString & noBtn, teGetUserInputCallback callback, te::teptr_t userData);
 			
 			f32 GetBrightness();
 			
