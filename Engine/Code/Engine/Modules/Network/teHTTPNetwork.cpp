@@ -332,7 +332,14 @@ namespace te
 			#ifndef TE_PLATFORM_WIN
 				if(shutdown(socketId, SHUT_RDWR) != 0)
 				{
-					TE_LOG_ERR("teHTTPSocket::Disconnect() - disconnect fail: %i", errno);
+					if(errno != 57)
+					{
+						TE_LOG_ERR("teHTTPSocket::Disconnect() - disconnect fail: %i", errno);
+					}
+					else
+					{
+						// already closed
+					}
 				}
 
 				if(close(socketId) != 0)
