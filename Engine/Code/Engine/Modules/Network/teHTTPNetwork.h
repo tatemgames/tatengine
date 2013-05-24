@@ -78,6 +78,7 @@ namespace te
 
 			u1 Connect(const teHTTPUrl & url);
 			void Disconnect();
+			void SendEnded();
 
 			u1 Write(const void * data, u32 dataSize);
 			u1 Write(teString data) {return Write(data.GetRawRO(), data.GetSize());}
@@ -109,6 +110,7 @@ namespace te
 				ET_SEND_FAIL,
 				ET_OPEN_FILE_FAIL,
 				ET_HTTP_HEADER_ERROR,
+				ET_HTTP_TIMEOUT,
 				ET_UNKNOWN,
 			};
 

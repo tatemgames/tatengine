@@ -356,6 +356,38 @@ namespace te
 
 			socketId = -1;
 		}
+		
+		void teHTTPSocket::SendEnded()
+		{
+			if(!connected)
+				return;
+			
+			#ifndef TE_PLATFORM_WIN
+				if(shutdown(socketId, SHUT_WR) != 0)
+				{
+					if(errno != 57)
+					{
+						TE_LOG_ERR("teHTTPSocket::SendEnded() - disconnect fail: %i", errno);
+					}
+					else
+					{
+						// already closed
+					}
+				}
+			#else
+				if(shutdown(socketId, SD_SEND) != 0)
+				{
+					if(errno != 57)
+					{
+						TE_LOG_ERR("teHTTPSocket::SendEnded() - disconnect fail: %i", errno);
+					}
+					else
+					{
+						// already closed
+					}
+				}
+			#endif
+		}
 
 		u1 teHTTPSocket::Write(const void * data, u32 dataSize)
 		{
@@ -363,7 +395,7 @@ namespace te
 
 			while(sent < dataSize)
 			{
-				s32 sendResult = send(socketId, (const c8*)data + (u32)sent, dataSize - (u32)sent, 0);
+				s32 sendResult = send(socketId, (const c8*)data + sent, dataSize - sent, 0);
 
 				if(sendResult < 0)
 				{
@@ -379,7 +411,7 @@ namespace te
 
 		s32 teHTTPSocket::Read(void * buffer, u32 bufferSize)
 		{
-			return recv(socketId, (c8*)buffer, bufferSize, 0);
+			return recv(socketId, (c8*)buffer, bufferSize, MSG_DONTWAIT);
 		}
 
 		// ------------------------------------------------------------------------------------------------------ Requests
@@ -854,6 +886,8 @@ namespace te
 				r.error = teHTTPRequest::ET_SEND_FAIL;
 				return false;
 			}
+			
+			r.socket.SendEnded();
 
 			if(!r.OpenFile())
 			{
@@ -863,18 +897,36 @@ namespace te
 
 			u1 overflow = true;
 			u32 totalRecvSize = 0;
+			u32 totalWaitTime = 0;
+			
 			while(overflow)
 			{
 				overflow = false;
 
 				s32 recvSize = 0;
-				while((recvSize = r.socket.Read(buffer + totalRecvSize, bufferSize - totalRecvSize)) > 0)
+				while(((recvSize = r.socket.Read(buffer + totalRecvSize, bufferSize - totalRecvSize)) > 0) || (errno == EINTR))
 				{
 					totalRecvSize += (u32)recvSize;
 					if((bufferSize - totalRecvSize) < 1024)
 					{
 						overflow = true;
 						break;
+					}
+				}
+				
+				if(recvSize < 0)
+				{
+					if(totalWaitTime < 1000)
+					{
+						teSleep(10);
+						totalWaitTime += 10;
+						overflow = true;
+						continue;
+					}
+					else
+					{
+						r.error = teHTTPRequest::ET_HTTP_TIMEOUT;
+						return false;
 					}
 				}
 
