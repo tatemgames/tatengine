@@ -356,12 +356,12 @@ namespace te
 
 			socketId = -1;
 		}
-		
+
 		void teHTTPSocket::SendEnded()
 		{
 			if(!connected)
 				return;
-			
+
 			#ifndef TE_PLATFORM_WIN
 				if(shutdown(socketId, SHUT_WR) != 0)
 				{
@@ -411,7 +411,11 @@ namespace te
 
 		s32 teHTTPSocket::Read(void * buffer, u32 bufferSize)
 		{
-			return recv(socketId, (c8*)buffer, bufferSize, MSG_DONTWAIT);
+			#ifndef TE_PLATFORM_WIN
+				return recv(socketId, (c8*)buffer, bufferSize, MSG_DONTWAIT);
+			#else
+				return recv(socketId, (c8*)buffer, bufferSize, 0);
+			#endif
 		}
 
 		// ------------------------------------------------------------------------------------------------------ Requests
@@ -886,7 +890,7 @@ namespace te
 				r.error = teHTTPRequest::ET_SEND_FAIL;
 				return false;
 			}
-			
+
 			r.socket.SendEnded();
 
 			if(!r.OpenFile())
@@ -898,13 +902,17 @@ namespace te
 			u1 overflow = true;
 			u32 totalRecvSize = 0;
 			u32 totalWaitTime = 0;
-			
+
 			while(overflow)
 			{
 				overflow = false;
 
 				s32 recvSize = 0;
+				#ifndef TE_PLATFORM_WIN
 				while(((recvSize = r.socket.Read(buffer + totalRecvSize, bufferSize - totalRecvSize)) > 0) || (errno == EINTR))
+				#else
+				while(((recvSize = r.socket.Read(buffer + totalRecvSize, bufferSize - totalRecvSize)) > 0))
+				#endif
 				{
 					totalRecvSize += (u32)recvSize;
 					if((bufferSize - totalRecvSize) < 1024)
@@ -913,7 +921,9 @@ namespace te
 						break;
 					}
 				}
-				
+
+				// TODO non blocking socket on windows
+				#ifndef TE_PLATFORM_WIN
 				if(recvSize < 0)
 				{
 					if(totalWaitTime < 1000)
@@ -929,6 +939,7 @@ namespace te
 						return false;
 					}
 				}
+				#endif
 
 				if(totalRecvSize == 0)
 					return true;
