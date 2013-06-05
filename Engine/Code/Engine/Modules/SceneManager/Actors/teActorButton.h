@@ -128,6 +128,8 @@ namespace te
 								if(!IsFlag(BF_UNDETECTABLE_WORK))
 									anyClicked = true;
 								OnClicked((f32)assetIndex);
+								if(buttonCallback)
+									(*buttonCallback)(this);
 							}
 							else
 								OnNotClicked((f32)assetIndex);
@@ -277,6 +279,11 @@ namespace te
 				spritePart2 = setSpritePart2;
 			}
 
+			teAssetSprite * GetAssetSprite() const {return sprite;}
+			teAssetSprite * GetAssetSpritePressed() const {return spritePressed;}
+			teAssetSprite * GetAssetSpritePart1() const {return spritePart1;}
+			teAssetSprite * GetAssetSpritePart2() const {return spritePart2;}
+
 			void SetAssetsSurface(teAssetSurface * setSurface)
 			{
 				surface = setSurface;
@@ -318,6 +325,13 @@ namespace te
 				}
 			}
 
+			typedef void (*teActorButtonCallback)(teActorButton * button);
+
+			static void SetCallback(teActorButtonCallback callback)
+			{
+				buttonCallback = callback;
+			}
+
 		protected:
 			f32 flags;
 			teAssetSprite * sprite;
@@ -337,6 +351,7 @@ namespace te
 			static u1 buttonForceGrab;
 			static s16 buttonGrabLayer;
 			static u32 buttonCheckFrame;
+			static teActorButtonCallback buttonCallback;
 
 			enum EButtonFlags
 			{
