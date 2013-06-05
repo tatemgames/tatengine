@@ -42,7 +42,7 @@ namespace te
 		}
 		
 		TE_INLINE void SetXYZW(T setX, T setY, T setZ, T setW) {x = setX; y = setY; z = setZ; w = setW;}
-		TE_INLINE void Flush() {SetXYZW(0, 0, 0, 0);}
+		TE_INLINE void Flush() {SetXYZW(0, 0, 0, 1);}
 
 		TE_INLINE u1 IsEqual(const teVector3d<T> & other) const {return (x == other.x) && (y == other.y) && (z == other.z) && (w == other.w);}
 
