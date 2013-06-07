@@ -82,6 +82,7 @@ namespace te
 			case LD_TEXT_LEADING: return &pack.texts[link.index].options.leading;
 			case LD_TEXT_EXTRA_TRACKING: return &pack.texts[link.index].options.extraTracking;
 			case LD_TEXT_IGNORE_KERNING: return &pack.texts[link.index].options.ignoreKerning;
+			case LD_TEXT_DRAW_SHADOW: return &pack.texts[link.index].options.drawShadow;
 
 			case LD_DRAW_ACTOR: return pack.drawActors.At(link.index);
 			case LD_DRAW_ACTOR_LAYER: return &pack.drawActors[link.index].renderAsset.layer;

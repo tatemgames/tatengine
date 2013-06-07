@@ -40,7 +40,7 @@ namespace te
 			u8 align;				//!< Text align value of ETextHorizontalAlign. Default = THA_LEFT.
 			u8 origin;				//!< @brief Text rectangle origin (value of ERectangleOriginCorner). Default = ROC_LEFT_UP. @details Text rendered in axis aligned bounding box rectangle, so this settings set origin of this rectangle.
 			u1 ignoreKerning;		//!< If true - ignore kerning data in text rendering. Default = false;
-			u8 _reserved;			//!< Reserved for 4 byte align.
+			u1 drawShadow;			//!< If true - draw shadow
 
 			//! @brief	Default constructor
 			TE_INLINE teFontRenderingOptions()

@@ -475,6 +475,40 @@ namespace te
 						u32 to = command.count ? (command.from + command.count) : scenePack.texts.GetAlive();
 						u32 textPosition = u32Max;
 
+						while(from < to) // shadow pass
+						{
+							if(!scenePack.texts[from].options.drawShadow)
+							{
+								++from;
+								continue;
+							}
+
+							if(!scenePack.transforms[scenePack.texts[from].renderAsset.transformIndex].inFrame)
+							{
+								++from;
+								continue;
+							}
+
+							u8 result = RenderTextToBatch(contentPack, scenePack, scenePack.texts[from], batch, matView, video::GetRender()->GetViewportOptions().size, textPosition, true);
+
+							if(result == RTBE_MATERIAL_MISS)
+								++statistic.materialMissesText;
+
+							if(!result)
+								++from;
+							else
+							{
+								if(!batch->IsEmpty())
+									RenderBatch(batch);
+
+								batch = NextBatch();
+							}
+						}
+
+						from = command.from;
+						to = command.count ? (command.from + command.count) : scenePack.texts.GetAlive();
+						textPosition = u32Max;
+
 						while(from < to)
 						{
 							if(!scenePack.transforms[scenePack.texts[from].renderAsset.transformIndex].inFrame)
@@ -483,13 +517,7 @@ namespace te
 								continue;
 							}
 
-							//if(scenePack.texts[from].fontIndex != 0)
-							//{
-							//	++from;
-							//	continue;
-							//}
-
-							u8 result = RenderTextToBatch(contentPack, scenePack, scenePack.texts[from], batch, matView, video::GetRender()->GetViewportOptions().size, textPosition);
+							u8 result = RenderTextToBatch(contentPack, scenePack, scenePack.texts[from], batch, matView, video::GetRender()->GetViewportOptions().size, textPosition, false);
 
 							if(result == RTBE_MATERIAL_MISS)
 								++statistic.materialMissesText;

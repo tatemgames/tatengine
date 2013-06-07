@@ -40,10 +40,13 @@ namespace te
 			}
 		};
 
+		// palette is 256 items array, for $pxx$ color resolve, by default all colors are black (0, 0, 0, 255)
+		teColor4u * GetTextPalette();
+
 		class teContentPack;
 		class teAssetPack;
 		// textPosition shoud be u32Max by default
-		u8 RenderTextToBatch(teContentPack & contentPack, const teAssetPack & assetPack, const teAssetText & text, video::teSurfaceData * batch, const teMatrix4f & matView, const teVector2duh & viewportSize, u32 & textPosition, teVector2df * getTextSize = NULL);
+		u8 RenderTextToBatch(teContentPack & contentPack, const teAssetPack & assetPack, const teAssetText & text, video::teSurfaceData * batch, const teMatrix4f & matView, const teVector2duh & viewportSize, u32 & textPosition, u1 shadowPass, teVector2df * getTextSize = NULL);
 	}
 }
 

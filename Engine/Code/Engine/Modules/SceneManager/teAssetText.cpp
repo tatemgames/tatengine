@@ -18,6 +18,10 @@ namespace te
 {
 	namespace scene
 	{
+		teColor4u textPalette[256];
+
+		teColor4u * GetTextPalette() {return textPalette;}
+
 		enum ERenderTextState
 		{
 			RTS_NORMAL = 0,
@@ -25,7 +29,7 @@ namespace te
 			RTS_NOT_RENDER_TO_END,
 		};
 
-		u8 RenderTextToBatch(teContentPack & contentPack, const teAssetPack & assetPack, const teAssetText & text, video::teSurfaceData * batch, const teMatrix4f & matView, const teVector2duh & viewportSize, u32 & textPosition, teVector2df * getTextSize)
+		u8 RenderTextToBatch(teContentPack & contentPack, const teAssetPack & assetPack, const teAssetText & text, video::teSurfaceData * batch, const teMatrix4f & matView, const teVector2duh & viewportSize, u32 & textPosition, u1 shadowPass, teVector2df * getTextSize)
 		{
 			// ---------------------------------------------------------------------------------------
 
@@ -81,6 +85,13 @@ namespace te
 
 			teVector2df cursorPosition;
 			teColor4u charColor(255, 255, 255, 255);
+
+			if(shadowPass) // TODO we need to config this values
+			{
+				//cursorPosition.x += 2;
+				cursorPosition.y -= 2;
+				charColor.SetRGBA(16, 16, 16, 255);
+			}
 
 			teVector2df currentTextSize;
 			teVector2df currentLineSize;
@@ -178,7 +189,18 @@ namespace te
 					temp[3] = '\0';
 
 					s32 value = 0;
-					if(sscanf(temp, "%x", &value))
+					if((temp[0] == 'p') && sscanf(temp + 1, "%x", &value)) // pallete mode
+					{
+						if(value < 255)
+						{
+							if(!shadowPass)
+								charColor = textPalette[value];
+
+							tempString += 4;
+							continue;
+						}
+					}
+					else if(sscanf(temp, "%x", &value))
 					{
 						u8 R = ((value >> 8) & 0xF);
 						R = R | (R << 4);
@@ -187,7 +209,8 @@ namespace te
 						u8 B = ((value >> 0) & 0xF);
 						B = B | (B << 4);
 
-						charColor.SetRGBA(R, G, B, 0xFF);
+						if(!shadowPass)
+							charColor.SetRGBA(R, G, B, 0xFF);
 
 						tempString += 4;
 						continue;
