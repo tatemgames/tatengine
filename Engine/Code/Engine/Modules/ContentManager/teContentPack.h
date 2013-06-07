@@ -92,6 +92,15 @@ namespace te
 			TE_INLINE u32 GetStringSize(u32 stringIndex) const {return GetStringSize((teStringInfo*)stringsData.At(stringIndex));}
 			TE_INLINE c8 * GetStringRaw(u32 stringIndex) {return GetStringRaw((teStringInfo*)stringsData.At(stringIndex));}
 
+			u32 GetSurfaceAABBIndex(u32 surfaceDataIndex)
+			{
+				size_t result = 0;
+				if(surfaceIndexes.BinarySearch(surfaceDataIndex, result))
+					return (u32)result;
+				else
+					return u32Max;
+			}
+
 			u1 finalized;
 			teConstArray<video::teTexture> textures;
 			teConstArray<u8> texturesData; // contains teTextureInfo
@@ -106,6 +115,8 @@ namespace te
 			teConstArray<c8> stringsData; // contains teStringInfo
 			teConstArray<u8> configsData;
 			teConstArray<sound::teSound> soundsData;
+
+			teConstArray<u32> surfaceIndexes; // lookup array for surface indexes, contains surfaceIndexes[surfaceAABBIndex] = surfaceDataIndex
 
 		private:
 			teContentPack(const teContentPack & other){}

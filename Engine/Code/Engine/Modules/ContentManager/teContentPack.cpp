@@ -211,6 +211,8 @@ namespace te
 			fontData.Clear();
 			stringsData.Clear();
 			soundsData.Clear();
+
+			surfaceIndexes.Clear();
 		}
 
 		void teContentPack::Finalize()
@@ -380,11 +382,21 @@ namespace te
 				}
 			}
 
+			u32 surfaceCount = 0;
 			for(u32 surfaceOffset = 0; surfaceOffset < surfaceData.GetAlive();)
 			{
 				video::teSurfaceData * data = reinterpret_cast<video::teSurfaceData*>(surfaceData.At(surfaceOffset));
 				data->flags |= video::SDF_WAS_CHANGED;
 				surfaceOffset += sizeof(video::teSurfaceData) + data->dataSize;
+				++surfaceCount;
+			}
+
+			surfaceIndexes.Reserve(surfaceCount);
+
+			for(u32 surfaceOffset = 0; surfaceOffset < surfaceData.GetAlive();)
+			{
+				*surfaceIndexes.Request() = surfaceOffset;
+				surfaceOffset += sizeof(video::teSurfaceData) + reinterpret_cast<video::teSurfaceData*>(surfaceData.At(surfaceOffset))->dataSize;
 			}
 
 			finalized = true;
@@ -408,6 +420,8 @@ namespace te
 					soundsData[i].Deinit();
 
 			textures.Clear();
+
+			surfaceIndexes.Clear();
 		}
 
 		void teContentPack::UpdateSurfaceAABB(u32 surfaceIndex, u32 surfaceOffset)

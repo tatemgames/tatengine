@@ -340,7 +340,7 @@ namespace te
 		{
 			size_t min = 0, max = GetAlive() - 1, mid = (min + max) / 2;
 
-			while((*At(mid) != object) && (min < max))
+			while((*At(mid) != object) && (min <= max))
 			{
 				mid = (min + max) / 2;
 

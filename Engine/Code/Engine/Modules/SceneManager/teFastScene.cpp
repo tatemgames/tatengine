@@ -211,8 +211,12 @@ namespace te
 
 			for(u32 i = 0; i < scenePack.surfaces.GetAlive(); ++i)
 			{
-			//	scenePack.surfaces[i].renderAsset.aabb = contentPack.surfaceAABB[i];
-			//	scenePack.surfaces[i].renderAsset.aabb.TransformAffine(scenePack.global[scenePack.surfaces[i].renderAsset.transformIndex]);
+				u32 aabbIndex = contentPack.GetSurfaceAABBIndex(scenePack.surfaces[i].surfaceIndex);
+				if(aabbIndex != u32Max)
+					scenePack.surfaces[i].renderAsset.aabb = contentPack.surfaceAABB[aabbIndex];
+				else
+					scenePack.surfaces[i].renderAsset.aabb.Flush();
+				scenePack.surfaces[i].renderAsset.aabb.TransformAffine(scenePack.global[scenePack.surfaces[i].renderAsset.transformIndex]);
 			}
 
 			// --------------------------------------------------------------- update render program
