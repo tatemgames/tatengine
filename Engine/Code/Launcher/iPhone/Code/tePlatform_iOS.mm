@@ -186,7 +186,7 @@ namespace te
 			ApplicationDelegate * delg = (ApplicationDelegate*)[UIApplication sharedApplication].delegate;
 
 			[delg.movieController.view setHidden:NO];
-			[delg.movieController setContentURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"0" ofType:@"mov"]]];
+			[delg.movieController setContentURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:[[NSNumber numberWithInt:(int)index] stringValue] ofType:@"mov"]]];
 			[delg.movieController play];
 		}
 		
