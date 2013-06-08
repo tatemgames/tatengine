@@ -78,23 +78,23 @@ typedef struct
 void * simple_mmap(const char * filename, int * length, SIMPLE_UNMMAP * un)
 {
 	int fd = open(filename, O_RDONLY);
-	
+
 	if(fd < 0)
 		return NULL;
-	
+
 	fcntl(fd, F_NOCACHE, 1);
-    fcntl(fd, F_RDAHEAD, 1);
+	fcntl(fd, F_RDAHEAD, 1);
 
 	struct stat statbuf;
-	
+
 	if(fstat(fd, &statbuf) < 0)
 		return NULL;
-	
+
 	void * p = mmap(0, statbuf.st_size, PROT_READ, MAP_SHARED, fd, 0);
-	
+
 	if(length)
 		*length = statbuf.st_size;
-	
+
 	if(un)
 	{
 		un->fd = fd;
@@ -194,7 +194,7 @@ namespace te
 
 			for(u32 i = 0; i < textures.GetAlive(); ++i)
 				textures[i].Deinit();
-			
+
 			for(u32 i = 0; i < soundsData.GetAlive(); ++i)
 				soundsData[i].Deinit();
 
@@ -282,7 +282,7 @@ namespace te
 					else
 					{
 						#if defined(TE_TEXTURE_MMAP)
-						
+
 						SIMPLE_UNMMAP mmap;
 						s32 mmapLength;
 
@@ -372,7 +372,7 @@ namespace te
 						frameBuffers[i].UnBind();
 				}
 			}
-			
+
 			if(soundsData.GetAlive())
 			{
 				for(u32 i = 0; i < soundsData.GetAlive(); ++i)
@@ -391,12 +391,15 @@ namespace te
 				++surfaceCount;
 			}
 
-			surfaceIndexes.Reserve(surfaceCount);
-
-			for(u32 surfaceOffset = 0; surfaceOffset < surfaceData.GetAlive();)
+			if(surfaceCount)
 			{
-				*surfaceIndexes.Request() = surfaceOffset;
-				surfaceOffset += sizeof(video::teSurfaceData) + reinterpret_cast<video::teSurfaceData*>(surfaceData.At(surfaceOffset))->dataSize;
+				surfaceIndexes.Reserve(surfaceCount);
+
+				for(u32 surfaceOffset = 0; surfaceOffset < surfaceData.GetAlive();)
+				{
+					*surfaceIndexes.Request() = surfaceOffset;
+					surfaceOffset += sizeof(video::teSurfaceData) + reinterpret_cast<video::teSurfaceData*>(surfaceData.At(surfaceOffset))->dataSize;
+				}
 			}
 
 			finalized = true;
@@ -415,7 +418,7 @@ namespace te
 
 			for(u32 i = 0; i < textures.GetAlive(); ++i)
 				textures[i].Deinit();
-			
+
 			for(u32 i = 0; i < soundsData.GetAlive(); ++i)
 					soundsData[i].Deinit();
 
@@ -429,7 +432,7 @@ namespace te
 			if((surfaceIndex != u32Max) && (surfaceOffset != u32Max))
 			{
 				video::teSurfaceData * data = reinterpret_cast<video::teSurfaceData*>(surfaceData.At(surfaceOffset));
-				
+
 				if(data->skeletonIndex != u32Max)
 				{
 					teSkeleton * skelData = reinterpret_cast<teSkeleton*>(skeletonData.At(data->skeletonIndex));
@@ -446,7 +449,7 @@ namespace te
 				while(surfaceOffset < surfaceData.GetAlive())
 				{
 					video::teSurfaceData * data = reinterpret_cast<video::teSurfaceData*>(surfaceData.At(surfaceOffset));
-					
+
 					if(data->skeletonIndex != u32Max)
 					{
 						teSkeleton * skelData = reinterpret_cast<teSkeleton*>(skeletonData.At(data->skeletonIndex));
