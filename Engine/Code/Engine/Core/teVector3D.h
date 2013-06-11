@@ -77,6 +77,16 @@ namespace te
 				return *this;
 			}
 		}
+		
+		TE_INLINE f32 GetAngleRad(const teVector3d<T> & other) const
+		{
+			return acos(DotProduct(other)/(GetDistance() * other.GetDistance()));
+		}
+		
+		TE_INLINE f32 GetAngleDeg(const teVector3d<T> & other) const
+		{
+			return GetAngleRad(other) * teRadToDeg;
+		}
 
 		TE_INLINE teVector3d<T> LinearInterpolation(teVector3d<T> b, f32 time) const {return (*this) * (1 - time) + b * time;}
 
