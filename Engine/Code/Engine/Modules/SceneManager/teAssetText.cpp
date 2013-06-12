@@ -29,7 +29,7 @@ namespace te
 			RTS_NOT_RENDER_TO_END,
 		};
 
-		u8 RenderTextToBatch(teContentPack & contentPack, const teAssetPack & assetPack, const teAssetText & text, video::teSurfaceData * batch, const teMatrix4f & matView, const teVector2duh & viewportSize, u32 & textPosition, u1 shadowPass, teVector2df * getTextSize)
+		u8 RenderTextToBatch(teContentPack & contentPack, const teAssetPack & assetPack, teAssetText & text, video::teSurfaceData * batch, const teMatrix4f & matView, const teVector2duh & viewportSize, u32 & textPosition, u1 shadowPass, teVector2df * getTextSize)
 		{
 			// ---------------------------------------------------------------------------------------
 
@@ -106,6 +106,7 @@ namespace te
 
 			u8 state = (textPosition == u32Max) ? RTS_NORMAL : RTS_NOT_RENDER_AT_BEGIN;
 			u1 lastLineFixAlign = (textPosition == u32Max) ? true : false;
+			u1 notRenderAtBegin = (state == RTS_NOT_RENDER_AT_BEGIN);
 
 			while(*tempString != NULL)
 			{
@@ -322,9 +323,18 @@ namespace te
 				material.userData[0].dataPtr = *reinterpret_cast<teptr_t*>(&smooth_offset);
 			}
 
-			for(u32 i = 0; i < batch->vertexCount - beginTextVertex + 1; ++i)
+			for(u32 i = 0; i < batch->vertexCount - beginTextVertex; ++i)
 			{
 				vertexesText[i].pos = mat.MultiplyMatrixOnVector3D(vertexesText[i].pos * scaleSize);
+
+				if(!shadowPass)
+				{
+					if((i == 0) && (!notRenderAtBegin))
+						text.renderAsset.aabb.SetEdges(vertexesText[i].pos, vertexesText[i].pos);
+					else
+						text.renderAsset.aabb.Unite(teAABB3df(vertexesText[i].pos, vertexesText[i].pos));
+				}
+
 				// restore for pixel pefrect fonts, but with distance field we doesnt need this anymore
 				//vertexesText[i].pos.x = teFloor(vertexesText[i].pos.x);
 				//vertexesText[i].pos.y = teFloor(vertexesText[i].pos.y);
