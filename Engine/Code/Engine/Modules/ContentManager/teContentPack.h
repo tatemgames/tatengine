@@ -84,7 +84,7 @@ namespace te
 			void Finalize();
 			void Invalidate();
 
-			void UpdateSurfaceAABB(u32 surfaceIndex = u32Max, u32 surfaceOffset = u32Max);
+			void UpdateSurfaceAABB(u32 surfaceIndex = u32Max, u32 surfaceOffset = u32Max, u1 updateSkeleton = true);
 
 			static TE_INLINE u32 GetStringSize(teStringInfo * stringInfo) {return stringInfo->size - sizeof(teStringInfo);}
 			static TE_INLINE c8 * GetStringRaw(teStringInfo * stringInfo) {return stringInfo->data;}

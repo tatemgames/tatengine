@@ -458,6 +458,84 @@ namespace te
 								surfaceData->materialIndex = matTemp;
 							}
 
+							/*{
+								teVector3df p0 = scenePack.surfaces[from].renderAsset.aabb.edgeMin;
+								teVector3df p1 = scenePack.surfaces[from].renderAsset.aabb.edgeMax;
+
+								u8 temp[2048];
+
+								video::teMaterial temp2 = contentPack.materials[0];
+								contentPack.materials[0].color.SetRGB(0xff, 0x99, 0x99);
+								contentPack.materials[0].atlasSpriteIndex[0] = u32Max;
+								contentPack.materials[0].shaderIndex = video::ST_FAILSAFE;
+								contentPack.materials[0].flags = 0;
+								contentPack.materials[0].blend = video::BT_DISABLED;
+								contentPack.materials[0].metaMaterial = 0;
+
+								video::teSurfaceData * d = (video::teSurfaceData*)temp;
+
+								d->Clear();
+
+								d->operationType = video::ROT_LINES;
+								d->layersIndex = teSurfaceLayerSpriteIndex;
+								d->indexesOffset = 400;
+								d->materialIndex = 0;
+
+								teSpriteVertex * vertexes = reinterpret_cast<teSpriteVertex*>(d->Get(contentPack.surfaceLayers[d->layersIndex], video::SLT_POSITION, d->vertexCount));
+								teSpriteIndex * indexes = reinterpret_cast<teSpriteIndex*>(d->Get(contentPack.surfaceLayers[d->layersIndex], video::SLT_INDEXES, d->indexCount));
+
+								d->vertexCount = 0;
+								vertexes[d->vertexCount++].Set3D(teVector3df(p0.x, p0.y, p0.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
+								vertexes[d->vertexCount++].Set3D(teVector3df(p1.x, p0.y, p0.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
+								vertexes[d->vertexCount++].Set3D(teVector3df(p1.x, p1.y, p0.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
+								vertexes[d->vertexCount++].Set3D(teVector3df(p0.x, p1.y, p0.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
+								vertexes[d->vertexCount++].Set3D(teVector3df(p0.x, p0.y, p1.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
+								vertexes[d->vertexCount++].Set3D(teVector3df(p1.x, p0.y, p1.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
+								vertexes[d->vertexCount++].Set3D(teVector3df(p1.x, p1.y, p1.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
+								vertexes[d->vertexCount++].Set3D(teVector3df(p0.x, p1.y, p1.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
+
+
+								d->indexCount = 0;
+								indexes[d->indexCount++] = 0;
+								indexes[d->indexCount++] = 1;
+								indexes[d->indexCount++] = 1;
+								indexes[d->indexCount++] = 2;
+								indexes[d->indexCount++] = 2;
+								indexes[d->indexCount++] = 3;
+								indexes[d->indexCount++] = 3;
+								indexes[d->indexCount++] = 0;
+
+								indexes[d->indexCount++] = 4;
+								indexes[d->indexCount++] = 5;
+								indexes[d->indexCount++] = 5;
+								indexes[d->indexCount++] = 6;
+								indexes[d->indexCount++] = 6;
+								indexes[d->indexCount++] = 7;
+								indexes[d->indexCount++] = 7;
+								indexes[d->indexCount++] = 4;
+
+								indexes[d->indexCount++] = 1;
+								indexes[d->indexCount++] = 5;
+								indexes[d->indexCount++] = 2;
+								indexes[d->indexCount++] = 6;
+								indexes[d->indexCount++] = 3;
+								indexes[d->indexCount++] = 7;
+								indexes[d->indexCount++] = 0;
+								indexes[d->indexCount++] = 4;
+
+								for(u32 i = 0; i < d->vertexCount; ++i)
+									vertexes[i].pos = matView.MultiplyMatrixOnVector3D(vertexes[i].pos);
+
+								teMatrix4f tempm = video::GetRender()->GetMatrixModelView();
+								video::GetRender()->GetMatrixModelView().SetIdentity();
+
+								video::GetRender()->Render(contentPack, d);
+
+								video::GetRender()->GetMatrixModelView() = tempm;
+
+								contentPack.materials[0] = temp2;
+							}*/
+
 							++from;
 						}
 
@@ -724,6 +802,9 @@ namespace te
 			}
 
 			contentPack.Finalize();
+
+			contentPack.UpdateSurfaceAABB(u32Max, u32Max, false); // TODO temporary calculate aabb here, until https://github.com/tatemgames/tatengine/issues/14
+
 			scenePack.Finalize(this, contentPack);
 
 			FormRenderProgram(program, scenePack, contentPack);

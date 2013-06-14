@@ -427,13 +427,13 @@ namespace te
 			surfaceIndexes.Clear();
 		}
 
-		void teContentPack::UpdateSurfaceAABB(u32 surfaceIndex, u32 surfaceOffset)
+		void teContentPack::UpdateSurfaceAABB(u32 surfaceIndex, u32 surfaceOffset, u1 updateSkeleton)
 		{
 			if((surfaceIndex != u32Max) && (surfaceOffset != u32Max))
 			{
 				video::teSurfaceData * data = reinterpret_cast<video::teSurfaceData*>(surfaceData.At(surfaceOffset));
 
-				if(data->skeletonIndex != u32Max)
+				if(updateSkeleton && (data->skeletonIndex != u32Max))
 				{
 					teSkeleton * skelData = reinterpret_cast<teSkeleton*>(skeletonData.At(data->skeletonIndex));
 					CalculateSurfaceAABBSkeleton(skelData, data, surfaceLayers[data->layersIndex], surfaceAABB[surfaceIndex]);
@@ -450,7 +450,7 @@ namespace te
 				{
 					video::teSurfaceData * data = reinterpret_cast<video::teSurfaceData*>(surfaceData.At(surfaceOffset));
 
-					if(data->skeletonIndex != u32Max)
+					if(updateSkeleton && (data->skeletonIndex != u32Max))
 					{
 						teSkeleton * skelData = reinterpret_cast<teSkeleton*>(skeletonData.At(data->skeletonIndex));
 						CalculateSurfaceAABBSkeleton(skelData, data, surfaceLayers[data->layersIndex], surfaceAABB[surfaceIndex]);
