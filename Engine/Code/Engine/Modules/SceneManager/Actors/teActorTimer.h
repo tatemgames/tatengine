@@ -22,9 +22,8 @@ namespace te
 		public:
 			TE_INLINE teActorTimer(teFastScene * setScene)
 			{
-				OnTick();
 			}
-			
+
 			TE_INLINE ~teActorTimer()
 			{
 			}
