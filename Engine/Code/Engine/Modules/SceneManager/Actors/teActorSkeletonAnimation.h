@@ -25,6 +25,7 @@ namespace te
 				:scene(setScene)
 			{
 				enableAnimation = true;
+				sendedOnLoop = false;
 
 				layerOld = 0;
 				frameOld = 0;
@@ -67,14 +68,22 @@ namespace te
 
 					u32 fr = fr_t % (skeleton->GetFramesCount(layer) - 1);
 					u32 fr2 = (fr_t + 1) % (skeleton->GetFramesCount(layer) - 1);
-					u32 fr3 = (fr_t + 2) % (skeleton->GetFramesCount(layer) - 1);
+					//u32 fr3 = (fr_t + 2) % (skeleton->GetFramesCount(layer) - 1);
 
 					u32 fro = fr_t % (skeleton->GetFramesCount(layerOld) - 1);
 					u32 fro2 = (fr_t + 1) % (skeleton->GetFramesCount(layerOld) - 1);
-					u32 fro3 = (fr_t + 2) % (skeleton->GetFramesCount(layerOld) - 1);
+					//u32 fro3 = (fr_t + 2) % (skeleton->GetFramesCount(layerOld) - 1);
 
-					if(!fr3)
-						OnLoop();
+					if(!fr2)
+					{
+						if(!sendedOnLoop)
+						{
+							sendedOnLoop = true;
+							OnLoop();
+						}
+					}
+					else
+						sendedOnLoop = false;
 
 					if(blendTime)
 					{
@@ -161,6 +170,7 @@ namespace te
 
 			u16 layerOld, frameOld, blendTime;
 			u1 enableAnimation;
+			u1 sendedOnLoop;
 		};
 
 		TE_ACTOR_PROXY(teActorSkeletonAnimation);
