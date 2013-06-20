@@ -99,7 +99,7 @@ namespace te
 					{
 						if(wasTouchInside)
 						{
-							if((!IsFlag(BF_IGNORE_MOVING)) && ((touchPos - input::GetInputManager()->GetTouch(0)).GetDistance() > 16.0f))
+							if((!IsFlag(BF_IGNORE_MOVING)) && ((touchPos - input::GetInputManager()->GetTouch(0)).GetDistance() > GetMaximalTapDistance()))
 							{
 								SetStyle(false);
 								wasTouchInside = false;
@@ -330,6 +330,19 @@ namespace te
 			static void SetCallback(teActorButtonCallback callback)
 			{
 				buttonCallback = callback;
+			}
+
+			static f32 GetMaximalTapDistance()
+			{
+				f32 ppi = core::GetPlatform()->GetDevicePPI();
+
+				if(ppi < 0.0f)
+					ppi = 96.0f;
+
+				f32 pixelsInCm = (ppi / 2.54f) / teSqrt(2.0f); // approximately
+				f32 cm = 1.0f;
+
+				return pixelsInCm * cm;
 			}
 
 		protected:
