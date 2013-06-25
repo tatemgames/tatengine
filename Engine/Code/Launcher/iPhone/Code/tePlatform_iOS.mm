@@ -75,7 +75,7 @@ namespace te
 		{
 			if([[[UIDevice currentDevice] systemVersion] floatValue] >= 6.0f)
 			{
-				static c8 udid[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+				static c8 udid[17] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 				uuid_t temp;
 				NSUUID * nudid = [[UIDevice currentDevice] identifierForVendor];
 				if(nudid != nil)
