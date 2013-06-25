@@ -69,11 +69,22 @@ namespace te
 		tePlatform_iOS::~tePlatform_iOS()
 		{
 		}
-			
+
 		//! Get Device UDID
 		const te::c8 * tePlatform_iOS::GetDeviceUDID()
 		{
-			return [[[UIDevice currentDevice] uniqueIdentifier] cStringUsingEncoding:NSUTF8StringEncoding];
+			if([[[UIDevice currentDevice] systemVersion] floatValue] >= 6.0f)
+			{
+				static c8 udid[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+				uuid_t temp;
+				NSUUID * nudid = [[UIDevice currentDevice] identifierForVendor];
+				if(nudid != nil)
+					[nudid getUUIDBytes:temp];
+				memcpy(udid, &temp, 16);
+				return udid;
+			}
+			else
+				return [[[UIDevice currentDevice] uniqueIdentifier] cStringUsingEncoding:NSUTF8StringEncoding];
 		}
 		
 		/*
