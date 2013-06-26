@@ -18,9 +18,11 @@ namespace te
 {
 	const f32 tePi = 3.14159265359f;
 	const f32 teHalfPi = tePi / 2.0f;
+	const f32 teQuartfPi = tePi / 4.0f;
 
 	const f64 tePi64 = 3.1415926535897932384626433832795028841971693993751;
 	const f64 teHalfPi64 = tePi64 / 2.0;
+	const f32 teQuartfPi64 = tePi64 / 4.0f;
 
 	const f32 teDegToRad = tePi / 180.0f;
 	const f32 teRadToDeg = 180.0f / tePi;
