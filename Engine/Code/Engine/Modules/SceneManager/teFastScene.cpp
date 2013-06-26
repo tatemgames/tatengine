@@ -65,7 +65,7 @@ namespace te
 		#endif
 
 		teFastScene::teFastScene(teRegisterActorsCallback registerActorsCallback)
-			:needToUpdateRenderProgram(false)
+			:needToUpdateRenderProgram(false), debugFlags(0)
 		{
 			stageLoaded = u8Max;
 			stageWaitForLoading = u8Max;
@@ -398,7 +398,12 @@ namespace te
 								++statistic.materialMissesSprite;
 
 							if(!result)
+							{
+								if(debugFlags & FSDF_SPRITE_AABB)
+									RenderDebugAABB(scenePack.sprites[from].renderAsset.aabb, 2);
+
 								++from;
+							}
 							else
 							{
 								if(!batch->IsEmpty())
@@ -458,83 +463,8 @@ namespace te
 								surfaceData->materialIndex = matTemp;
 							}
 
-							/*{
-								teVector3df p0 = scenePack.surfaces[from].renderAsset.aabb.edgeMin;
-								teVector3df p1 = scenePack.surfaces[from].renderAsset.aabb.edgeMax;
-
-								u8 temp[2048];
-
-								video::teMaterial temp2 = contentPack.materials[0];
-								contentPack.materials[0].color.SetRGB(0xff, 0x99, 0x99);
-								contentPack.materials[0].atlasSpriteIndex[0] = u32Max;
-								contentPack.materials[0].shaderIndex = video::ST_FAILSAFE;
-								contentPack.materials[0].flags = 0;
-								contentPack.materials[0].blend = video::BT_DISABLED;
-								contentPack.materials[0].metaMaterial = 0;
-
-								video::teSurfaceData * d = (video::teSurfaceData*)temp;
-
-								d->Clear();
-
-								d->operationType = video::ROT_LINES;
-								d->layersIndex = teSurfaceLayerSpriteIndex;
-								d->indexesOffset = 400;
-								d->materialIndex = 0;
-
-								teSpriteVertex * vertexes = reinterpret_cast<teSpriteVertex*>(d->Get(contentPack.surfaceLayers[d->layersIndex], video::SLT_POSITION, d->vertexCount));
-								teSpriteIndex * indexes = reinterpret_cast<teSpriteIndex*>(d->Get(contentPack.surfaceLayers[d->layersIndex], video::SLT_INDEXES, d->indexCount));
-
-								d->vertexCount = 0;
-								vertexes[d->vertexCount++].Set3D(teVector3df(p0.x, p0.y, p0.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
-								vertexes[d->vertexCount++].Set3D(teVector3df(p1.x, p0.y, p0.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
-								vertexes[d->vertexCount++].Set3D(teVector3df(p1.x, p1.y, p0.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
-								vertexes[d->vertexCount++].Set3D(teVector3df(p0.x, p1.y, p0.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
-								vertexes[d->vertexCount++].Set3D(teVector3df(p0.x, p0.y, p1.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
-								vertexes[d->vertexCount++].Set3D(teVector3df(p1.x, p0.y, p1.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
-								vertexes[d->vertexCount++].Set3D(teVector3df(p1.x, p1.y, p1.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
-								vertexes[d->vertexCount++].Set3D(teVector3df(p0.x, p1.y, p1.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
-
-
-								d->indexCount = 0;
-								indexes[d->indexCount++] = 0;
-								indexes[d->indexCount++] = 1;
-								indexes[d->indexCount++] = 1;
-								indexes[d->indexCount++] = 2;
-								indexes[d->indexCount++] = 2;
-								indexes[d->indexCount++] = 3;
-								indexes[d->indexCount++] = 3;
-								indexes[d->indexCount++] = 0;
-
-								indexes[d->indexCount++] = 4;
-								indexes[d->indexCount++] = 5;
-								indexes[d->indexCount++] = 5;
-								indexes[d->indexCount++] = 6;
-								indexes[d->indexCount++] = 6;
-								indexes[d->indexCount++] = 7;
-								indexes[d->indexCount++] = 7;
-								indexes[d->indexCount++] = 4;
-
-								indexes[d->indexCount++] = 1;
-								indexes[d->indexCount++] = 5;
-								indexes[d->indexCount++] = 2;
-								indexes[d->indexCount++] = 6;
-								indexes[d->indexCount++] = 3;
-								indexes[d->indexCount++] = 7;
-								indexes[d->indexCount++] = 0;
-								indexes[d->indexCount++] = 4;
-
-								for(u32 i = 0; i < d->vertexCount; ++i)
-									vertexes[i].pos = matView.MultiplyMatrixOnVector3D(vertexes[i].pos);
-
-								teMatrix4f tempm = video::GetRender()->GetMatrixModelView();
-								video::GetRender()->GetMatrixModelView().SetIdentity();
-
-								video::GetRender()->Render(contentPack, d);
-
-								video::GetRender()->GetMatrixModelView() = tempm;
-
-								contentPack.materials[0] = temp2;
-							}*/
+							if(debugFlags & FSDF_SURFACE_AABB)
+								RenderDebugAABB(scenePack.surfaces[from].renderAsset.aabb, 1);
 
 							++from;
 						}
@@ -608,63 +538,8 @@ namespace te
 
 							if(!result)
 							{
-								/*teVector2df p0 = scenePack.texts[from].renderAsset.aabb.edgeMin.GetXY();
-								teVector2df p1 = scenePack.texts[from].renderAsset.aabb.edgeMax.GetXY();
-
-								u8 temp[2048];
-
-								video::teMaterial temp2 = contentPack.materials[0];
-								contentPack.materials[0].color.SetRGB(0xff, 0x99, 0x99);
-								contentPack.materials[0].atlasSpriteIndex[0] = u32Max;
-								contentPack.materials[0].shaderIndex = video::ST_FAILSAFE;
-								contentPack.materials[0].flags = 0;
-								contentPack.materials[0].blend = video::BT_DISABLED;
-								contentPack.materials[0].metaMaterial = 0;
-
-								video::teSurfaceData * d = (video::teSurfaceData*)temp;
-
-								d->Clear();
-
-								d->operationType = video::ROT_LINES;
-								d->layersIndex = teSurfaceLayerSpriteIndex;
-								d->indexesOffset = 200;
-								d->materialIndex = 0;
-
-								teSpriteVertex * vertexes = reinterpret_cast<teSpriteVertex*>(d->Get(contentPack.surfaceLayers[d->layersIndex], video::SLT_POSITION, d->vertexCount));
-								teSpriteIndex * indexes = reinterpret_cast<teSpriteIndex*>(d->Get(contentPack.surfaceLayers[d->layersIndex], video::SLT_INDEXES, d->indexCount));
-
-								d->vertexCount = 4;
-								d->indexCount = 12;
-
-								vertexes[0].Set(p0, teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
-								vertexes[1].Set(p1, teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
-								vertexes[2].Set(teVector2df(p0.x, p1.y), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
-								vertexes[3].Set(teVector2df(p1.x, p0.y), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
-
-								indexes[0] = 0;
-								indexes[1] = 2;
-
-								indexes[2] = 2;
-								indexes[3] = 1;
-
-								indexes[4] = 1;
-								indexes[5] = 3;
-
-								indexes[6] = 3;
-								indexes[7] = 0;
-
-								indexes[8] = 0;
-								indexes[9] = 1;
-
-								indexes[10] = 2;
-								indexes[11] = 3;
-
-								for(u32 i = 0; i < d->vertexCount; ++i)
-									vertexes[i].pos = matView.MultiplyMatrixOnVector3D(vertexes[i].pos);
-
-								video::GetRender()->Render(contentPack, d);
-
-								contentPack.materials[0] = temp2;*/
+								if(debugFlags & FSDF_TEXT_AABB)
+									RenderDebugAABB(scenePack.texts[from].renderAsset.aabb, 3);
 
 								++from;
 							}
@@ -815,6 +690,94 @@ namespace te
 			TE_TIME_END(loadingTime);
 
 			TE_LOG_DBG("loading time %f", loadingTime.ToSeconds());
+		}
+
+		void teFastScene::RenderDebugAABB(const teAABB3df & aabb, u8 color)
+		{
+			if(contentPack.materials.GetAlive() == 0)
+				return;
+
+			teVector3df p0 = aabb.edgeMin;
+			teVector3df p1 = aabb.edgeMax;
+
+			u8 temp[2048];
+
+			teColor4u colors[5];
+			colors[0].SetRGB(0xff, 0xff, 0xff);
+			colors[1].SetRGB(0xf5, 0xd0, 0x9a);
+			colors[2].SetRGB(0x4a, 0x9c, 0x7c);
+			colors[3].SetRGB(0x8f, 0x43, 0x21);
+			colors[4].SetRGB(0x7d, 0x9d, 0xc2);
+
+			video::teMaterial temp2 = contentPack.materials[0];
+			contentPack.materials[0].color = colors[teMin(color, (u8)4)];
+			contentPack.materials[0].atlasSpriteIndex[0] = u32Max;
+			contentPack.materials[0].shaderIndex = video::ST_FAILSAFE;
+			contentPack.materials[0].flags = 0;
+			contentPack.materials[0].blend = video::BT_DISABLED;
+			contentPack.materials[0].metaMaterial = 0;
+
+			video::teSurfaceData * d = (video::teSurfaceData*)temp;
+
+			d->Clear();
+
+			d->operationType = video::ROT_LINES;
+			d->layersIndex = teSurfaceLayerSpriteIndex;
+			d->indexesOffset = 400;
+			d->materialIndex = 0;
+
+			teSpriteVertex * vertexes = reinterpret_cast<teSpriteVertex*>(d->Get(contentPack.surfaceLayers[d->layersIndex], video::SLT_POSITION, d->vertexCount));
+			teSpriteIndex * indexes = reinterpret_cast<teSpriteIndex*>(d->Get(contentPack.surfaceLayers[d->layersIndex], video::SLT_INDEXES, d->indexCount));
+
+			d->vertexCount = 0;
+			vertexes[d->vertexCount++].Set3D(teVector3df(p0.x, p0.y, p0.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
+			vertexes[d->vertexCount++].Set3D(teVector3df(p1.x, p0.y, p0.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
+			vertexes[d->vertexCount++].Set3D(teVector3df(p1.x, p1.y, p0.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
+			vertexes[d->vertexCount++].Set3D(teVector3df(p0.x, p1.y, p0.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
+			vertexes[d->vertexCount++].Set3D(teVector3df(p0.x, p0.y, p1.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
+			vertexes[d->vertexCount++].Set3D(teVector3df(p1.x, p0.y, p1.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
+			vertexes[d->vertexCount++].Set3D(teVector3df(p1.x, p1.y, p1.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
+			vertexes[d->vertexCount++].Set3D(teVector3df(p0.x, p1.y, p1.z), teVector2duh(0, 0), teColor4u(0, 0, 0, 255));
+
+			d->indexCount = 0;
+			indexes[d->indexCount++] = 0;
+			indexes[d->indexCount++] = 1;
+			indexes[d->indexCount++] = 1;
+			indexes[d->indexCount++] = 2;
+			indexes[d->indexCount++] = 2;
+			indexes[d->indexCount++] = 3;
+			indexes[d->indexCount++] = 3;
+			indexes[d->indexCount++] = 0;
+
+			indexes[d->indexCount++] = 4;
+			indexes[d->indexCount++] = 5;
+			indexes[d->indexCount++] = 5;
+			indexes[d->indexCount++] = 6;
+			indexes[d->indexCount++] = 6;
+			indexes[d->indexCount++] = 7;
+			indexes[d->indexCount++] = 7;
+			indexes[d->indexCount++] = 4;
+
+			indexes[d->indexCount++] = 1;
+			indexes[d->indexCount++] = 5;
+			indexes[d->indexCount++] = 2;
+			indexes[d->indexCount++] = 6;
+			indexes[d->indexCount++] = 3;
+			indexes[d->indexCount++] = 7;
+			indexes[d->indexCount++] = 0;
+			indexes[d->indexCount++] = 4;
+
+			for(u32 i = 0; i < d->vertexCount; ++i)
+				vertexes[i].pos = video::GetRender()->GetMatrixView().MultiplyMatrixOnVector3D(vertexes[i].pos);
+
+			teMatrix4f tempm = video::GetRender()->GetMatrixModelView();
+			video::GetRender()->GetMatrixModelView().SetIdentity();
+
+			video::GetRender()->Render(contentPack, d);
+
+			video::GetRender()->GetMatrixModelView() = tempm;
+
+			contentPack.materials[0] = temp2;
 		}
 
 		video::teSurfaceData * teFastScene::NextBatch()

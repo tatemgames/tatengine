@@ -86,6 +86,15 @@ namespace te
 
 		// ------------------------------------------------------------------------------------------
 
+		enum EFastSceneDebugFlags
+		{
+			FSDF_SPRITE_AABB	= 0x1,
+			FSDF_SURFACE_AABB	= 0x2,
+			FSDF_TEXT_AABB		= 0x4,
+		};
+
+		// ------------------------------------------------------------------------------------------
+
 		typedef void (*teRegisterActorsCallback)(teActorsTI *);
 
 		class teFastScene : public te::teReferenceCounter
@@ -116,6 +125,11 @@ namespace te
 			TE_INLINE teContentPack & GetContentPack() {return contentPack;}
 			TE_INLINE const teContentPack & GetContentPack() const {return contentPack;}
 
+			void SetDebugFlags(u8 setDebugFlags) {debugFlags = setDebugFlags;}
+			u8 GetDebugFlags() {return debugFlags;}
+
+			void RenderDebugAABB(const teAABB3df & aabb, u8 color = 0);
+
 			video::teSurfaceData * NextBatch();
 			void RenderBatch(video::teSurfaceData * batch);
 		protected:
@@ -137,6 +151,7 @@ namespace te
 			teRenderProgram program;
 			teConstArray<teRenderProgramSortKey> programSortBufferKeys;
 			u1 needToUpdateRenderProgram;
+			u8 debugFlags;
 
 			// ---------------------------------------------------------------------------
 
