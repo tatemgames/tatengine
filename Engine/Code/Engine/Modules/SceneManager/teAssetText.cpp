@@ -19,8 +19,10 @@ namespace te
 	namespace scene
 	{
 		teColor4u textPalette[256];
+		teColor4u textShadowPalette[256];
 
 		teColor4u * GetTextPalette() {return textPalette;}
+		teColor4u * GetTextShadowPalette() {return textShadowPalette;}
 
 		enum ERenderTextState
 		{
@@ -196,6 +198,8 @@ namespace te
 						{
 							if(!shadowPass)
 								charColor = textPalette[value];
+							else
+								charColor = textShadowPalette[value];
 
 							tempString += 4;
 							continue;
