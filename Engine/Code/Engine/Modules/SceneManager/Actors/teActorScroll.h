@@ -39,6 +39,7 @@ namespace te
 				Reset();
 				
 				Resize(sprite->renderAsset.aabb.edgeMin, sprite->renderAsset.aabb.edgeMax);
+				ResetScroll();
 			}
 
 			~teActorScroll()
@@ -242,12 +243,12 @@ namespace te
 					if(teAbs(movingCount) > moveThreshold)
 					{
 						position += movingCount;
+						UpdateScrollPos(position);
 					}
 					else
 					{
 						StopMoving();
 					}
-					
 				}
 				else
 				{
@@ -267,15 +268,14 @@ namespace te
 						{
 							position += snapCount;
 						}
+						UpdateScrollPos(position);
 					}
 				}
 				
 				if (teAbs(position - sOrigin) > scrollLim + scrollGap)
 				{
-					//if(teAbs(position) > 0.0f)
 						position = teAbs(position) / position * (scrollLim + sOrigin);
-
-					
+					UpdateScrollPos(position);
 					moveTouch.Flush();
 					StopMoving();
 				}
@@ -381,7 +381,10 @@ namespace te
 			}
 			*/
 			
-			void SetPosition(f32 value){position = value;};
+			void SetPosition(f32 value) //---- not used
+			{
+				position = value;
+			};
 			f32 GetPosition(){return position;};
 
 			TE_INLINE void ResetScroll()
@@ -397,7 +400,7 @@ namespace te
 			TE_INLINE void SetScrollPosition(f32 x)
 			{
 				setPosOffset = x;
-				needReset = true;
+				//needReset = true;
 			}
 			
 			TE_INLINE void StartMoving()
@@ -413,7 +416,21 @@ namespace te
 				SetSnapPos();
 			}
 			
+			TE_INLINE void SetScrollPrevPos(f32 t_prevScrollPos)
+			{
+				if(t_prevScrollPos == 0)
+				{
+					ResetScroll();
+				}
+				else
+				{
+					position = t_prevScrollPos;
+					StartMoving();
+				}
+			}
+			
 			TE_ACTOR_SIGNAL(0, UpdateElement)
+			TE_ACTOR_SIGNAL(1, UpdateScrollPos)
 
 		protected:
 			teAssetSprite * sprite;
@@ -459,6 +476,7 @@ namespace te
 		//TE_ACTOR_SLOT_1(teActorScroll, SwitchTo);
 		TE_ACTOR_SLOT_0(teActorScroll, ResetScroll);
 		TE_ACTOR_SLOT_1(teActorScroll, SetScrollPosition);
+		TE_ACTOR_SLOT_1(teActorScroll, SetScrollPrevPos);
 		
 		TE_FUNC void RegisterScroll(teActorsTI * ti)
 		{
@@ -470,8 +488,10 @@ namespace te
 			ti->AddLink("scrollType");
 			
 			ti->AddSignal("UpdateElement");
+			ti->AddSignal("UpdateScrollPos");
 			ti->AddSlot("ResetScroll", TE_ACTOR_SLOT_PROXY(teActorScroll, ResetScroll));
 			ti->AddSlot("SetScrollPosition", TE_ACTOR_SLOT_PROXY(teActorScroll, SetScrollPosition));
+			ti->AddSlot("SetScrollPrevPos", TE_ACTOR_SLOT_PROXY(teActorScroll, SetScrollPrevPos));
 			//ti->AddSlot("SwitchTo", TE_ACTOR_SLOT_PROXY(teActorScroll, SwitchTo));
 		}
 	}
