@@ -400,7 +400,13 @@ namespace te
 			TE_INLINE void SetScrollPosition(f32 x)
 			{
 				setPosOffset = x;
-				//needReset = true;
+				if(x != 0)
+				{
+					position = sOrigin + scrollLim + setPosOffset;
+					StartMoving();
+					needReset = true;
+				}
+				
 			}
 			
 			TE_INLINE void StartMoving()
