@@ -22,17 +22,17 @@ namespace te
 	{
 	public:
 		T x, y, z, w;
-		
+
 		TE_FORCE_INLINE teQuaternion():x(0), y(0), z(0), w(1) {}
 		TE_FORCE_INLINE teQuaternion(T setX, T setY, T setZ, T setW):x(setX), y(setY), z(setZ), w(setW) {}
 		TE_FORCE_INLINE teQuaternion(T k):x(k), y(k), z(k), w(k) {}
-		
+
 		template <class B>
 		TE_FORCE_INLINE teQuaternion(const teQuaternion<B> & other):x((T)other.x), y((T)other.y), z((T)other.z), w((T)other.w) {}
-		
+
 		template <class B>
 		TE_FORCE_INLINE teQuaternion(const teVector3d<B> & other):x((T)other.x), y((T)other.y), z((T)other.z), w(1) {}
-		
+
 		template <class B>
 		TE_FORCE_INLINE teQuaternion(B angle, const teVector3d<B> & axis)
 		{
@@ -40,7 +40,7 @@ namespace te
 			te::teSinCos(angle * 0.5f, valueSin, valueCos);
 			SetXYZW(axis.x * valueSin, axis.y * valueSin, axis.z * valueSin, valueCos);
 		}
-		
+
 		TE_INLINE void SetXYZW(T setX, T setY, T setZ, T setW) {x = setX; y = setY; z = setZ; w = setW;}
 		TE_INLINE void Flush() {SetXYZW(0, 0, 0, 1);}
 
@@ -61,7 +61,7 @@ namespace te
 		TE_INLINE teQuaternion<T> operator - (const teQuaternion<T> & other) const {return teQuaternion<T>(x - other.x, y - other.y, z - other.z, w - other.w);}
 		TE_INLINE teQuaternion<T> operator * (T value) const {return teQuaternion<T>(x * value, y * value, z * value, w * value);}
 		TE_INLINE teQuaternion<T> operator / (T value) const {return teQuaternion<T>(x / value, y / value, z / value, w / value);}
-		
+
 		TE_INLINE teQuaternion<T> & operator *= (const teQuaternion<T> & other)
 		{
 			SetXYZW(
@@ -80,13 +80,13 @@ namespace te
 				(other.w * z) + (other.z * w) + (other.x * y) - (other.y * x),
 				(other.w * w) - (other.x * x) - (other.y * y) - (other.z * z));
 		}
-		
+
 		TE_INLINE teQuaternion<T> GetInverse() const {return teQuaternion(-x, -y, -z, w);}
 
 		TE_INLINE void Normalize() {T d = teInvSqrt(x * x + y * y + z * z + w * w); SetXYZW(x * d, y * d, z * d, w * d);}
-		
+
 		TE_INLINE T GetLength() {T d = teSqrt(x * x + y * y + z * z + w * w); return d;} // VADIM
-		
+
 		TE_INLINE void Rotate(teVector3d<T> & vector) const {vector = ((*this) * teQuaternion(vector) * GetInverse()).GetXYZ();}
 
 //		void SetFromMatrix(const teMatrix4<T> & matrix)
@@ -130,7 +130,7 @@ namespace te
 		{
 			const T t = mtr.Get(0, 0) + mtr.Get(1, 1) + mtr.Get(2, 2);
 				  T s;
-			
+
 			if(t > 0.0f)
 			{
 				s = 0.5f / sqrtf(t + 1.0f);
@@ -164,12 +164,12 @@ namespace te
 				w = (mtr.Get(1, 0) - mtr.Get(0, 1)) / s;
 			}
 		}
-	
+
 		TE_INLINE void GetMatrix(teMatrix4<T> & result) const
 		{
 			// left handed, column major (?), ccw rotation matrix
 			result.SetIdentity();
-			
+
 			result.Get(0, 0) = 1.0f - 2.0f * (y * y + z * z);
 			result.Get(0, 1) = 2.0f * (x * y + z * w);
 			result.Get(0, 2) = 2.0f * (x * z - y * w);
@@ -180,26 +180,26 @@ namespace te
 			result.Get(2, 1) = 2.0f * (z * y - x * w);
 			result.Get(2, 2) = 1.0f - 2.0f * (x * x + y * y);
 		}
-	
+
 		TE_INLINE f32 DotProduct(const teQuaternion<T> & other) const {return x * other.x + y * other.y + z * other.z + w * other.w;}
-		
+
 		TE_INLINE teQuaternion<T> Slerp(const teQuaternion<T> & q, T time) const
 		{
 			teQuaternion<T> q1 = *this;
 			teQuaternion<T> q2 = q;
-			
+
 			f32 angle = q1.DotProduct(q2);
-			
+
 			if(angle < 0.0f)
 			{
 				q1 = q1 * (-1.0f);
 				angle = -angle;
 			}
-			
+
 			f32 scale, invScale;
-			
+
 			const f32 evp = 0.05f;
-			
+
 			if((angle + 1.0f) > evp)
 			{
 				if((1.0f - angle) >= evp)
@@ -221,10 +221,10 @@ namespace te
 				scale = teSin(tePi * (0.5f - time));
 				invScale = teSin(tePi * time);
 			}
-			
+
 			return q1 * scale + q2 * invScale;
 		}
-		
+
 		TE_INLINE void SetFromEulerAngles(const teVector3d<T> & angles)
 		{
 			f32 sr, cr, sp, cp, sy, cy;
@@ -256,7 +256,7 @@ namespace te
 
 		TE_INLINE teVector3d<T> GetXYZ() const {return teVector3d<T>(x, y, z);}
 	};
-	
+
 	//! f32 quaternion
 	typedef teQuaternion<f32> teQuaternionf;
 
@@ -299,17 +299,26 @@ namespace te
 			b = a * other.b + b * other.a;
 			a = a * other.a;
 		}
-		
+
 		TE_INLINE void AddBy(const teDualQuaternion & other)
 		{
 			a += other.a;
 			b += other.b;
 		}
-		
+
 		TE_INLINE void MultiplyBy(const f32 k)
 		{
 			a *= k;
 			b *= k;
+		}
+
+		TE_INLINE void MakePositive()
+		{
+			if(a.w < 0.0f)
+			{
+				a.SetXYZW(-a.x, -a.y, -a.z, -a.w);
+				b.SetXYZW(-b.x, -b.y, -b.z, -b.w);
+			}
 		}
 
 //		TE_INLINE void GetMatrix(teMatrix4f & result) const

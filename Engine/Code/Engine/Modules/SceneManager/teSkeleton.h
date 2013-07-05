@@ -43,7 +43,7 @@ namespace te
 		{
 			u8 layer;
 			u16 frame;
-			
+
 			u8 flags;
 		};
 
@@ -56,7 +56,7 @@ namespace te
 			{
 				result.SetFrom(teQuaternionf(rotation[0], rotation[1], rotation[2], rotation[3]), teVector3df(translation[0], translation[1], translation[2]));
 			}
-			
+
 			TE_INLINE void Get(teQuaternionf & a, teVector3df & b) const
 			{
 				a.SetXYZW(rotation[0], rotation[1], rotation[2], rotation[3]);
@@ -87,7 +87,7 @@ namespace te
 				keysPtr += sizeof(teSkeletonBoneKey) * ((framesCount + 1) * boneIndex + ((frameIndex == u32Max) ? 0 : (frameIndex + 1)));
 				return reinterpret_cast<const teSkeletonBoneKey*>(keysPtr);
 			}
-			
+
 			u1 CalculateSkin(const teVector2duh & pair0)
 			{
 				const teSkeletonFrame * frames = GetFrames();
@@ -124,6 +124,7 @@ namespace te
 					teDualQuaternion bp;
 					GetBoneKey(boneIndex)->GetDualQuaternion(bp);
 					bp.MultiplyBy(skin[boneIndex]);
+					bp.MakePositive();
 					skin[boneIndex] = bp;
 				}
 
@@ -170,6 +171,7 @@ namespace te
 					teDualQuaternion bp;
 					GetBoneKey(boneIndex)->GetDualQuaternion(bp);
 					bp.MultiplyBy(skin[boneIndex]);
+					bp.MakePositive();
 					skin[boneIndex] = bp;
 				}
 
@@ -221,6 +223,7 @@ namespace te
 					teDualQuaternion bp;
 					GetBoneKey(boneIndex)->GetDualQuaternion(bp);
 					bp.MultiplyBy(skin[boneIndex]);
+					bp.MakePositive();
 					skin[boneIndex] = bp;
 				}
 
@@ -277,6 +280,7 @@ namespace te
 					teDualQuaternion bp;
 					GetBoneKey(boneIndex)->GetDualQuaternion(bp);
 					bp.MultiplyBy(skin[boneIndex]);
+					bp.MakePositive();
 					skin[boneIndex] = bp;
 				}
 

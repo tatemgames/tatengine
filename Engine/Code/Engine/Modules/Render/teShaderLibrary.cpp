@@ -197,14 +197,14 @@ void main()\n\
 	vec4 ip = vec4(tePosition, 1);\n\
 	ivec4 ids = ivec4(teBonesIds);\n\
 	vec4 a = \n\
-		  teBoneMatrixes[ids.x * 2 + 0] * teBonesW.x;\n\
-		+ teBoneMatrixes[ids.y * 2 + 0] * teBonesW.y;\n\
-		+ teBoneMatrixes[ids.z * 2 + 0] * teBonesW.z;\n\
+		  teBoneMatrixes[ids.x * 2 + 0] * teBonesW.x\n\
+		+ teBoneMatrixes[ids.y * 2 + 0] * teBonesW.y\n\
+		+ teBoneMatrixes[ids.z * 2 + 0] * teBonesW.z\n\
 		+ teBoneMatrixes[ids.w * 2 + 0] * teBonesW.w;\n\
 	vec4 b = \n\
-		  teBoneMatrixes[ids.x * 2 + 1] * teBonesW.x;\n\
-		+ teBoneMatrixes[ids.y * 2 + 1] * teBonesW.y;\n\
-		+ teBoneMatrixes[ids.z * 2 + 1] * teBonesW.z;\n\
+		  teBoneMatrixes[ids.x * 2 + 1] * teBonesW.x\n\
+		+ teBoneMatrixes[ids.y * 2 + 1] * teBonesW.y\n\
+		+ teBoneMatrixes[ids.z * 2 + 1] * teBonesW.z\n\
 		+ teBoneMatrixes[ids.w * 2 + 1] * teBonesW.w;\n\
 	float aLength = length(a);\n\
 	a /= aLength;\n\
