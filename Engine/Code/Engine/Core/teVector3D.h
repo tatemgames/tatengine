@@ -109,6 +109,9 @@ namespace te
 
 	typedef teVector3d<u16> teVector3duh;
 	typedef teVector3d<s16> teVector3dsh;
+
+	typedef teVector3d<u8> teVector3duc;
+	typedef teVector3d<s8> teVector3dsc;
 };
 
 #endif
