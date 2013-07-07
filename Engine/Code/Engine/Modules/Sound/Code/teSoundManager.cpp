@@ -89,9 +89,9 @@ namespace te
 		teSoundManager::teSoundManager()
 			:system(NULL), pool(NULL)
 		{
-			pool = (c8*)TE_ALLOCATE(4 * 1024 * 1024);
+			pool = (c8*)TE_ALLOCATE(TE_SOUND_FMOD_MEMORY_POOL_SIZE);
 
-			FMOD_Memory_Initialize(pool, 4 * 1024 * 1024, NULL, NULL, NULL, FMOD_MEMORY_ALL);
+			FMOD_Memory_Initialize(pool, TE_SOUND_FMOD_MEMORY_POOL_SIZE, NULL, NULL, NULL, FMOD_MEMORY_ALL);
 			//FMOD_Memory_Initialize(NULL, 0, teFMODAlloc, teFMODRealloc, teFMODFree, FMOD_MEMORY_ALL);
 
 			CheckResult(FMOD_System_Create(&system));

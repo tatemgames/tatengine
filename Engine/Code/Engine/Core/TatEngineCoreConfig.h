@@ -96,6 +96,10 @@
 	#define TE_INPUT_SUPPORT_KEYBOARD
 #endif
 
+// -------------------------------------------------------------- Sound
+
+#define TE_SOUND_FMOD_MEMORY_POOL_SIZE 4 * 1024 * 1024
+
 // -------------------------------------------------------------- Bakery
 
 #define TE_CTTI
