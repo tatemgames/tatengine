@@ -27,8 +27,9 @@ namespace te
 		{
 			teLZ4CompressionFunction compressionFunction = highCompression ? LZ4_compressHC : LZ4_compress;
 
-			*((u32*)output + 0) = inputSize;
-			resultSize = compressionFunction(input, output + 4, inputSize) + 4;
+			resultSize = compressionFunction(input, output + 4, inputSize);
+			*((u32*)output + 0) = resultSize;
+			resultSize += 4;
 		}
 
 		void teDecodeData(c8 * input, u32 inputSize, c8 * output, u32 outputSize, u32 & resultSize)
