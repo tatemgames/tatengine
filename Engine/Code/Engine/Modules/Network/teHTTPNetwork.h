@@ -132,6 +132,7 @@ namespace te
 			u8 errorsCount;
 			u8 resendCount;
 			u16 httpCode;
+			u32 contentLength;
 			u32 chunkSize;
 			u1 chunkMode;
 			u1 sended;
@@ -157,7 +158,7 @@ namespace te
 			void Clear();
 			void PrepareToResend();
 			u1 OpenFile();
-			u1 FinalizeHeaders(c8 * output, u32 outputSize);
+			u1 FinalizeHeaders(c8 * output, u32 outputSize, u32 * resultSize = NULL);
 			EHTTPCallBackResult Write(const void * data, u32 size);
 			EHTTPCallBackResult OnOk();
 			EHTTPCallBackResult OnError();

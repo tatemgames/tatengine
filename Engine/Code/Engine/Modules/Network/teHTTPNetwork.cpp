@@ -320,6 +320,11 @@ namespace te
 			else
 				connected = true;
 
+			#ifdef TE_PLATFORM_WIN
+			u_long mode = 1;
+			ioctlsocket(socketId, FIONBIO, &mode);
+			#endif
+
 			return connected;
 		}
 
@@ -348,6 +353,18 @@ namespace te
 					TE_LOG_ERR("teHTTPSocket::Disconnect() - close fail: %i", errno);
 				}
 			#else
+				if(shutdown(socketId, SD_BOTH) != 0)
+				{
+					if(errno != 57)
+					{
+						TE_LOG_ERR("teHTTPSocket::Disconnect() - disconnect fail: %i", errno);
+					}
+					else
+					{
+						// already closed
+					}
+				}
+
 				if(closesocket(socketId) != 0)
 				{
 					TE_LOG_ERR("teHTTPSocket::Disconnect() - close fail: %i", errno);
@@ -404,7 +421,7 @@ namespace te
 				}
 				else
 					sent += sendResult;
-			}
+				}
 
 			return true;
 		}
@@ -482,6 +499,7 @@ namespace te
 			errorsCount = o.errorsCount;
 			resendCount = o.resendCount;
 			httpCode = o.httpCode;
+			contentLength = o.contentLength;
 			chunkSize = o.chunkSize;
 			chunkMode = o.chunkMode;
 			sended = o.sended;
@@ -513,6 +531,7 @@ namespace te
 			errorsCount = 0;
 			resendCount = 0;
 			httpCode = 0;
+			contentLength = 0;
 			chunkSize = 0;
 			chunkMode = false;
 			sended = false;
@@ -532,6 +551,7 @@ namespace te
 			error = ET_NO_ERROR;
 			errorsCount = 0;
 			httpCode = 0;
+			contentLength = 0;
 			chunkSize = 0;
 			chunkMode = false;
 			sended = false;
@@ -586,7 +606,7 @@ namespace te
 			}
 		#endif
 
-		u1 teHTTPRequest::FinalizeHeaders(c8 * output, u32 outputSize)
+		u1 teHTTPRequest::FinalizeHeaders(c8 * output, u32 outputSize, u32 * resultSize)
 		{
 			u32 p = 0;
 
@@ -604,19 +624,23 @@ namespace te
 
 			if(postData)
 			{
-				TE_SNPRINTF(" HTTP/1.1\r\nHost:%s\r\nConnection:close\r\nAccept-Encoding:identity\r\nContent-Length:%u\r\nContent-Type:application/x-www-form-urlencoded\r\n%s\r\n%s", url.host.c_str(), postDataSize - 1, (headers.c_str() ? headers.c_str() : ""), (headers.c_str() ? "\r\n" : ""));
+				TE_SNPRINTF(" HTTP/1.0\r\nHost:%s\r\nConnection:close\r\nAccept-Encoding:identity\r\nContent-Length:%u\r\nContent-Type:application/x-www-form-urlencoded\r\n%s\r\n%s", url.host.c_str(), postDataSize - 1, (headers.c_str() ? headers.c_str() : ""), (headers.c_str() ? "\r\n" : ""));
 
-				if((outputSize - p) < (postDataSize + 1))
+				if((outputSize - p) < (postDataSize + 1 + 2))
 					return false;
 
 				memcpy(output + p, postData, postDataSize);
-				p += postDataSize;
+				p += postDataSize - 1;
+
 				output[p++] = '\0';
 			}
 			else
 			{
 				TE_SNPRINTF(" HTTP/1.1\r\nHost:%s\r\nConnection:close\r\nAccept-Encoding:identity\r\n%s\r\n%s", url.host.c_str(), (headers.c_str() ? headers.c_str() : ""), (headers.c_str() ? "\r\n" : ""));
 			}
+
+			if(resultSize)
+				*resultSize = strlen(output);
 
 			return true;
 		}
@@ -876,14 +900,19 @@ namespace te
 
 			memset(buffer, 0, bufferSize);
 
-			if(!r.FinalizeHeaders(buffer, bufferSize))
+			u32 resultSize = 0;
+
+			if(!r.FinalizeHeaders(buffer, bufferSize, &resultSize))
 			{
 				r.error = teHTTPRequest::ET_USER_HEADERS_TOO_BIG;
 				return false;
 			}
 
 			if(!r.sended)
-				r.sended = r.socket.Write(buffer);
+			{
+				//printf("------------------\n%s\n------------------\n", buffer);
+				r.sended = r.socket.Write(buffer, resultSize);
+			}
 
 			if(!r.sended)
 			{
@@ -891,7 +920,7 @@ namespace te
 				return false;
 			}
 
-			r.socket.SendEnded();
+			//r.socket.SendEnded();
 
 			if(!r.OpenFile())
 			{
@@ -899,38 +928,36 @@ namespace te
 				return false;
 			}
 
-			u1 overflow = true;
+			u1 run = true;
 			u32 totalRecvSize = 0;
 			u32 totalWaitTime = 0;
 
-			while(overflow)
+			memset(buffer, 0, bufferSize);
+
+			s32 recvSize = 0;
+			s32 recvSizeProcessed = 0;
+			s32 wantToRead = -1;
+
+			while(run)
 			{
-				overflow = false;
+				run = false;
+				u1 overflow = false;
 
-				s32 recvSize = 0;
+				recvSize = r.socket.Read(buffer + totalRecvSize, bufferSize - totalRecvSize);
+
+				u1 noError = false;
+
 				#ifndef TE_PLATFORM_WIN
-				while(((recvSize = r.socket.Read(buffer + totalRecvSize, bufferSize - totalRecvSize)) > 0) || (errno == EINTR))
-				#else
-				while(((recvSize = r.socket.Read(buffer + totalRecvSize, bufferSize - totalRecvSize)) > 0))
+				noError = errno == EINTR;
 				#endif
-				{
-					totalRecvSize += (u32)recvSize;
-					if((bufferSize - totalRecvSize) < 1024)
-					{
-						overflow = true;
-						break;
-					}
-				}
 
-				// TODO non blocking socket on windows
-				#ifndef TE_PLATFORM_WIN
-				if(recvSize < 0)
+				if((recvSize < 0) && (noError == false))
 				{
-					if(totalWaitTime < 1000)
+					if(totalWaitTime < 3000)
 					{
 						teSleep(10);
 						totalWaitTime += 10;
-						overflow = true;
+						run = true;
 						continue;
 					}
 					else
@@ -939,28 +966,46 @@ namespace te
 						return false;
 					}
 				}
-				#endif
+				else if((recvSize == 0) && (noError == false))
+				{
+				}
+				else
+				{
+					totalRecvSize += (u32)recvSize;
+
+					if((bufferSize - totalRecvSize) < 1024)
+						overflow = true;
+				}
 
 				if(totalRecvSize == 0)
 					return true;
 
-				c8 * result = buffer;
-				u32 resultSize = (u32)totalRecvSize;
-
-				totalRecvSize = 0;
-
 				if(!r.readedHeader)
 				{
-					c8 * res = (c8*)strstr(buffer, "\r\n\r\n");
+					c8 * httpHeader = buffer + recvSizeProcessed;
+
+					c8 * res = (c8*)strstr(httpHeader, "\r\n\r\n");
 
 					if(res == NULL)
 					{
+						if(totalWaitTime < 3000)
+						{
+							teSleep(10);
+							totalWaitTime += 10;
+							run = true;
+							continue;
+						}
+						else
+						{
+							r.error = teHTTPRequest::ET_HTTP_TIMEOUT;
+							return false;
+						}
 					}
 					else
 					{
 						res[2] = '\0'; // so buffer now contains c-string with http header
 
-						const c8 * trEncoding = strstr(buffer, "Transfer-Encoding");
+						const c8 * trEncoding = strstr(httpHeader, "Transfer-Encoding");
 
 						if(trEncoding != NULL)
 						{
@@ -969,13 +1014,30 @@ namespace te
 							r.chunkMode = (trChunkLine != NULL) && (trNextLine != NULL) && (trChunkLine < trNextLine);
 						}
 
-						const c8 * isOkNextLine = strstr(buffer, "\r\n");
-						const c8 * isOkHTTP11 = strstr(buffer, "HTTP/1.1");
+						const c8 * contentLen = strstr(httpHeader, "Content-Length:");
 
-						if((isOkNextLine != NULL) && (isOkHTTP11 == buffer) && (isOkNextLine - isOkHTTP11 > strlen("HTTP/1.1 ") + 3))
+						if(contentLen != NULL)
+						{
+							const c8 * clNextLine = strstr(contentLen, "\r\n");
+
+							if(clNextLine != NULL)
+							{
+								contentLen += strlen("Content-Length:");
+								((c8*)clNextLine)[0] = '\0';
+								r.contentLength = atoi(contentLen);
+							}
+						}
+
+						const c8 * isOkNextLine = strstr(httpHeader, "\r\n");
+						const c8 * isOkHTTP11 = strstr(httpHeader, "HTTP/1.1");
+
+						if(isOkHTTP11 == NULL)
+							isOkHTTP11 = strstr(buffer, "HTTP/1.0");
+
+						if((isOkNextLine != NULL) && (isOkHTTP11 == httpHeader) && (isOkNextLine - isOkHTTP11 >= strlen("HTTP/1.1 ") + 3))
 						{
 							c8 temp[4] = {0, 0, 0, 0};
-							memcpy(temp, buffer + strlen("HTTP/1.1 "), 3);
+							memcpy(temp, httpHeader + strlen("HTTP/1.1 "), 3);
 							r.httpCode = (u16)atoi(temp);
 						}
 						else
@@ -988,7 +1050,7 @@ namespace te
 						{
 							r.redirected = true;
 
-							c8 * isOkLocation = strstr(buffer, "Location:");
+							c8 * isOkLocation = strstr(httpHeader, "Location:");
 
 							if(isOkLocation)
 							{
@@ -1010,13 +1072,50 @@ namespace te
 						else
 							r.redirected = false;
 
-						resultSize -= (res - buffer) + 4;
-						result = res + 4;
+						recvSizeProcessed += (res - httpHeader) + 4;
 
 						r.readedHeader = true;
 					}
 				}
 
+				if(r.chunkMode)
+				{
+					// not supported now
+					return false;
+				}
+				else if(r.contentLength > 0)
+				{
+					u32 nowSize = totalRecvSize - recvSizeProcessed;
+
+					if(nowSize >= r.contentLength)
+					{
+						if(!ProcessResult(r, r.Write(buffer + recvSizeProcessed, r.contentLength)))
+						{
+							r.contentLength = 0;
+							return true;
+						}
+
+						recvSizeProcessed += r.contentLength;
+					}
+					else
+					{
+						if(!ProcessResult(r, r.Write(buffer + recvSizeProcessed, nowSize)))
+						{
+							r.contentLength -= nowSize;
+							return true;
+						}
+
+						recvSizeProcessed += nowSize;
+						r.contentLength -= nowSize;
+
+						run = true;
+						continue;
+					}
+				}
+				else if(!ProcessResult(r, r.Write(buffer + recvSizeProcessed, totalRecvSize - recvSizeProcessed)))
+					return true;
+
+				/*
 				if(r.chunkMode)
 				{
 					if((r.chunkSize > 0) && (resultSize > 0))
@@ -1105,6 +1204,7 @@ namespace te
 				}
 				else if(!ProcessResult(r, r.Write(result, resultSize)))
 						return true;
+						*/
 			}
 
 			return true;
