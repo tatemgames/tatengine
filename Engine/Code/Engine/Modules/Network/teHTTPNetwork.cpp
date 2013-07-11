@@ -929,6 +929,7 @@ namespace te
 			}
 
 			u1 run = true;
+			u1 overflow = false;
 			u32 totalRecvSize = 0;
 			u32 totalWaitTime = 0;
 
@@ -941,7 +942,15 @@ namespace te
 			while(run)
 			{
 				run = false;
-				u1 overflow = false;
+
+				if(overflow)
+				{
+					if(totalRecvSize - recvSizeProcessed > 0)
+						memcpy(buffer, buffer + recvSizeProcessed, totalRecvSize - recvSizeProcessed);
+					totalRecvSize -= recvSizeProcessed;
+					recvSizeProcessed = 0;
+					overflow = false;
+				}
 
 				recvSize = r.socket.Read(buffer + totalRecvSize, bufferSize - totalRecvSize);
 
@@ -1012,6 +1021,11 @@ namespace te
 							const c8 * trNextLine = strstr(trEncoding, "\r\n");
 							const c8 * trChunkLine = strstr(trEncoding, "chunked");
 							r.chunkMode = (trChunkLine != NULL) && (trNextLine != NULL) && (trChunkLine < trNextLine);
+
+							if(r.chunkMode)
+							{
+								TE_LOG_ERR("chunk mode not supported now");
+							}
 						}
 
 						const c8 * contentLen = strstr(httpHeader, "Content-Length:");
