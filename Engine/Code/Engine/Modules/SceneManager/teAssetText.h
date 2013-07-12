@@ -43,6 +43,7 @@ namespace te
 		// palette is 256 items array, for $pxx$ color resolve, by default all colors are black (0, 0, 0, 255)
 		teColor4u * GetTextPalette();
 		teColor4u * GetTextShadowPalette();
+		teVector2df & GetTextShadowOffset();
 
 		class teContentPack;
 		class teAssetPack;

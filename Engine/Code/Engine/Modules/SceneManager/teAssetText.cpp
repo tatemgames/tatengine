@@ -20,9 +20,11 @@ namespace te
 	{
 		teColor4u textPalette[256];
 		teColor4u textShadowPalette[256];
+		teVector2df textShadowOffset(0.0f, -2.0f);
 
 		teColor4u * GetTextPalette() {return textPalette;}
 		teColor4u * GetTextShadowPalette() {return textShadowPalette;}
+		teVector2df & GetTextShadowOffset() {return textShadowOffset;}
 
 		enum ERenderTextState
 		{
@@ -88,10 +90,9 @@ namespace te
 			teVector2df cursorPosition;
 			teColor4u charColor(255, 255, 255, 255);
 
-			if(shadowPass) // TODO we need to config this values
+			if(shadowPass)
 			{
-				//cursorPosition.x += 2;
-				cursorPosition.y -= 2;
+				cursorPosition += textShadowOffset;
 				charColor.SetRGBA(16, 16, 16, 255);
 			}
 
