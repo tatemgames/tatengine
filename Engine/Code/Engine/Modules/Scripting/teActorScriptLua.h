@@ -53,6 +53,26 @@ namespace te
 {
 	namespace scene
 	{
+		#if !defined LUA_VERSION_NUM || LUA_VERSION_NUM == 501
+
+		static void luaL_setfuncs(lua_State * L, const luaL_Reg * l, int nup)
+		{
+			luaL_checkstack(L, nup, "too many upvalues");
+
+			for(; l->name != NULL; l++)
+			{
+				for(int i = 0; i < nup; i++)
+					lua_pushvalue(L, -nup);
+				lua_pushstring(L, l->name);
+				lua_pushcclosure(L, l->func, nup);
+				lua_settable(L, -(nup + 3));
+			}
+
+			lua_pop(L, nup);
+		}
+
+		#endif
+
 		#define TE_LUA_SPECIAL_ALLOC
 
 		#ifdef TE_LUA_SPECIAL_ALLOC
