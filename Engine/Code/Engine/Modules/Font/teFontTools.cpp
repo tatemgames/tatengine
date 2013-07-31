@@ -308,10 +308,49 @@ namespace te
 			
 			TE_FREE(content);
 
-			// TODO add sorting by character for metrics
-			// TODO add sorting by character for kernings
+			SortFontData(font);
 
 			return font;
+		}
+
+		void SortMetrics(s8 & result, const teCharacterMetrics & a, const teCharacterMetrics & b)
+		{
+			if(a.character > b.character)
+				result = 1;
+			else if(a.character < b.character)
+				result = -1;
+			else
+				result = 0;
+		}
+
+		void SortKernings(s8 & result, const teCharacterKerning & a, const teCharacterKerning & b)
+		{
+			u64 key1 = ((u64)a.characterRight | ((u64)a.characterLeft << 32));
+			u64 key2 = ((u64)b.characterRight | ((u64)b.characterLeft << 32));
+
+			if(key1 > key2)
+				result = 1;
+			else if(key1 < key2)
+				result = -1;
+			else
+				result = 0;
+		}
+		
+		void SortFontData(teFont * font)
+		{
+			if(font->metricsCount)
+			{
+				teConstArray<teCharacterMetrics> metricsNested(&font->GetMetric(0), sizeof(teCharacterMetrics) * font->metricsCount);
+				metricsNested.Request(metricsNested.GetSize());
+				metricsNested.ShellSort(SortMetrics);
+			}
+
+			if(font->kerningsCount)
+			{
+				teConstArray<teCharacterKerning> kerningsNested(&font->GetKerning(0), sizeof(teCharacterKerning) * font->kerningsCount);
+				kerningsNested.Request(kerningsNested.GetSize());
+				kerningsNested.ShellSort(SortKernings);
+			}
 		}
 	}
 }

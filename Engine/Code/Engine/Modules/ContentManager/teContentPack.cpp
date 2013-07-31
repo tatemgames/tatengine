@@ -15,6 +15,8 @@
 
 #include "teLogManager.h"
 
+#include "teFontTools.h"
+
 //#define TE_TEXTURE_MMAP
 //#define TE_TEXTURE_MMAP_SAVE_IMAGE
 
@@ -372,6 +374,20 @@ namespace te
 						frameBuffers[i].UnBind();
 				}
 			}
+
+			#ifdef TE_CONTENT_FIX_FONTS
+			if(fontData.GetAlive())
+			{
+				u32 poolPosition = 0;
+
+				while(poolPosition < fontData.GetAlive())
+				{
+					font::teFont * font = reinterpret_cast<font::teFont*>(fontData.At(poolPosition));
+					poolPosition += font->GetFontDataSize();
+					SortFontData(font);
+				}
+			}
+			#endif
 
 			if(soundsData.GetAlive())
 			{

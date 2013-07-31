@@ -173,14 +173,6 @@ namespace te
 				if(!metricsCount)
 					return u32Max;
 
-				// fix loading bad fonts, needs add sorting to fnt loader
-				// replace binary search for linear
-				for(u32 i = 0; i < metricsCount; ++i)
-					if(GetMetric(i).character == character)
-						return i;
-				return u32Max;
-
-				/*
 				u32 first = 0;
 				u32 last = metricsCount - 1;
 				u32 mid;
@@ -199,7 +191,6 @@ namespace te
 					return first;
 				else
 					return u32Max;
-					*/
 			}
 
 			//! @brief Get characters pair kerning value
@@ -211,25 +202,17 @@ namespace te
 				if(!kerningsCount)
 					return 0.0f;
 
-				// fix loading bad fonts, needs add sorting to fnt loader
-				// replace binary search for linear
-				for(size_t i = 0; i < kerningsCount; ++i)
-					if((GetKerning(i).characterLeft == characterLeft) && (GetKerning(i).characterRight == characterRight))
-						return GetKerning(i).kerning;
-				return 0.0f;
-
-				/*
 				u32 first = 0;
 				u32 last = kerningsCount - 1;
 				u32 mid;
 
-				u64 val = characterRight | ((u64)characterLeft << 32);
+				u64 val = (u64)characterRight | ((u64)characterLeft << 32);
 
 				while(first < last)
 				{
 					mid = first + (last - first) / 2;
 					
-					if(val <= (GetKerning(mid).characterRight | ((u64)GetKerning(mid).characterLeft << 32)))
+					if(val <= ((u64)GetKerning(mid).characterRight | ((u64)GetKerning(mid).characterLeft << 32)))
 						last = mid;
 					else
 						first = mid + 1;
@@ -238,8 +221,7 @@ namespace te
 				if((GetKerning(mid).characterLeft == characterLeft) && (GetKerning(mid).characterRight == characterRight))
 					return GetKerning(first).kerning;
 				else
-					return 0;
-					*/
+					return 0.0f;
 			}
 		};
 	}

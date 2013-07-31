@@ -23,6 +23,10 @@ namespace te
 		//! @param[in] downscale downscale font metrics for distance field based fonts, default = 1.0f
 		//! @return teFont* loaded font, return NULL if failed
 		teFont * LoadFontFNT(core::IBuffer * buffer, f32 downscale = 1.0f); // use downscale for loading distance field based fonts, when we get metrics from bigger font than texture
+
+		//! @brief		Sort font metrics and kernings for binary search
+		//! @param[in] font
+		void SortFontData(teFont * font);
 	}
 }
 
