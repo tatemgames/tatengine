@@ -63,6 +63,8 @@ namespace te
 				
 				sSize = elSize * elCount;
 				
+				teAssetTransform tSprTransform = scene->GetAssetPack().transforms[sprite->renderAsset.transformIndex];
+				
 				switch (scrollType->vs32)
 				{
 					case SCRL_HORIZONTAL:
@@ -74,6 +76,8 @@ namespace te
 						scrollLim = (sSize - width) / 2.0f;
 						if (scrollLim < 0.0f)
 							scrollLim = 0.0f;
+						
+						sTransformOffset = 0.0f;//tSprTransform.position.x;
 						
 						scrollEdge = -(sizeB.x - sizeA.x) / 2.0f - elementSize->GetF32() / 2.0f;
 						
@@ -89,7 +93,9 @@ namespace te
 						if (scrollLim < 0.0f)
 							scrollLim = 0.0f;
 						
-						scrollEdge = -teAbs(sizeB.y - sizeA.y) / 2.0f - elementSize->GetF32() / 2.0f;
+						sTransformOffset = tSprTransform.position.y;// - elementSize->GetF32();
+						
+						scrollEdge = -teAbs(sizeB.y - sizeA.y) / 2.0f - elementSize->GetF32() / 2.0f - sTransformOffset;
 						
 						break;
 				}
@@ -274,7 +280,7 @@ namespace te
 				
 				if (teAbs(position - sOrigin) > scrollLim + scrollGap)
 				{
-						position = teAbs(position) / position * (scrollLim + sOrigin);
+					position = teAbs(position) / position * (scrollLim + sOrigin);
 					UpdateScrollPos(position);
 					moveTouch.Flush();
 					StopMoving();
@@ -283,6 +289,9 @@ namespace te
 			
 			TE_INLINE void SetSnapPos()
 			{
+				if(!snapVariable)
+					return;
+				
 				f32 spriteSize = 0.0f;
 				switch (scrollType->vs32)
 				{
@@ -336,7 +345,7 @@ namespace te
 			{
 				f32 limVar, casheVar;
 				
-				limVar = position - sSize / 2.0f + elementSize->GetF32() / 2.0f;
+				limVar = position - sSize / 2.0f + elementSize->GetF32() / 2.0f; //+ sTransformOffset;
 
 				// force check
 				if(teIsNaN(position))
@@ -444,11 +453,13 @@ namespace te
 			teAssetVariable * elementSize;
 			teAssetVariable * cacheCount;
 			teAssetVariable * scrollType;
+			teAssetVariable * snapVariable;
 			
 			teFastScene * scene;
 
 			f32 sOrigin; // scroll sprite Origin
 			f32 sSize; // total size of scrolling ellements;
+			f32 sTransformOffset;
 			
 			teVector2df sizeA, sizeB; // AABB
 			u32 curElemCount;
@@ -492,6 +503,7 @@ namespace te
 			ti->AddLink("elementSize");
 			ti->AddLink("cacheCount");
 			ti->AddLink("scrollType");
+			ti->AddLink("snapVariable");
 			
 			ti->AddSignal("UpdateElement");
 			ti->AddSignal("UpdateScrollPos");
