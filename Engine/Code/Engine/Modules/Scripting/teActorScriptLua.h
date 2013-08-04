@@ -628,6 +628,30 @@ namespace te
 				return 1;
 			}
 
+			static s32 LuaToTransform(lua_State * L)
+			{
+				teActorScriptLua * data = (teActorScriptLua*)lua_topointer(L, 1);
+				s32 index = (s32)lua_tointeger(L, 2);
+
+				*(void**)lua_newuserdata(L, sizeof(void*)) = (void*)&data->scene->GetAssetPack().transforms[index]; // TODO probably bad
+				luaL_getmetatable(L, "teAssetTransform");
+				lua_setmetatable(L, -2);
+
+				return 1;
+			}
+
+			static s32 LuaToMaterial(lua_State * L)
+			{
+				teActorScriptLua * data = (teActorScriptLua*)lua_topointer(L, 1);
+				s32 index = (s32)lua_tointeger(L, 2);
+
+				*(void**)lua_newuserdata(L, sizeof(void*)) = (void*)&data->scene->GetContentPack().materials[index]; // TODO probably bad
+				luaL_getmetatable(L, "teMaterial");
+				lua_setmetatable(L, -2);
+
+				return 1;
+			}
+
 			static s32 LuaSetMaterial(lua_State * L)
 			{
 				teActorScriptLua * actor = (teActorScriptLua*)lua_topointer(L, 1);
@@ -936,7 +960,7 @@ namespace te
 			static s32 BindAssetCameraGet(lua_State * L)
 			{
 				teAssetCamera * data = *(teAssetCamera**)luaL_checkudata(L, 1, "teAssetCamera");
-				const c8 *key = luaL_checkstring(L, 2);
+				const c8 * key = luaL_checkstring(L, 2);
 
 				if(strcmp(key, "near") == 0) lua_pushnumber(L, data->nearPlane);
 				else if(strcmp(key, "far") == 0) lua_pushnumber(L, data->farPlane);
@@ -947,6 +971,7 @@ namespace te
 				else if(strcmp(key, "size_x") == 0) lua_pushnumber(L, data->viewportSize.x);
 				else if(strcmp(key, "size_y") == 0) lua_pushnumber(L, data->viewportSize.y);
 				else if(strcmp(key, "type") == 0) lua_pushinteger(L, data->cameraType);
+				else if(strcmp(key, "transform") == 0) lua_pushinteger(L, data->transformIndex);
 
 				return 1;
 			}
@@ -967,12 +992,14 @@ namespace te
 			static s32 BindAssetSpriteGet(lua_State * L)
 			{
 				teAssetSprite * data = *(teAssetSprite**)luaL_checkudata(L, 1, "teAssetSprite");
-				const c8 *key = luaL_checkstring(L, 2);
+				const c8 * key = luaL_checkstring(L, 2);
 
 				if(strcmp(key, "color_a") == 0) lua_pushinteger(L, data->color.a);
 				else if(strcmp(key, "color_r") == 0) lua_pushinteger(L, data->color.r);
 				else if(strcmp(key, "color_g") == 0) lua_pushinteger(L, data->color.g);
 				else if(strcmp(key, "color_b") == 0) lua_pushinteger(L, data->color.b);
+				else if(strcmp(key, "transform") == 0) lua_pushinteger(L, data->renderAsset.transformIndex);
+				else if(strcmp(key, "material") == 0) lua_pushinteger(L, data->renderAsset.materialIndex);
 				else return 0;
 
 				return 1;
@@ -1121,6 +1148,8 @@ namespace te
 				lua_register(L, "signal7", &LuaSignal7);
 
 				lua_register(L, "toType", &LuaToType);
+				lua_register(L, "toTransform", &LuaToTransform);
+				lua_register(L, "toMaterial", &LuaToMaterial);
 				lua_register(L, "setMaterial", &LuaSetMaterial);
 				lua_register(L, "getStage", &LuaGetStage);
 

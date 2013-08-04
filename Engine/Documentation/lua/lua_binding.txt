@@ -62,6 +62,7 @@ teAssetCamera
 		7) size_x - viewport width
 		8) size_y - viewport height
 		9) type - camera type (perspective = 0, isometric = 1)
+		10) transform - return index of transform
 
 teAssetSprite
 	engine sprite asset
@@ -70,6 +71,8 @@ teAssetSprite
 		2) color_r - set\get color red color value in range [0, 255]
 		3) color_g - set\get color green color value in range [0, 255]
 		4) color_b - set\get color blue color value in range [0, 255]
+		5) transform - return index of transform
+		6) material - return index of material
 
 teAssetSurface
 	wip
@@ -102,6 +105,12 @@ toType(data:LightUserData, type:String):UserData
 	cast light user data to full user data with type
 	example :
 		local sprite = toType(arr[3], "teAssetSprite");
+
+toTransform(actor:LightUserData, transformIndex:Number):UserData
+	cast index to teAssetTransform
+
+toMaterial(actor:LightUserData, materialIndex:Number):UserData
+	cast index to teMaterial
 
 setMaterial
 	wip
