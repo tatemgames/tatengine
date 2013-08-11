@@ -89,12 +89,18 @@
 	#define TE_RENDER_PVRTC 1
 #endif
 
+//#define TE_RENDER_FORCE_TEX_FILTERED
+
 // -------------------------------------------------------------- Input
 #define TE_INPUT_TOUCHES_MAX 12
 
 #ifndef TE_PLATFORM_IPHONE
 	#define TE_INPUT_SUPPORT_KEYBOARD
 #endif
+
+// -------------------------------------------------------------- Fonts
+
+//#define TE_CONTENT_FIX_FONTS
 
 // -------------------------------------------------------------- Sound
 

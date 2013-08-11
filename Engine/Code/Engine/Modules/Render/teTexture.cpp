@@ -33,6 +33,10 @@ namespace te
 			textureType = setTextureType;
 			flags = setFlags;
 
+			#ifdef TE_RENDER_FORCE_TEX_FILTERED
+				flags |= TF_FILTERED;
+			#endif
+
 			switch(textureType)
 			{
 			case TT_2D: glGenTextures(1, &textureId); break;
