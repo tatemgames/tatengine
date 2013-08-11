@@ -9,6 +9,9 @@
 
 #include "TatEngineCoreConfig.h"
 
+// enable this for log all connections to file
+//#define TE_NETWORK_VERBOSE
+
 #ifdef TE_MODULE_NETWORK
 
 #ifndef TE_PLATFORM_WIN
@@ -281,9 +284,17 @@ namespace te
 			#endif
 		}
 
+		#ifdef TE_NETWORK_VERBOSE
+		FILE * verboseLog = NULL;
+		#endif
+
 		teHTTPSocket::teHTTPSocket()
 			:socketId(-1), connected(false)
 		{
+			#ifdef TE_NETWORK_VERBOSE
+			if(verboseLog == NULL)
+				verboseLog = fopen("http_verbose.txt", "wb+");
+			#endif
 		}
 
 		teHTTPSocket::~teHTTPSocket()
@@ -308,6 +319,9 @@ namespace te
 				if(socketId < 0)
 				{
 					TE_LOG_ERR("teHTTPSocket::Connect() - socket creation failed: %i", errno);
+					#ifdef TE_NETWORK_VERBOSE
+					fprintf(verboseLog, "!!! socket connect failed\n");
+					#endif
 					return false;
 				}
 			}
@@ -315,6 +329,9 @@ namespace te
 			if(connect(socketId, (struct sockaddr*)&netAddr, sizeof(netAddr)) != 0)
 			{
 				TE_LOG_ERR("teHTTPSocket::Connect() - connection fail: %i", errno);
+				#ifdef TE_NETWORK_VERBOSE
+				fprintf(verboseLog, "!!! socket connect failed\n");
+				#endif
 				connected = false;
 			}
 			else
@@ -323,6 +340,11 @@ namespace te
 			#ifdef TE_PLATFORM_WIN
 			u_long mode = 1;
 			ioctlsocket(socketId, FIONBIO, &mode);
+			#endif
+
+			#ifdef TE_NETWORK_VERBOSE
+			fprintf(verboseLog, "----------------------\n");
+			fprintf(verboseLog, "connected to %s\n", url.host.c_str());
 			#endif
 
 			return connected;
@@ -372,6 +394,11 @@ namespace te
 			#endif
 
 			socketId = -1;
+
+			#ifdef TE_NETWORK_VERBOSE
+			fprintf(verboseLog, "\n\ndisconnect\n");
+			fprintf(verboseLog, "----------------------\n");
+			#endif
 		}
 
 		void teHTTPSocket::SendEnded()
@@ -408,6 +435,12 @@ namespace te
 
 		u1 teHTTPSocket::Write(const void * data, u32 dataSize)
 		{
+			#ifdef TE_NETWORK_VERBOSE
+			fprintf(verboseLog, "--- write\n");
+			fwrite(data, dataSize, 1, verboseLog);
+			fprintf(verboseLog, "\n\n--- end write\n");
+			#endif
+
 			u32 sent = 0;
 
 			while(sent < dataSize)
@@ -624,15 +657,15 @@ namespace te
 
 			if(postData)
 			{
-				TE_SNPRINTF(" HTTP/1.0\r\nHost:%s\r\nConnection:close\r\nAccept-Encoding:identity\r\nContent-Length:%u\r\nContent-Type:application/x-www-form-urlencoded\r\n%s\r\n%s", url.host.c_str(), postDataSize - 1, (headers.c_str() ? headers.c_str() : ""), (headers.c_str() ? "\r\n" : ""));
+				TE_SNPRINTF(" HTTP/1.0\r\nHost:%s\r\nConnection:close\r\nAccept-Encoding:identity\r\nContent-Length:%u\r\nContent-Type:application/x-www-form-urlencoded\r\n%s\r\n%s", url.host.c_str(), postDataSize, (headers.c_str() ? headers.c_str() : ""), (headers.c_str() ? "\r\n" : ""));
 
 				if((outputSize - p) < (postDataSize + 1 + 2))
 					return false;
 
 				memcpy(output + p, postData, postDataSize);
-				p += postDataSize - 1;
+				p += postDataSize;
 
-				output[p++] = '\0';
+				output[p] = '\0';
 			}
 			else
 			{
@@ -640,7 +673,7 @@ namespace te
 			}
 
 			if(resultSize)
-				*resultSize = strlen(output);
+				*resultSize = p;
 
 			return true;
 		}
@@ -832,6 +865,11 @@ namespace te
 
 		teHTTPNetwork::~teHTTPNetwork()
 		{
+			#ifdef TE_NETWORK_VERBOSE
+			if(verboseLog)
+				fclose(verboseLog);
+			#endif
+
 			threadRun = false;
 
 			#ifndef TE_PLATFORM_WIN
@@ -994,6 +1032,11 @@ namespace te
 
 				if(totalRecvSize == 0)
 					return true;
+
+				#ifdef TE_NETWORK_VERBOSE
+				fprintf(verboseLog, "--- read\n");
+				fwrite(buffer + totalRecvSize, recvSize, 1, verboseLog);
+				#endif
 
 				if(!r.readedHeader)
 				{
