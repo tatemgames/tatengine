@@ -68,6 +68,8 @@ namespace te
 		// dataSize == -1 if error
 		typedef EHTTPCallBackResult (*teHTTPNetCallback)(const teHTTPRequest & request, const c8 * data, s32 dataSize, u1 willBeMore);
 
+		typedef void (*teHTTPNetProcess)(teHTTPRequest & request);
+
 		struct teHTTPSocket
 		{
 			s32 socketId;
@@ -183,6 +185,7 @@ namespace te
 			teHTTPRequest & SetReadBuffer(c8 * buffer, u32 bufferSize);
 			teHTTPRequest & SetMode(EWorkMode setMode);
 			teHTTPRequest & SetCallBack(teHTTPNetCallback setCallback);
+			teHTTPRequest & Process(teHTTPNetProcess process); // call process function with this request
 		};
 
 		class teHTTPNetwork

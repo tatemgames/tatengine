@@ -795,6 +795,12 @@ namespace te
 			return *this;
 		}
 
+		teHTTPRequest & teHTTPRequest::Process(teHTTPNetProcess process)
+		{
+			process(*this);
+			return *this;
+		}
+
 		// ------------------------------------------------------------------------------------------------------ Network
 
 		teHTTPNetwork * currentNetwork = NULL;
