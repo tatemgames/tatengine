@@ -92,7 +92,7 @@ namespace te
 							if(canGrab && (!IsFlag(BF_DONT_GRAB)))
 								buttonGrabLayer = assetLayer;
 						}
-						
+
 						touchPos = input::GetInputManager()->GetTouch(0);
 					}
 					else
@@ -102,6 +102,7 @@ namespace te
 							if((!IsFlag(BF_IGNORE_MOVING)) && ((touchPos - input::GetInputManager()->GetTouch(0)).GetDistance() > GetMaximalTapDistance()))
 							{
 								SetStyle(false);
+								OnClear((f32)assetIndex);
 								wasTouchInside = false;
 							}
 							else
