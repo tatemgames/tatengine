@@ -50,7 +50,9 @@ namespace te
 			teSignal OnWillTerminate;
 			
 			//! Open Link In Safari
-			//void OpenLink(teStringc link);
+			void OpenLink(teString link);
+			
+			void SendMail(teString url);
 			
 			//! Show Chartboost More Apps Page
 			void ShowChartbosstMoreApps();

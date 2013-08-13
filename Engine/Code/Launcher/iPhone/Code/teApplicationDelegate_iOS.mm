@@ -22,6 +22,8 @@
 	#endif
 #endif
 
+#define MG_IS_IPAD (([[UIDevice currentDevice] respondsToSelector:@selector(userInterfaceIdiom)] ? [[UIDevice currentDevice] userInterfaceIdiom] : UIUserInterfaceIdiomPhone) == UIUserInterfaceIdiomPad)
+
 //! iOS File System
 class CiOSFileSystem : public te::core::IFileSystem
 {
@@ -111,6 +113,7 @@ public:
 @synthesize Window;
 @synthesize View;
 @synthesize movieController = _movieController;
+@synthesize ViewController = _ViewController;
 
 - (BOOL)application:(UIApplication *)application willFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -349,6 +352,63 @@ public:
 	[Window.rootViewController dismissModalViewControllerAnimated:NO];
 	[viewController release];
 	[View StartAnimation];
+}
+
+- (void)SendMail:(NSString*)url
+{
+	if(![MFMailComposeViewController canSendMail])
+	{
+		[self ShowAlert:@"No email account found"];
+		return;
+	}
+	
+	NSString * subject = @"Tatem Games";
+	NSString * body = @"Tatem Games";
+	NSRange subjectRange = [url rangeOfString:@"subject="];
+	NSRange bodyRange = [url rangeOfString:@"&body="];
+	if((subjectRange.location != NSNotFound) && (bodyRange.location != NSNotFound))
+	{
+		subject = [url substringWithRange:NSMakeRange(subjectRange.location + subjectRange.length, bodyRange.location - (subjectRange.location + subjectRange.length))];
+		subject = [subject stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+		body = [url substringFromIndex:(bodyRange.location + bodyRange.length)];
+		body = [body stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+	}
+	
+	MFMailComposeViewController * mailComposer = [[[MFMailComposeViewController alloc] init] autorelease];
+	mailComposer.mailComposeDelegate = self;
+	[mailComposer setSubject:subject];
+	[mailComposer setMessageBody:body isHTML:YES];
+	
+	if(MG_IS_IPAD)
+	{
+		[mailComposer setModalPresentationStyle:UIModalPresentationCurrentContext];
+		[mailComposer setModalInPopover:YES];
+	}
+	
+	[mailComposer.view setAutoresizesSubviews:YES];
+	[mailComposer.view setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+	
+	[mailComposer setContentSizeForViewInPopover:self.ViewController.contentSizeForViewInPopover];
+	
+	[self.ViewController presentModalViewController:mailComposer animated:!MG_IS_IPAD];
+	
+	[mailComposer setContentSizeForViewInPopover:self.ViewController.contentSizeForViewInPopover];
+}
+
+-(void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
+{
+	if(error)
+	{
+		UIAlertView *errorView = [[UIAlertView alloc] initWithTitle:@"Mail Error"
+															message:[error localizedDescription]
+														   delegate:self
+												  cancelButtonTitle:nil
+												  otherButtonTitles:@"OK", nil];
+		[errorView show];
+		[errorView release];
+	}
+	
+	[self.ViewController dismissModalViewControllerAnimated:YES];
 }
 
 - (void)ShowAlert:(NSString*)text

@@ -12,8 +12,11 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#ifdef TE_PUBLISHING_CHARTBOOST
+#ifdef TE_MODULE_PUBLISHING
 	#include "tePublishingManager.h"
+#endif
+
+#ifdef TE_PUBLISHING_CHARTBOOST
 	#import "ChartBoost.h"
 #endif
 
@@ -79,9 +82,8 @@ namespace te
 				return [[[UIDevice currentDevice] uniqueIdentifier] cStringUsingEncoding:NSUTF8StringEncoding];
 		}
 		
-		/*
 		//! Open Link In Safari
-		void tePlatform_iOS::OpenLink(teStringc link)
+		void tePlatform_iOS::OpenLink(teString link)
 		{
 			#ifdef TE_MODULE_PUBLISHING
 				if(!pbl::GetPublishingManager()->IsReachable())
@@ -90,7 +92,11 @@ namespace te
 					[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithCString:link.c_str() encoding:NSUTF8StringEncoding]]];
 			#endif
 		}
-		 */
+		
+		void tePlatform_iOS::SendMail(teString url)
+		{
+			[[[UIApplication sharedApplication] delegate] SendMail:[NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding]];
+		}
 		
 		//! Show Chartboost More Apps Page
 		void tePlatform_iOS::ShowChartbosstMoreApps()

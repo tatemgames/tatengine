@@ -12,15 +12,17 @@
 #include "TatEngineCoreConfig.h"
 #include "teApplicationManager.h"
 #import "teglView_iOS.h"
+#import "teViewController_iOS.h"
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <UIKit/UIAccelerometer.h>
 #import <GameKit/GameKit.h>
 #import <MediaPlayer/MPMoviePlayerController.h>
+#import <MessageUI/MessageUI.h>
 
 //! Application Delegate
-@interface ApplicationDelegate : NSObject <UIApplicationDelegate, UIAccelerometerDelegate, GKLeaderboardViewControllerDelegate, GKAchievementViewControllerDelegate, UIAlertViewDelegate>
+@interface ApplicationDelegate : NSObject <UIApplicationDelegate, UIAccelerometerDelegate, GKLeaderboardViewControllerDelegate, GKAchievementViewControllerDelegate, UIAlertViewDelegate, MFMailComposeViewControllerDelegate>
 {
 @private
 	//! Current Window
@@ -38,6 +40,8 @@
 //! View property
 @property (nonatomic, retain) IBOutlet glView * View;
 
+@property (nonatomic, retain) IBOutlet teViewController_iOS * ViewController;
+
 @property (nonatomic, retain) MPMoviePlayerController * movieController;
 
 - (void)ShowLoadingView;
@@ -45,6 +49,8 @@
 
 - (void)ShowGameCenterDisabledAlert;
 - (void)ShowAlert:(NSString*)text;
+
+- (void)SendMail:(NSString*)url;
 
 - (void)sgnbar;
 
