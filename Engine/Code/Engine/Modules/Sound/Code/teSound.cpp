@@ -31,9 +31,9 @@ namespace te
 		//! Play
 		void teSound::Play()
 		{
-			teSoundManager::CheckResult(FMOD_System_PlaySound(GetSoundManager()->GetSystem(), FMOD_CHANNEL_FREE, sound, stream, &channel));
-			FMOD_Channel_SetMode(channel, (loop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF));
-			FMOD_Channel_SetPaused(channel, false);
+			teSoundManager::CheckResult(FMOD_System_PlaySound(GetSoundManager()->GetSystem(), FMOD_CHANNEL_REUSE, sound, stream, &channel));
+			teSoundManager::CheckResult(FMOD_Channel_SetMode(channel, (loop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF)));
+			teSoundManager::CheckResult(FMOD_Channel_SetPaused(channel, false));
 		}
 
 		//! Stop
@@ -75,7 +75,7 @@ namespace te
 		void teSound::SetPan(f32 pan)
 		{
 			if(channel)
-				FMOD_Channel_SetPan(channel, pan);
+				teSoundManager::CheckResult(FMOD_Channel_SetPan(channel, pan));
 		}
 
 		//! Get Pan
@@ -93,7 +93,7 @@ namespace te
 		void teSound::SetVolume(f32 volume)
 		{
 			if(channel)
-				FMOD_Channel_SetVolume(channel, volume);
+				teSoundManager::CheckResult(FMOD_Channel_SetVolume(channel, volume));
 		}
 
 		//! Get Volume

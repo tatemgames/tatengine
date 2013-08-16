@@ -106,7 +106,9 @@ namespace te
 			if(version < FMOD_VERSION)
 				TE_LOG_ERR("old version of fmod library");
 
-			CheckResult(FMOD_System_Init(system, 32, FMOD_INIT_NORMAL, NULL));
+			CheckResult(FMOD_System_SetSoftwareFormat(system, 44100, FMOD_SOUND_FORMAT_PCM16, 0, 0, FMOD_DSP_RESAMPLER_LINEAR));
+
+			CheckResult(FMOD_System_Init(system, 64, FMOD_INIT_NORMAL, NULL));
 
 			CheckResult(FMOD_System_SetFileSystem(system, teFMODOpenFile, teFMODCloseFile, teFMODReadFile, teFMODSeekFile, 0, 0, 2048));
 
@@ -153,7 +155,7 @@ namespace te
 			if(sound.stream)
 				CheckResult(FMOD_System_CreateStream(system, core::GetLogManager()->GetConcate().Add("sound_%i", sound.soundIndex).BakeToString().c_str(), flags, NULL, &fmodSound));
 			else
-				CheckResult(FMOD_System_CreateStream(system, core::GetLogManager()->GetConcate().Add("sound_%i", sound.soundIndex).BakeToString().c_str(), flags, NULL, &fmodSound));
+				CheckResult(FMOD_System_CreateSound(system, core::GetLogManager()->GetConcate().Add("sound_%i", sound.soundIndex).BakeToString().c_str(), flags, NULL, &fmodSound));
 
 			if(!fmodSound)
 			{
