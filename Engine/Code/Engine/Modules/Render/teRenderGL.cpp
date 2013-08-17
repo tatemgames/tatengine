@@ -28,9 +28,27 @@ namespace te
 			shaderPass = SP_GEN_DIFFUSE;
 
 			currentRender = this;
-			
+
 			statistic.Clear();
 
+			RestartCache();
+
+			#ifdef TE_RENDER_GL_VAO
+			vbo = 0;
+
+			for(u32 i = 0; i < teRenderGLVAOMax; ++i)
+				vao[i] = u32Max;
+			#endif
+		}
+
+		teRenderGL::~teRenderGL()
+		{
+			TE_SAFE_DROP(CurrentContext);
+			currentRender = NULL;
+		}
+
+		void teRenderGL::RestartCache()
+		{
 			#ifdef TE_RENDER_GL_CACHE
 			forceCacheSetup = true;
 			cachedBlend = u32Max;
@@ -45,19 +63,6 @@ namespace te
 				cachedVAO = 0;
 			#endif
 			#endif
-
-			#ifdef TE_RENDER_GL_VAO
-			vbo = 0;
-
-			for(u32 i = 0; i < teRenderGLVAOMax; ++i)
-				vao[i] = u32Max;
-			#endif
-		}
-
-		teRenderGL::~teRenderGL()
-		{
-			TE_SAFE_DROP(CurrentContext);
-			currentRender = NULL;
 		}
 
 		void teRenderGL::SetContext(teRenderContext * Context)
@@ -103,7 +108,7 @@ namespace te
 		void teRenderGL::Begin()
 		{
 			//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			
+
 			statistic.Clear();
 
 			glEnable(GL_CULL_FACE);
@@ -167,7 +172,7 @@ namespace te
 		{
 			if(!surface->IsMaterialValid())
 				return;
-			
+
 			++statistic.operationsCount;
 
 			#ifdef TE_RENDER_GL_VAO
@@ -189,10 +194,10 @@ namespace te
 							cachedVBO = vbo;
 						}
 						#endif
-						
+
 						++statistic.vboUploads;
 						statistic.vboUploadsSize += sizeof(teSurfaceData) + surface->dataSize;
-						
+
 						tglBufferSubData(GL_ARRAY_BUFFER, (size_t)contentPack.surfaceData.GetIndexInArray((u8*)surface), (size_t)(sizeof(teSurfaceData) + surface->dataSize), surface);
 					}
 
@@ -321,6 +326,9 @@ namespace te
 					if((cachedTextureID[i] != contentPack.atlasSprites[states.atlasSpriteIndex[i]].textureIndex) || forceCacheSetup)
 					#endif
 					{
+						if(contentPack.atlasSprites[states.atlasSpriteIndex[i]].textureIndex > contentPack.textures.GetAlive())
+							continue;
+
 						contentPack.textures[contentPack.atlasSprites[states.atlasSpriteIndex[i]].textureIndex].Bind(i);
 						#ifdef TE_RENDER_GL_CACHE
 						cachedTextureID[i] = contentPack.atlasSprites[states.atlasSpriteIndex[i]].textureIndex;
@@ -446,7 +454,7 @@ namespace te
 
 			if(surfaceIdVAO < u32Max)
 			{ // with vao
-				
+
 				#ifdef TE_RENDER_GL_CACHE
 				if((cachedVAO != vao[surfaceIdVAO]) || forceCacheSetup)
 				{

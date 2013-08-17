@@ -85,7 +85,7 @@ namespace te
 				vboUploadsSize = 0;
 			}
 		};
-		
+
 		struct teViewport
 		{
 			teVector2dsh size;
@@ -119,6 +119,8 @@ namespace te
 			teRenderGL();
 			~teRenderGL();
 
+			void RestartCache();
+
 			void SetContext(teRenderContext * Context);
 			teRenderContext * GetContext();
 
@@ -130,10 +132,10 @@ namespace te
 
 			teMatrix4f & GetMatrixProjection() {return matrixProjection;}
 			const teMatrix4f & GetMatrixProjection() const {return matrixProjection;}
-			
+
 			teMatrix4f & GetMatrixModelView() {return matrixModelView;}
 			const teMatrix4f & GetMatrixModelView() const {return matrixModelView;}
-			
+
 			teMatrix4f & GetMatrixView() {return matrixView;}
 			const teMatrix4f & GetMatrixView() const {return matrixView;}
 
@@ -141,7 +143,7 @@ namespace te
 			EShaderPass GetPass() const {return shaderPass;}
 
 			void ClearScreen(const teColor4f & color = teColor4f(0.25f, 0.25f, 0.25f, 1.0f), u1 clearColor = false, f32 depth = 1.0f, u1 clearDepth = true, s32 stencil = 0, u1 clearStencil = false);
-			
+
 			void Begin();
 			void End();
 
@@ -187,7 +189,7 @@ namespace te
 				u32 vbo;
 			#endif
 		};
-		
+
 		//! Get Render
 		teRenderGL * GetRender();
 

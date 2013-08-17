@@ -44,6 +44,8 @@ namespace te
 			teRenderD3D9();
 			~teRenderD3D9();
 
+			void RestartCache() {}
+
 			LPDIRECT3D9 GetD3D() {return d3d;}
 			LPDIRECT3DDEVICE9 GetDevice() {return device;}
 
@@ -58,10 +60,10 @@ namespace te
 
 			teMatrix4f & GetMatrixProjection() {return matrixProjection;}
 			const teMatrix4f & GetMatrixProjection() const {return matrixProjection;}
-			
+
 			teMatrix4f & GetMatrixModelView() {return matrixModelView;}
 			const teMatrix4f & GetMatrixModelView() const {return matrixModelView;}
-			
+
 			teMatrix4f & GetMatrixView() {return matrixView;}
 			const teMatrix4f & GetMatrixView() const {return matrixView;}
 
@@ -69,7 +71,7 @@ namespace te
 			EShaderPass GetPass() const {return shaderPass;}
 
 			void ClearScreen(const teColor4f & color = teColor4f(0.25f, 0.25f, 0.25f, 1.0f), u1 clearColor = false, f32 depth = 1.0f, u1 clearDepth = true, s32 stencil = 0, u1 clearStencil = false);
-			
+
 			void Begin();
 			void End();
 
@@ -103,7 +105,7 @@ namespace te
 
 			teConstArray<LPDIRECT3DVERTEXDECLARATION9> vertexLayouts;
 		};
-		
+
 		//! Get Render
 		teRenderD3D9 * GetRender();
 

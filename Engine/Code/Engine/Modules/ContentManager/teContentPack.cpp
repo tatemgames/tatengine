@@ -219,6 +219,8 @@ namespace te
 
 		void teContentPack::Finalize()
 		{
+			video::GetRender()->RestartCache();
+
 			if(texturesData.GetAlive())
 			{
 				u32 texturesCount = 0, poolPosition = 0;
