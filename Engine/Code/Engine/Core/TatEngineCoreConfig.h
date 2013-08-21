@@ -110,6 +110,9 @@
 
 #define TE_CTTI
 
+//#define TE_CONTENT_STRINGS_ENCR
+//#define TE_CONTENT_STRINGS_ENCR_KEY "TatEngine" // please redefine it in your application
+
 // -------------------------------------------------------------- Launcher
 
 #if defined(TE_PLATFORM_WIN)

@@ -115,6 +115,7 @@ namespace te
 			teConstArray<c8> stringsData; // contains teStringInfo
 			teConstArray<u8> configsData;
 			teConstArray<sound::teSound> soundsData;
+			u32 stringsDataCRC;
 
 			teConstArray<u32> surfaceIndexes; // lookup array for surface indexes, contains surfaceIndexes[surfaceAABBIndex] = surfaceDataIndex
 

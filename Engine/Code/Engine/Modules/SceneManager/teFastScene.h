@@ -54,7 +54,7 @@ namespace te
 			f32 batchUtilization;
 			u32 materialMissesSprite;
 			u32 materialMissesText;
-			
+
 			f32 timeActors; // in ms
 			f32 timeTransforms;
 			f32 timeUpdate;
@@ -63,13 +63,13 @@ namespace te
 			TE_INLINE void Clear()
 			{
 				ClearRender();
-				
+
 				timeActors = 0.0f;
 				timeTransforms = 0.0f;
 				timeUpdate = 0.0f;
 				timeRender = 0.0f;
 			}
-			
+
 			TE_INLINE void ClearRender()
 			{
 				dipCounts = 0;
@@ -108,7 +108,7 @@ namespace te
 
 			TE_INLINE void UpdateRenderProgram() {needToUpdateRenderProgram = true;}
 
-			void Load(u8 stage = 0, u1 deferred = false); // use deferred if you call from actor OnUpdate
+			void Load(u8 stage = 0, u1 deferred = false, u1 resaveContentPack = false); // use deferred if you call from actor OnUpdate
 			TE_INLINE u8 GetStage() const {return stageLoaded;}
 
 			TE_INLINE const teFastSceneStatistic & GetStatistic() const {return statistic;}
@@ -121,7 +121,7 @@ namespace te
 
 			TE_INLINE teAssetPack & GetAssetPack() {return scenePack;}
 			TE_INLINE const teAssetPack & GetAssetPack() const {return scenePack;}
-			
+
 			TE_INLINE teContentPack & GetContentPack() {return contentPack;}
 			TE_INLINE const teContentPack & GetContentPack() const {return contentPack;}
 

@@ -598,7 +598,7 @@ namespace te
 			statistic.timeRender = (f32)timeRender.ToMilliSeconds();
 		}
 
-		void teFastScene::Load(u8 stage, u1 deferred)
+		void teFastScene::Load(u8 stage, u1 deferred, u1 resaveContentPack)
 		{
 			if(deferred)
 			{
@@ -647,33 +647,34 @@ namespace te
 			core::IBuffer * stageBuffer = NULL;
 			core::IBuffer * contentBuffer = NULL;
 
-			if(stage < 10)
-			{
-				c8 stageName[7] = {'s', (c8)('0' + stage), '.', 'b', 'i', 'n', '\0'};
-				c8 contentName[7] = {'c', (c8)('0' + stage), '.', 'b', 'i', 'n', '\0'};
+			c8 stageName[16];
+			c8 contentName[16];
+			sprintf(stageName, "s%i.bin", stage);
+			sprintf(contentName, "c%i.bin", stage);
 
-				stageBuffer = core::GetFileManager()->OpenFile(stageName);
-				contentBuffer = core::GetFileManager()->OpenFile(contentName);
-			}
-			else
-			{
-				c8 stageName[8] = {'s', (c8)('0' + stage / 10), (c8)('0' + stage % 10), '.', 'b', 'i', 'n', '\0'};
-				c8 contentName[8] = {'c', (c8)('0' + stage / 10), (c8)('0' + stage % 10), '.', 'b', 'i', 'n', '\0'};
-
-				stageBuffer = core::GetFileManager()->OpenFile(stageName);
-				contentBuffer = core::GetFileManager()->OpenFile(contentName);
-			}
-
+			stageBuffer = core::GetFileManager()->OpenFile(stageName);
 			if(stageBuffer)
 			{
 				scenePack.Load(stageBuffer);
 				TE_SAFE_DROP(stageBuffer);
 			}
 
+			contentBuffer = core::GetFileManager()->OpenFile(contentName);
 			if(contentBuffer)
 			{
 				contentPack.Load(contentBuffer);
 				TE_SAFE_DROP(contentBuffer);
+
+				if(resaveContentPack)
+				{
+					contentBuffer = core::GetFileManager()->OpenFile(contentName, core::CFileBuffer::FWM_WRITE);
+
+					if(contentBuffer)
+					{
+						contentPack.Save(contentBuffer);
+						TE_SAFE_DROP(contentBuffer);
+					}
+				}
 			}
 
 			contentPack.Finalize();

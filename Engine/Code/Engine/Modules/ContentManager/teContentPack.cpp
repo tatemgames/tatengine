@@ -12,10 +12,9 @@
 #include "teContentTools.h"
 #include "teImageTools.h"
 #include "teRender.h"
-
 #include "teLogManager.h"
-
 #include "teFontTools.h"
+#include "teBufferSecurity.h"
 
 //#define TE_TEXTURE_MMAP
 //#define TE_TEXTURE_MMAP_SAVE_IMAGE
@@ -137,6 +136,10 @@ namespace te
 
 			u32 size = 4;
 
+			#ifdef TE_CONTENT_STRINGS_ENCR
+				size += sizeof(u32);
+			#endif
+
 			size += texturesData.GetSystemSize();
 			size += materials.GetSystemSize();
 			size += frameBuffers.GetSystemSize();
@@ -152,7 +155,17 @@ namespace te
 			buffer->Lock(core::BLT_WRITE);
 			buffer->Allocate(size);
 			buffer->SetPosition(0);
-			buffer->Write("TECP", 4);
+
+			#ifdef TE_CONTENT_STRINGS_ENCR
+				buffer->Write("TECE", 4);
+			#else
+				buffer->Write("TECP", 4);
+			#endif
+
+			#ifdef TE_CONTENT_STRINGS_ENCR
+				stringsDataCRC = core::Encrypt((u8*)stringsData.GetPool(), stringsData.GetAlive(), TE_CONTENT_STRINGS_ENCR_KEY);
+				buffer->Write(&stringsDataCRC, sizeof(u32));
+			#endif
 
 			texturesData.Save(buffer);
 			materials.Save(buffer);
@@ -167,12 +180,46 @@ namespace te
 			soundsData.Save(buffer);
 
 			buffer->Unlock();
+
+			#ifdef TE_CONTENT_STRINGS_ENCR
+				core::Decrypt((u8*)stringsData.GetPool(), stringsData.GetAlive(), TE_CONTENT_STRINGS_ENCR_KEY, stringsDataCRC);
+			#endif
 		}
 
 		void teContentPack::Load(core::IBuffer * buffer)
 		{
 			buffer->Lock(core::BLT_READ);
-			buffer->SetPosition(4);
+			buffer->SetPosition(0);
+
+			c8 temp[4];
+			buffer->Read(temp, 4);
+
+			#ifdef TE_CONTENT_STRINGS_ENCR
+				u1 encrypted = false;
+
+				if(memcmp(temp, "TECE", 4) == 0)
+				{
+					encrypted = true;
+					buffer->Read(&stringsDataCRC, sizeof(u32));
+				}
+				else if(memcmp(temp, "TECP", 4) == 0)
+				{
+					stringsDataCRC = 0;
+				}
+				else
+				{
+					TE_LOG_ERR("failed to load content pack - unknown format");
+				}
+			#else
+				if(memcmp(temp, "TECP", 4) == 0)
+				{
+					stringsDataCRC = 0;
+				}
+				else
+				{
+					TE_LOG_ERR("failed to load content pack - unknown format");
+				}
+			#endif
 
 			texturesData.Load(buffer);
 			materials.Load(buffer);
@@ -186,7 +233,14 @@ namespace te
 			stringsData.Load(buffer);
 			soundsData.Load(buffer);
 
+			#ifdef TE_CONTENT_STRINGS_ENCR
+				if(encrypted)
+					core::Decrypt((u8*)stringsData.GetPool(), stringsData.GetAlive(), TE_CONTENT_STRINGS_ENCR_KEY, stringsDataCRC);
+			#endif
+
 			buffer->Unlock();
+
+			finalized = false;
 		}
 
 		void teContentPack::Clear()
@@ -215,6 +269,8 @@ namespace te
 			soundsData.Clear();
 
 			surfaceIndexes.Clear();
+
+			finalized = false;
 		}
 
 		void teContentPack::Finalize()
@@ -443,6 +499,8 @@ namespace te
 			textures.Clear();
 
 			surfaceIndexes.Clear();
+
+			finalized = false;
 		}
 
 		void teContentPack::UpdateSurfaceAABB(u32 surfaceIndex, u32 surfaceOffset, u1 updateSkeleton)
