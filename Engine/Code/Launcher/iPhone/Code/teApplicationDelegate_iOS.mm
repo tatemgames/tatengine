@@ -17,8 +17,13 @@
 	#include "tePlatform_iOS.h"
 
 	#ifdef TE_MODULE_PUBLISHING
+		#ifdef TE_MODULE_PUBLISHING_PARSE
 		#import <Parse/Parse.h>
+		#endif
+
+		#ifdef TE_MODULE_PUBLISHING_FB
 		#import "Facebook.h"
+		#endif
 	#endif
 #endif
 
@@ -193,7 +198,9 @@ public:
 		if(localNotification)
 			[application setApplicationIconBadgeNumber:localNotification.applicationIconBadgeNumber - 1];
 
+		#ifdef TE_MODULE_PUBLISHING_PARSE
 		[Parse setApplicationId:[[[[NSBundle mainBundle] infoDictionary] objectForKey:@"Social"] objectForKey:@"ParseAppID"] clientKey:[[[[NSBundle mainBundle] infoDictionary] objectForKey:@"Social"] objectForKey:@"ParseAppKey"]];
+		#endif
 	#endif
 
 	[[Window rootViewController] didRotateFromInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
@@ -247,8 +254,10 @@ public:
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)newDeviceToken
 {
 	#ifdef TE_MODULE_PUBLISHING
+	#ifdef TE_MODULE_PUBLISHING_PARSE
 		[PFPush storeDeviceToken:newDeviceToken];
 		[PFPush subscribeToChannelInBackground:@"" target:self selector:@selector(subscribeFinished:error:)];
+	#endif
 	#endif
 }
 
@@ -272,7 +281,9 @@ public:
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
 {
 	#ifdef TE_MODULE_PUBLISHING
+	#ifdef TE_MODULE_PUBLISHING_PARSE
 		[PFPush handlePush:userInfo];
+	#endif
 	#endif
 }
 
@@ -425,7 +436,9 @@ public:
 - (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
 {
 	#ifdef TE_MODULE_PUBLISHING
+	#ifdef TE_MODULE_PUBLISHING_FB
 		return [FBSession.activeSession handleOpenURL:url];
+	#endif
 	#endif
 	return NO;
 }
@@ -433,7 +446,9 @@ public:
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
 	#ifdef TE_MODULE_PUBLISHING
+	#ifdef TE_MODULE_PUBLISHING_FB
 		return [FBSession.activeSession handleOpenURL:url];
+	#endif
 	#endif
 	return NO;
 }
