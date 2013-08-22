@@ -48,9 +48,7 @@ namespace te
 
 		teApplicationManager::teApplicationManager(u1 NeedInitApplication)
 		{
-			#ifdef TE_DEBUG
-				CurrentTick = 0;
-			#endif
+			CurrentTick = 0;
 
 			firstTick = true;
 
@@ -130,9 +128,7 @@ namespace te
 				firstTick = false;
 			}
 
-			#ifdef TE_DEBUG
-				++CurrentTick;
-			#endif
+			++CurrentTick;
 
 			if(CurrentApplication)
 				CurrentApplication->OnUpdate();
@@ -171,11 +167,7 @@ namespace te
 
 		u32 teApplicationManager::GetTick()
 		{
-			#ifdef TE_DEBUG
-				return CurrentTick;
-			#else
-				return 0;
-			#endif
+			return CurrentTick;
 		}
 
 		// ------------------------------------------------------------------------------------ Application

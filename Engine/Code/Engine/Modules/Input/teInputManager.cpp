@@ -140,8 +140,6 @@ namespace te
 				{
 					for(u8 i = 0; i < CountOfTouches; ++i)
 					{
-						#ifdef TE_DEBUG
-
 						if(CurrentResolveType == TFRT_POINTERS)
 						{
 							for(u8 j = 0; j < CurrentCountOfTouches; ++j)
@@ -153,8 +151,6 @@ namespace te
 								}
 							}
 						}
-
-						#endif
 						
 						CurrentTouches[CurrentCountOfTouches].TouchIdentifier = CurrentTouchesUpdateArray[i].TouchIdentifier;
 						CurrentTouches[CurrentCountOfTouches].StartPosition = CurrentTouchesUpdateArray[i].Position;
@@ -207,11 +203,7 @@ namespace te
 					if(CurrentTouchesUpdateArray[Index].TouchIdentifier == CurrentTouches[i].TouchIdentifier)
 						return i;
 
-				#ifdef TE_DEBUG
-
 				TE_LOG_ERR("Cant resolve finger, try to use other resolve type")
-
-				#endif
 
 				return 0;
 			}

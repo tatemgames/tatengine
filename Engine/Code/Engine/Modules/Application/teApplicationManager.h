@@ -58,9 +58,7 @@ namespace te
 		class teApplicationManager : public te::teReferenceCounter
 		{
 		protected:
-#ifdef TE_DEBUG
 			u32 CurrentTick;
-#endif
 			u1 firstTick;
 
 			// ------------------------------------------------------------------------------------ Application
