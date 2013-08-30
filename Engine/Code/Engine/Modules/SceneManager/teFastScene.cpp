@@ -178,8 +178,27 @@ namespace te
 
 			teMatrix4f modelLocalTemp;
 
-			for(u32 i = 0; i < scenePack.transforms.GetAlive(); ++i) // TODO optimize matrices
-				CalculateTransformGlobalMatrix(scenePack, i);
+			for(u32 i = 0; i < scenePack.transforms.GetAlive(); ++i)
+			{
+				if(memcmp(&scenePack.transformsChangesBuffer[i], &scenePack.transforms[i], sizeof(teAssetTransform)) != 0)
+				{
+					memcpy(&scenePack.transformsChangesBuffer[i], &scenePack.transforms[i], sizeof(teAssetTransform));
+					CalculateTransformGlobalMatrix(scenePack, i);
+					scenePack.transformsChangesFlags[i] = 1;
+				}
+				else
+				{
+					if((scenePack.transforms[i].parent != u32Max) && (scenePack.transformsChangesFlags[scenePack.transforms[i].parent]))
+					{
+						CalculateTransformGlobalMatrix(scenePack, i);
+						scenePack.transformsChangesFlags[i] = 1;
+					}
+					else
+					{
+						scenePack.transformsChangesFlags[i] = 0;
+					}					
+				}
+			}
 
 			TE_TIME_END(timeTransforms)
 
@@ -187,6 +206,9 @@ namespace te
 
 			for(u32 i = 0; i < scenePack.sprites.GetAlive(); ++i)
 			{
+				if(scenePack.transformsChangesFlags[scenePack.sprites[i].renderAsset.transformIndex] == 0)
+					continue;
+
 				teAABB3df & aabb = scenePack.sprites[i].renderAsset.aabb;
 
 				aabb.SetEdges(teVector3df(0.0f, 0.0f, 0.0f), teVector3df(1.0f, 1.0f, 0.0f));
@@ -211,6 +233,9 @@ namespace te
 
 			for(u32 i = 0; i < scenePack.surfaces.GetAlive(); ++i)
 			{
+				if(scenePack.transformsChangesFlags[scenePack.surfaces[i].renderAsset.transformIndex] == 0)
+					continue;
+				
 				u32 aabbIndex = contentPack.GetSurfaceAABBIndex(scenePack.surfaces[i].surfaceIndex);
 				if(aabbIndex != u32Max)
 					scenePack.surfaces[i].renderAsset.aabb = contentPack.surfaceAABB[aabbIndex];
@@ -380,13 +405,13 @@ namespace te
 
 						while(from < to)
 						{
-							if(!frustum.IsAABBIn(scenePack.sprites[from].renderAsset.aabb))
+							if(!scenePack.transforms[scenePack.sprites[from].renderAsset.transformIndex].inFrame)
 							{
 								++from;
 								continue;
 							}
-
-							if(!scenePack.transforms[scenePack.sprites[from].renderAsset.transformIndex].inFrame)
+							
+							if(!frustum.IsAABBIn(scenePack.sprites[from].renderAsset.aabb))
 							{
 								++from;
 								continue;
@@ -485,13 +510,13 @@ namespace te
 
 						while(from < to) // shadow pass
 						{
-							if(!scenePack.texts[from].options.drawShadow)
+							if(!scenePack.transforms[scenePack.texts[from].renderAsset.transformIndex].inFrame)
 							{
 								++from;
 								continue;
 							}
-
-							if(!scenePack.transforms[scenePack.texts[from].renderAsset.transformIndex].inFrame)
+							
+							if(!scenePack.texts[from].options.drawShadow)
 							{
 								++from;
 								continue;
@@ -684,7 +709,13 @@ namespace te
 			scenePack.Finalize(this, contentPack);
 
 			FormRenderProgram(program, scenePack, contentPack);
-
+			
+			for(u32 i = 0; i < scenePack.transforms.GetAlive(); ++i)
+			{
+				memcpy(&scenePack.transformsChangesBuffer[i], &scenePack.transforms[i], sizeof(teAssetTransform));
+				CalculateTransformGlobalMatrix(scenePack, i);
+			}
+			
 			scenePack.actorsMachine.SetTypeInformation(&actorsTI);
 			scenePack.InitActors(this, contentPack);
 

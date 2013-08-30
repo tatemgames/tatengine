@@ -79,11 +79,15 @@ namespace te
 			arrayRTDataLinks.Load(buffer);
 			actorsRTDataLinks.Load(buffer);
 			actorsMachine.Load(buffer);
-
+			
 			buffer->Unlock();
 
 			global.Reserve(transforms.GetAlive());
 			global.Request(transforms.GetAlive());
+			transformsChangesBuffer.Reserve(transforms.GetAlive());
+			transformsChangesBuffer.Request(transforms.GetAlive());
+			transformsChangesFlags.Reserve(transforms.GetAlive());
+			transformsChangesFlags.Request(transforms.GetAlive());
 
 			for(u32 i = 0; i < global.GetAlive(); ++i)
 				global[i].SetIdentity();

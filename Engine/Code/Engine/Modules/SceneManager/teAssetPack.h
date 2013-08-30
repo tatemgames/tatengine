@@ -63,6 +63,8 @@ namespace te
 			u32 RequestActorRTDataLink(u32 assetActorIndex, u16 actorLinkIndex, ELinkData linkData, u32 linkIndex);
 
 			teConstArray<teAssetTransform> transforms;
+			teConstArray<teAssetTransform> transformsChangesBuffer;
+			teConstArray<u8> transformsChangesFlags;
 			teConstArray<teMatrix4f> global;
 			teConstArray<teAssetCamera> cameras;
 			teConstArray<teAssetSprite> sprites;
