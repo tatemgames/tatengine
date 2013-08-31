@@ -111,7 +111,7 @@ namespace te
 			u1 lastLineFixAlign = (textPosition == u32Max) ? true : false;
 			u1 notRenderAtBegin = (state == RTS_NOT_RENDER_AT_BEGIN);
 
-			while(*tempString != NULL)
+			while(*tempString != '\0')
 			{
 				switch(state)
 				{
@@ -264,7 +264,7 @@ namespace te
 				cursorPosition += metric.shiftCharacter;
 				cursorPosition.x += text.options.extraTracking;
 
-				if((*tempString != NULL) && (!newLine) && (!text.options.ignoreKerning))
+				if((*tempString != '\0') && (!newLine) && (!text.options.ignoreKerning))
 				{
 					u32 secondCharacter = u32Max;
 					teUTF8toUTF32(tempString, secondCharacter);

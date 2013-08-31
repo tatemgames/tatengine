@@ -167,7 +167,7 @@ namespace te
 		}
 
 		//! @brief Return true if nested
-		TE_FORCE_INLINE u1 IsNested() const {return (data != NULL) && (rawMemory == NULL);}
+		TE_FORCE_INLINE u1 IsNested() const {return (data != NULL) && (rawMemory == (uintptr_t)NULL);}
 
 		//! @brief Get array reserved elements count
 		TE_FORCE_INLINE size_t GetSize() const {return size;}

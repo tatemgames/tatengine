@@ -51,10 +51,6 @@
 	#define TE_FORCE_INLINE inline
 #endif
 
-#ifdef TE_COMPILER_CLANG
-	#pragma clang diagnostic ignored "-Wall"
-#endif
-
 #define TE_FUNC static TE_INLINE
 #define TE_FUNC_FI static TE_FORCE_INLINE
 
