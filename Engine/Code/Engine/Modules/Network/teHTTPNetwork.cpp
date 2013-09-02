@@ -1006,7 +1006,7 @@ namespace te
 
 				if((recvSize < 0) && (noError == false))
 				{
-					if(totalWaitTime < 3000)
+					if(totalWaitTime < 10000)
 					{
 						teSleep(10);
 						totalWaitTime += 10;
@@ -1046,7 +1046,7 @@ namespace te
 
 					if(res == NULL)
 					{
-						if(totalWaitTime < 3000)
+						if(totalWaitTime < 30000)
 						{
 							teSleep(10);
 							totalWaitTime += 10;
