@@ -345,7 +345,10 @@ namespace te
 			{
 				f32 limVar, casheVar;
 				
-				limVar = position - sSize / 2.0f + elementSize->GetF32() / 2.0f; //+ sTransformOffset;
+				if(scrollType->vs32 == SCRL_HORIZONTAL)
+					limVar = position - sSize / 2.0f + elementSize->GetF32() / 2.0f;
+				else if(scrollType->vs32 == SCRL_VERTICAL)
+					limVar = position - sSize / 2.0f - elementSize->GetF32() / 2.0f;
 
 				// force check
 				if(teIsNaN(position))
