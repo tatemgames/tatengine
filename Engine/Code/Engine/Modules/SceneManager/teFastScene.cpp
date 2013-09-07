@@ -176,8 +176,6 @@ namespace te
 
 			TE_TIME_BEGIN(timeTransforms)
 
-			teMatrix4f modelLocalTemp;
-
 			for(u32 i = 0; i < scenePack.transforms.GetAlive(); ++i)
 			{
 				if(memcmp(&scenePack.transformsChangesBuffer[i], &scenePack.transforms[i], sizeof(teAssetTransform)) != 0)
@@ -196,7 +194,7 @@ namespace te
 					else
 					{
 						scenePack.transformsChangesFlags[i] = 0;
-					}					
+					}
 				}
 			}
 
@@ -204,45 +202,7 @@ namespace te
 
 			// --------------------------------------------------------------- update aabb
 
-			for(u32 i = 0; i < scenePack.sprites.GetAlive(); ++i)
-			{
-				if(scenePack.transformsChangesFlags[scenePack.sprites[i].renderAsset.transformIndex] == 0)
-					continue;
-
-				teAABB3df & aabb = scenePack.sprites[i].renderAsset.aabb;
-
-				aabb.SetEdges(teVector3df(0.0f, 0.0f, 0.0f), teVector3df(1.0f, 1.0f, 0.0f));
-
-				if(scenePack.sprites[i].renderAsset.materialIndex == u32Max)
-					continue;
-
-				const video::teAtlasSprite * atlasSprite = NULL;
-				if(contentPack.materials[scenePack.sprites[i].renderAsset.materialIndex].atlasSpriteIndex[0] != u32Max)
-					atlasSprite = contentPack.atlasSprites.At(contentPack.materials[scenePack.sprites[i].renderAsset.materialIndex].atlasSpriteIndex[0]);
-
-				if(atlasSprite)
-				{
-					aabb.edgeMin.SetXYZ(aabb.edgeMin.x * atlasSprite->size.x, aabb.edgeMin.y * atlasSprite->size.y, 0.0f);
-					aabb.edgeMin.SetXYZ(aabb.edgeMin.x - atlasSprite->origin.x, aabb.edgeMin.y + atlasSprite->origin.y - atlasSprite->size.y, 0.0f);
-					aabb.edgeMax.SetXYZ(aabb.edgeMax.x * atlasSprite->size.x, aabb.edgeMax.y * atlasSprite->size.y, 0.0f);
-					aabb.edgeMax.SetXYZ(aabb.edgeMax.x - atlasSprite->origin.x, aabb.edgeMax.y + atlasSprite->origin.y - atlasSprite->size.y, 0.0f);
-				}
-
-				scenePack.sprites[i].renderAsset.aabb.TransformAffine(scenePack.global[scenePack.sprites[i].renderAsset.transformIndex]);
-			}
-
-			for(u32 i = 0; i < scenePack.surfaces.GetAlive(); ++i)
-			{
-				if(scenePack.transformsChangesFlags[scenePack.surfaces[i].renderAsset.transformIndex] == 0)
-					continue;
-				
-				u32 aabbIndex = contentPack.GetSurfaceAABBIndex(scenePack.surfaces[i].surfaceIndex);
-				if(aabbIndex != u32Max)
-					scenePack.surfaces[i].renderAsset.aabb = contentPack.surfaceAABB[aabbIndex];
-				else
-					scenePack.surfaces[i].renderAsset.aabb.Flush();
-				scenePack.surfaces[i].renderAsset.aabb.TransformAffine(scenePack.global[scenePack.surfaces[i].renderAsset.transformIndex]);
-			}
+			UpdateAABBs();
 
 			// --------------------------------------------------------------- update render program
 
@@ -410,7 +370,7 @@ namespace te
 								++from;
 								continue;
 							}
-							
+
 							if(!frustum.IsAABBIn(scenePack.sprites[from].renderAsset.aabb))
 							{
 								++from;
@@ -515,7 +475,7 @@ namespace te
 								++from;
 								continue;
 							}
-							
+
 							if(!scenePack.texts[from].options.drawShadow)
 							{
 								++from;
@@ -623,6 +583,49 @@ namespace te
 			statistic.timeRender = (f32)timeRender.ToMilliSeconds();
 		}
 
+		void teFastScene::UpdateAABBs()
+		{
+			for(u32 i = 0; i < scenePack.sprites.GetAlive(); ++i)
+			{
+				if(scenePack.transformsChangesFlags[scenePack.sprites[i].renderAsset.transformIndex] == 0)
+					continue;
+
+				teAABB3df & aabb = scenePack.sprites[i].renderAsset.aabb;
+
+				aabb.SetEdges(teVector3df(0.0f, 0.0f, 0.0f), teVector3df(1.0f, 1.0f, 0.0f));
+
+				if(scenePack.sprites[i].renderAsset.materialIndex == u32Max)
+					continue;
+
+				const video::teAtlasSprite * atlasSprite = NULL;
+				if(contentPack.materials[scenePack.sprites[i].renderAsset.materialIndex].atlasSpriteIndex[0] != u32Max)
+					atlasSprite = contentPack.atlasSprites.At(contentPack.materials[scenePack.sprites[i].renderAsset.materialIndex].atlasSpriteIndex[0]);
+
+				if(atlasSprite)
+				{
+					aabb.edgeMin.SetXYZ(aabb.edgeMin.x * atlasSprite->size.x, aabb.edgeMin.y * atlasSprite->size.y, 0.0f);
+					aabb.edgeMin.SetXYZ(aabb.edgeMin.x - atlasSprite->origin.x, aabb.edgeMin.y + atlasSprite->origin.y - atlasSprite->size.y, 0.0f);
+					aabb.edgeMax.SetXYZ(aabb.edgeMax.x * atlasSprite->size.x, aabb.edgeMax.y * atlasSprite->size.y, 0.0f);
+					aabb.edgeMax.SetXYZ(aabb.edgeMax.x - atlasSprite->origin.x, aabb.edgeMax.y + atlasSprite->origin.y - atlasSprite->size.y, 0.0f);
+				}
+
+				scenePack.sprites[i].renderAsset.aabb.TransformAffine(scenePack.global[scenePack.sprites[i].renderAsset.transformIndex]);
+			}
+
+			for(u32 i = 0; i < scenePack.surfaces.GetAlive(); ++i)
+			{
+				if(scenePack.transformsChangesFlags[scenePack.surfaces[i].renderAsset.transformIndex] == 0)
+					continue;
+
+				u32 aabbIndex = contentPack.GetSurfaceAABBIndex(scenePack.surfaces[i].surfaceIndex);
+				if(aabbIndex != u32Max)
+					scenePack.surfaces[i].renderAsset.aabb = contentPack.surfaceAABB[aabbIndex];
+				else
+					scenePack.surfaces[i].renderAsset.aabb.Flush();
+				scenePack.surfaces[i].renderAsset.aabb.TransformAffine(scenePack.global[scenePack.surfaces[i].renderAsset.transformIndex]);
+			}
+		}
+
 		void teFastScene::Load(u8 stage, u1 deferred, u1 resaveContentPack)
 		{
 			if(deferred)
@@ -709,13 +712,16 @@ namespace te
 			scenePack.Finalize(this, contentPack);
 
 			FormRenderProgram(program, scenePack, contentPack);
-			
+
 			for(u32 i = 0; i < scenePack.transforms.GetAlive(); ++i)
 			{
 				memcpy(&scenePack.transformsChangesBuffer[i], &scenePack.transforms[i], sizeof(teAssetTransform));
 				CalculateTransformGlobalMatrix(scenePack, i);
+				scenePack.transformsChangesFlags[i] = 1;
 			}
-			
+
+			UpdateAABBs();
+
 			scenePack.actorsMachine.SetTypeInformation(&actorsTI);
 			scenePack.InitActors(this, contentPack);
 

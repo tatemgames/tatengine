@@ -106,6 +106,8 @@ namespace te
 			void OnUpdate();
 			void OnRender();
 
+			void UpdateAABBs();
+
 			TE_INLINE void UpdateRenderProgram() {needToUpdateRenderProgram = true;}
 
 			void Load(u8 stage = 0, u1 deferred = false, u1 resaveContentPack = false); // use deferred if you call from actor OnUpdate

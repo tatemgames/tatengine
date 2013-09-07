@@ -79,7 +79,7 @@ namespace te
 			arrayRTDataLinks.Load(buffer);
 			actorsRTDataLinks.Load(buffer);
 			actorsMachine.Load(buffer);
-			
+
 			buffer->Unlock();
 
 			global.Reserve(transforms.GetAlive());
@@ -91,6 +91,12 @@ namespace te
 
 			for(u32 i = 0; i < global.GetAlive(); ++i)
 				global[i].SetIdentity();
+
+			for(u32 i = 0; i < transformsChangesBuffer.GetAlive(); ++i)
+				transformsChangesBuffer[i].Clear();
+
+			for(u32 i = 0; i < transformsChangesFlags.GetAlive(); ++i)
+				transformsChangesFlags[i] = 1;
 		}
 
 		void teAssetPack::Clear()
@@ -110,6 +116,8 @@ namespace te
 			actorsLinksRTTI.Clear();
 			actorsMachine.Clear();
 			global.Clear();
+			transformsChangesBuffer.Clear();
+			transformsChangesFlags.Clear();
 		}
 
 		void teAssetPack::Finalize(teFastScene * scene, teContentPack & contentPack)
