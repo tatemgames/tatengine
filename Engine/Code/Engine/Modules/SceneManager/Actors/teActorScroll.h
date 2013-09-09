@@ -107,6 +107,7 @@ namespace te
 
 			void OnUpdate()
 			{
+				//curElemCount = elementCount->GetF32();
 				teVector2df koef = teActorViewportSizeWatcher::GetSizeRootScale();
 				
 				if((sprite->renderAsset.aabb.edgeMin.x != (sizeA.x * koef.x)) || (sprite->renderAsset.aabb.edgeMin.y != (sizeA.y * koef.y)) ||
@@ -145,6 +146,7 @@ namespace te
 				
 				f32 overLimitSize = teAbs(position - sOrigin) - scrollLim;
 				u1 isOverLimit = (overLimitSize > 0.0f);
+				//isOverLimit ? printf("IsOverLimit\n") : printf("");
 				
 				//-------- reaction on touches
 				if(wasTouchInside)
@@ -230,7 +232,7 @@ namespace te
 				if(isMoving)
 				{
 					f32 movingCount;
-					
+					//printf("MoveTouch %f \n\n",moveTouch.x);
 					switch (scrollType->vs32)
 					{
 						case SCRL_HORIZONTAL:
@@ -277,9 +279,9 @@ namespace te
 						UpdateScrollPos(position);
 					}
 				}
-				
+				//printf("p1: %f, p2: %f\n",position, sOrigin);
 				if (teAbs(position - sOrigin) > scrollLim + scrollGap)
-				{
+				{//printf("stoping\n");
 					position = teAbs(position) / position * (scrollLim + sOrigin);
 					UpdateScrollPos(position);
 					moveTouch.Flush();
@@ -312,17 +314,18 @@ namespace te
 					++intFirst;
 				
 				snapPos = tNom - (f32)intFirst * elementSize->GetF32() + sOrigin;
-				
+				//printf("SnapPos: %f\n", snapPos);
 				isSnapping = true;
 			}
 			
 			TE_INLINE void Reset()
 			{
+				moveTouch = 0;
 				if(scrollType->vs32 == SCRL_HORIZONTAL)
 					position = sOrigin + scrollLim + setPosOffset;
 				else if(scrollType->vs32 == SCRL_VERTICAL)
 					position = sOrigin + scrollLim + setPosOffset;
-				
+				//printf("PosAfterReset: %f\n", position);
 				setPosOffset = 0.0f;
 				
 				wasPressed = 0;
@@ -414,11 +417,11 @@ namespace te
 				setPosOffset = x;
 				if(x != 0)
 				{
-					position = sOrigin + scrollLim + setPosOffset;
+					position = x;//newPos;
 					StartMoving();
 					needReset = true;
+					UpdateScrollPos(position);
 				}
-				
 			}
 			
 			TE_INLINE void StartMoving()
@@ -444,7 +447,13 @@ namespace te
 				{
 					position = t_prevScrollPos;
 					StartMoving();
+					UpdateScrollPos(position);
 				}
+			}
+			
+			TE_INLINE f32 GetElementWidth()
+			{
+				return sSize / curElemCount;
 			}
 			
 			TE_ACTOR_SIGNAL(0, UpdateElement)
