@@ -176,6 +176,8 @@ namespace te
 				else
 					SetHTTP(pool.Clone(work).c_str());
 			}
+			
+			return *this;
 		}
 
 		teHTTPUrl & teHTTPUrl::SetHTTP(const teString & setHost, u16 setPort)
@@ -520,7 +522,7 @@ namespace te
 			postDataSize = o.postDataSize;
 			headers = o.headers;
 			callback = o.callback;
-			userData = userData;
+			userData = o.userData;
 			memcpy(fileName, o.fileName, sizeof(fileName));
 			socket = o.socket;
 			fileBuffer = o.fileBuffer;
@@ -1288,6 +1290,8 @@ namespace te
 				GetHTTPNetwork()->Remove(request);
 				return false;
 			}
+			else
+				return false;
 		}
 
 		void * teHTTPNetwork::teHTTPThreadRoutine(void * data)

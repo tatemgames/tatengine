@@ -120,6 +120,12 @@ public:
 @synthesize movieController = _movieController;
 @synthesize ViewController = _ViewController;
 
+#ifdef TE_MODULE_PUBLISHING
+#ifdef TE_MODULE_PUBLISHING_ADX
+@synthesize adxtracker;
+#endif
+#endif
+
 - (BOOL)application:(UIApplication *)application willFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
 	[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];

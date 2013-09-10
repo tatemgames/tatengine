@@ -52,6 +52,12 @@
 //! View property
 @property (nonatomic, retain) IBOutlet glView * View;
 
+#ifdef TE_MODULE_PUBLISHING
+#ifdef TE_MODULE_PUBLISHING_ADX
+@property (nonatomic, retain) AdXTracking * adxtracker;
+#endif
+#endif
+
 @property (nonatomic, retain) IBOutlet teViewController_iOS * ViewController;
 
 @property (nonatomic, retain) MPMoviePlayerController * movieController;
@@ -63,8 +69,6 @@
 - (void)ShowAlert:(NSString*)text;
 
 - (void)SendMail:(NSString*)url;
-
-- (void)sgnbar;
 
 @end
 
