@@ -21,6 +21,12 @@
 #import <MediaPlayer/MPMoviePlayerController.h>
 #import <MessageUI/MessageUI.h>
 
+#ifdef TE_MODULE_PUBLISHING
+#ifdef TE_MODULE_PUBLISHING_ADX
+#import "AdXTracking.h"
+#endif
+#endif
+
 //! Application Delegate
 @interface ApplicationDelegate : NSObject <UIApplicationDelegate, UIAccelerometerDelegate, GKLeaderboardViewControllerDelegate, GKAchievementViewControllerDelegate, UIAlertViewDelegate, MFMailComposeViewControllerDelegate>
 {
@@ -32,6 +38,12 @@
 	glView * View;
 	
 	UIView * loadingView;
+
+	#ifdef TE_MODULE_PUBLISHING
+	#ifdef TE_MODULE_PUBLISHING_ADX
+	AdXTracking * adxtracker;
+	#endif
+	#endif
 }
 
 //! Window property

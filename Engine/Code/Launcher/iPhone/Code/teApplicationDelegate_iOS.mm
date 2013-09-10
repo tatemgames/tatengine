@@ -162,11 +162,12 @@ public:
 	//UIControl * overlay = [[[UIControl alloc] initWithFrame:CGRectMake(0, 0, 1024, 768)] autorelease];
 	//[overlay addTarget:self action:@selector(movieWindowTouched:) forControlEvents:UIControlEventTouchDown];
 	//[self.movieController.view addSubview:overlay];
-	
 
 	TE_NEW_S(te::app::teApplicationManager(false))
 	[View layoutSubviews];
 	te::app::GetApplicationManager()->InitApplication();
+	
+	return YES;
 }
 
 -(void)moviePlayBackDidFinish:(NSNotification*)notification
@@ -201,11 +202,17 @@ public:
 		#ifdef TE_MODULE_PUBLISHING_PARSE
 		[Parse setApplicationId:[[[[NSBundle mainBundle] infoDictionary] objectForKey:@"Social"] objectForKey:@"ParseAppID"] clientKey:[[[[NSBundle mainBundle] infoDictionary] objectForKey:@"Social"] objectForKey:@"ParseAppKey"]];
 		#endif
+	
+		#ifdef TE_MODULE_PUBLISHING_ADX
+		[self reportAppOpen];
+		#endif
 	#endif
 
 	[[Window rootViewController] didRotateFromInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
 	
 	[View StartAnimation];
+	
+	return YES;
 }
 
 //! Pause applicaton
@@ -225,6 +232,12 @@ public:
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
 	((te::core::tePlatform_iOS*)te::core::GetPlatform()->GetCurrentDevicePlatform())->OnWillEnterForeground();
+	
+	#ifdef TE_MODULE_PUBLISHING
+	#ifdef TE_MODULE_PUBLISHING_ADX
+	[self reportAppOpen];
+	#endif
+	#endif
 }
 
 //! Restore application
@@ -433,18 +446,72 @@ public:
 	[alert release];
 }
 
+#ifdef TE_MODULE_PUBLISHING
+#ifdef TE_MODULE_PUBLISHING_ADX
+
+- (void)reportAppOpen
+{
+    adxtracker = [[AdXTracking alloc] init];
+    [adxtracker setURLScheme:[NSString stringWithUTF8String:TE_APP_ADX_REFERRER]];
+    [adxtracker setClientId:[NSString stringWithUTF8String:TE_APP_ADX_CLIENTID]];
+    [adxtracker setAppleId:[NSString stringWithUTF8String:TE_APP_ADX_ITUNES]];
+    [adxtracker reportAppOpen];
+}
+
+- (NSDictionary *)parseQueryString:(NSString *)query
+{
+    NSMutableDictionary *dict = [[[NSMutableDictionary alloc] initWithCapacity:16] autorelease];
+    NSArray *pairs = [query componentsSeparatedByString:@"&"];
+	
+    for (NSString *pair in pairs) {
+        NSArray *elements = [pair componentsSeparatedByString:@"="];
+        NSString *key = [[elements objectAtIndex:0] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        NSString *val = [[elements objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+		
+        [dict setObject:val forKey:key];
+    }
+    return dict;
+}
+#endif
+#endif
+
 - (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
 {
+	#ifdef TE_MODULE_PUBLISHING
+	#ifdef TE_MODULE_PUBLISHING_ADX
+	NSDictionary * dict = [self parseQueryString:[url query]];
+	NSString * ADXID = [dict objectForKey:@"ADXID"];
+	if(ADXID)
+	{
+        [adxtracker sendEvent:@"DeepLinkLaunch" withData:ADXID];
+		return [adxtracker handleOpenURL:url];
+	}
+	#endif
+	#endif
+	
 	#ifdef TE_MODULE_PUBLISHING
 	#ifdef TE_MODULE_PUBLISHING_FB
 		return [FBSession.activeSession handleOpenURL:url];
 	#endif
 	#endif
+	
 	return NO;
 }
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
+	#ifdef TE_MODULE_PUBLISHING
+	#ifdef TE_MODULE_PUBLISHING_ADX
+	NSDictionary * dict = [self parseQueryString:[url query]];
+	NSString * ADXID = [dict objectForKey:@"ADXID"];
+	if(ADXID)
+	{
+        [adxtracker sendEvent:@"DeepLinkLaunch" withData:ADXID];
+		return [adxtracker handleOpenURL:url];
+	}
+	#endif
+	#endif
+	
 	#ifdef TE_MODULE_PUBLISHING
 	#ifdef TE_MODULE_PUBLISHING_FB
 		return [FBSession.activeSession handleOpenURL:url];
