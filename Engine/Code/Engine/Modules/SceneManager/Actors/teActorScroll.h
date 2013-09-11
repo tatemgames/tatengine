@@ -414,6 +414,8 @@ namespace te
 			
 			TE_INLINE void SetScrollPosition(f32 x)
 			{
+				moveTouch.Flush();
+				inert = 0;
 				setPosOffset = x;
 				if(x != 0)
 				{
@@ -422,6 +424,7 @@ namespace te
 					needReset = true;
 					UpdateScrollPos(position);
 				}
+				//else{ResetScroll();}
 			}
 			
 			TE_INLINE void StartMoving()
@@ -439,6 +442,8 @@ namespace te
 			
 			TE_INLINE void SetScrollPrevPos(f32 t_prevScrollPos)
 			{
+				inert = 0;
+				moveTouch.Flush();
 				if(t_prevScrollPos == 0)
 				{
 					ResetScroll();
