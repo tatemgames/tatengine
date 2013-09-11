@@ -422,9 +422,7 @@ namespace te
 					position = x;//newPos;
 					StartMoving();
 					needReset = true;
-					UpdateScrollPos(position);
 				}
-				//else{ResetScroll();}
 			}
 			
 			TE_INLINE void StartMoving()
