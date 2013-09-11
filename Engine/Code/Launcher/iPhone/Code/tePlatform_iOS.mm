@@ -76,10 +76,10 @@ namespace te
 		//! Get Device UDID
 		const te::c8 * tePlatform_iOS::GetDeviceUDID()
 		{
-			if([[[UIDevice currentDevice] systemVersion] floatValue] >= 6.0f)
+			//if([[[UIDevice currentDevice] systemVersion] floatValue] >= 6.0f)
 				return [[[[UIDevice currentDevice] identifierForVendor] UUIDString] cStringUsingEncoding:NSUTF8StringEncoding];
-			else
-				return [[[UIDevice currentDevice] uniqueIdentifier] cStringUsingEncoding:NSUTF8StringEncoding];
+			//else
+			//	return [[[UIDevice currentDevice] uniqueIdentifier] cStringUsingEncoding:NSUTF8StringEncoding];
 		}
 		
 		//! Open Link In Safari
