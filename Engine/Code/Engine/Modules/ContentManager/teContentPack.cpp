@@ -371,10 +371,19 @@ namespace te
 							memcpy((c8*)info->name.data + info->name.size - 4, "png", 3);
 							buffer = core::GetFileManager()->OpenFile(info->name.ToString());
 							// ------------------------- TODO test code
-
-							if(!buffer)
-								continue;
 						}
+
+						if(!buffer)
+						{
+							// ------------------------- TODO test code
+							// if we cannot load tga file, try to check extension to pvr
+							memcpy((c8*)info->name.data + info->name.size - 4, "pvr", 3);
+							buffer = core::GetFileManager()->OpenFile(info->name.ToString());
+							// ------------------------- TODO test code
+						}
+
+						if(!buffer)
+							continue;
 
 						image::teImage * image = NULL;
 
@@ -382,6 +391,8 @@ namespace te
 							image = image::LoadPNG(buffer);
 						else if(strstr(info->name.ToString().c_str(), ".tga"))
 							image = image::LoadTGA(buffer);
+						else if(strstr(info->name.ToString().c_str(), ".pvr"))
+							image = image::LoadPVR(buffer);
 
 						TE_LOG("ok to open %s", info->name.ToString().c_str());
 

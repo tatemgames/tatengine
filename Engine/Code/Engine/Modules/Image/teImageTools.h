@@ -29,13 +29,13 @@ namespace te
 		//! @param[in] buffer buffer with image data
 		//! @return teImage* loaded image, return NULL if failed
 		teImage * LoadDDS(core::IBuffer * buffer);
+		*/
 
-		//! @brief		Load TGA image
+		//! @brief		Load PVR image
 		//! @details	Use TE_ALLOCATE for memory allocation for image.
 		//! @param[in] buffer buffer with image data
 		//! @return teImage* loaded image, return NULL if failed
 		teImage * LoadPVR(core::IBuffer * buffer);
-		*/
 
 		//! @brief		Load PNG image
 		//! @details	Use TE_ALLOCATE for memory allocation for image.

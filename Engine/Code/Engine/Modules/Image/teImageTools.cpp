@@ -89,12 +89,97 @@ namespace te
 		{
 			return NULL;
 		}
+		 */
 
 		teImage * LoadPVR(core::IBuffer * buffer)
 		{
-			return NULL;
+			#pragma pack(push, 1)
+			
+			struct tePVRHeader
+			{
+				u32 headerLength;
+				u32 height;
+				u32 width;
+				u32 numMipmaps;
+				u32 flags;
+				u32 dataLength;
+				u32 bpp;
+				u32 bitmaskRed;
+				u32 bitmaskGreen;
+				u32 bitmaskBlue;
+				u32 bitmaskAlpha;
+				u32 pvrTag;
+				u32 numSurfs;
+			};
+			
+			#pragma pack(pop)
+			
+			enum EPVRTextureType
+			{
+				PTT_PVRTC_2 = 24,
+				PTT_PVRTC_4
+			};
+			
+			TE_ASSERT(buffer);
+			
+			tePVRHeader header;
+			buffer->Lock(core::BLT_READ);
+			buffer->SetStreamMode(true);
+			buffer->SetPosition(0);
+			
+			buffer->Read(&header, sizeof(tePVRHeader));
+			
+			u32 formatFlags = header.flags & 0xff;
+			
+			EImagePixelFormat pixelFormat = (formatFlags == PTT_PVRTC_4) ? (header.bitmaskAlpha ? IPF_RGBA_PVRTC_4 : IPF_RGB_PVRTC_4) : (header.bitmaskAlpha ? IPF_RGBA_PVRTC_2 : IPF_RGB_PVRTC_2);
+			
+			u32 pixelsBytes = (header.dataLength ? header.dataLength : header.headerLength - sizeof(header));
+			
+			if(header.numMipmaps == 0)
+				header.numMipmaps = 1;
+			
+			teImage * image = (teImage*)TE_ALLOCATE(sizeof(teImage) + sizeof(teImageLevel) * header.numMipmaps + pixelsBytes);
+			
+			image->pixelFormat = pixelFormat;
+			image->levelsCount = header.numMipmaps;
+			image->pixelsBytes = pixelsBytes;
+			
+			teVector2duh size(header.width, header.height);
+			
+			for(u8 i = 0; i < header.numMipmaps; ++i)
+			{
+				u32 bytes = size.x * size.y;
+				
+				switch(pixelFormat)
+				{
+				case IPF_RGB_PVRTC_2: bytes /= 4; break;
+				case IPF_RGBA_PVRTC_2: bytes /= 4; break;
+				case IPF_RGB_PVRTC_4: bytes /= 2; break;
+				case IPF_RGBA_PVRTC_4: bytes /= 2; break;
+				default:
+					continue;
+				}
+				
+				if(bytes < 32)
+					bytes = 32;
+				
+				if(i > 0)
+					image->levels[i].offset = image->levels[i - 1].offset + image->levels[i - 1].bytes;
+				else
+					image->levels[i].offset = 0;
+
+				image->levels[i].bytes = bytes;
+				image->levels[i].width = size.x;
+				image->levels[i].height = size.y;
+				
+				size /= 2;
+			}
+			
+			buffer->Read(image->GetPixels(), pixelsBytes);
+			buffer->Unlock();
+
+			return image;
 		}
-		*/
 
 		void LibPngError(png_structp png_ptr, png_const_charp msg)
 		{
