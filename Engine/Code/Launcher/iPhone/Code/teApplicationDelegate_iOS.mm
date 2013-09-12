@@ -42,7 +42,7 @@ public:
 			{
 				NSAutoreleasePool * autoreleasePool = [[NSAutoreleasePool alloc] init];
 				NSArray * paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-
+  
 				char * test;
 
 				if([paths count])
@@ -168,6 +168,12 @@ public:
 	//UIControl * overlay = [[[UIControl alloc] initWithFrame:CGRectMake(0, 0, 1024, 768)] autorelease];
 	//[overlay addTarget:self action:@selector(movieWindowTouched:) forControlEvents:UIControlEventTouchDown];
 	//[self.movieController.view addSubview:overlay];
+	
+	#ifdef TE_MODULE_PUBLISHING
+	#ifdef TE_MODULE_PUBLISHING_ADX
+	[self reportAppOpen];
+	#endif
+	#endif
 
 	TE_NEW_S(te::app::teApplicationManager(false))
 	[View layoutSubviews];
@@ -208,10 +214,6 @@ public:
 		#ifdef TE_MODULE_PUBLISHING_PARSE
 		[Parse setApplicationId:[[[[NSBundle mainBundle] infoDictionary] objectForKey:@"Social"] objectForKey:@"ParseAppID"] clientKey:[[[[NSBundle mainBundle] infoDictionary] objectForKey:@"Social"] objectForKey:@"ParseAppKey"]];
 		#endif
-	
-		#ifdef TE_MODULE_PUBLISHING_ADX
-		[self reportAppOpen];
-		#endif
 	#endif
 
 	[[Window rootViewController] didRotateFromInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
@@ -238,12 +240,6 @@ public:
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
 	((te::core::tePlatform_iOS*)te::core::GetPlatform()->GetCurrentDevicePlatform())->OnWillEnterForeground();
-	
-	#ifdef TE_MODULE_PUBLISHING
-	#ifdef TE_MODULE_PUBLISHING_ADX
-	[self reportAppOpen];
-	#endif
-	#endif
 }
 
 //! Restore application
@@ -251,6 +247,12 @@ public:
 {
 	[View StartAnimation];
 	((te::core::tePlatform_iOS*)te::core::GetPlatform()->GetCurrentDevicePlatform())->OnBecomeActive();
+	
+	#ifdef TE_MODULE_PUBLISHING
+	#ifdef TE_MODULE_PUBLISHING_ADX
+	[self reportAppOpen];
+	#endif
+	#endif
 }
 
 //! Terminate application
@@ -457,11 +459,14 @@ public:
 
 - (void)reportAppOpen
 {
-    adxtracker = [[AdXTracking alloc] init];
-    [adxtracker setURLScheme:[NSString stringWithUTF8String:TE_APP_ADX_REFERRER]];
-    [adxtracker setClientId:[NSString stringWithUTF8String:TE_APP_ADX_CLIENTID]];
-    [adxtracker setAppleId:[NSString stringWithUTF8String:TE_APP_ADX_ITUNES]];
-    [adxtracker reportAppOpen];
+	if(adxtracker == nil)
+	{
+		adxtracker = [[AdXTracking alloc] init];
+	}
+	[adxtracker setURLScheme:[NSString stringWithUTF8String:TE_APP_ADX_REFERRER]];
+	[adxtracker setClientId:[NSString stringWithUTF8String:TE_APP_ADX_CLIENTID]];
+	[adxtracker setAppleId:[NSString stringWithUTF8String:TE_APP_ADX_ITUNES]];
+	[adxtracker reportAppOpen];
 }
 
 - (NSDictionary *)parseQueryString:(NSString *)query
