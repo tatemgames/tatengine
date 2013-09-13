@@ -320,6 +320,19 @@ namespace te
 				b.SetXYZW(-b.x, -b.y, -b.z, -b.w);
 			}
 		}
+		
+		TE_INLINE void Normalize()
+		{
+			f32 d = a.GetLength();
+			
+			if(d > teRoundingError32)
+			{
+				a = a / d;
+				b = b / d;
+			
+				b = b - a * a.DotProduct(b);
+			}
+		}
 
 //		TE_INLINE void GetMatrix(teMatrix4f & result) const
 //		{
