@@ -168,12 +168,6 @@ public:
 	//UIControl * overlay = [[[UIControl alloc] initWithFrame:CGRectMake(0, 0, 1024, 768)] autorelease];
 	//[overlay addTarget:self action:@selector(movieWindowTouched:) forControlEvents:UIControlEventTouchDown];
 	//[self.movieController.view addSubview:overlay];
-	
-	#ifdef TE_MODULE_PUBLISHING
-	#ifdef TE_MODULE_PUBLISHING_ADX
-	[self reportAppOpen];
-	#endif
-	#endif
 
 	TE_NEW_S(te::app::teApplicationManager(false))
 	[View layoutSubviews];
@@ -219,6 +213,12 @@ public:
 	[[Window rootViewController] didRotateFromInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
 	
 	[View StartAnimation];
+	
+	#ifdef TE_MODULE_PUBLISHING
+	#ifdef TE_MODULE_PUBLISHING_ADX
+	[self reportAppOpen];
+	#endif
+	#endif
 	
 	return YES;
 }
@@ -495,8 +495,8 @@ public:
 	if(ADXID)
 	{
         [adxtracker sendEvent:@"DeepLinkLaunch" withData:ADXID];
-		return [adxtracker handleOpenURL:url];
 	}
+	[adxtracker handleOpenURL:url];
 	#endif
 	#endif
 	
@@ -518,8 +518,8 @@ public:
 	if(ADXID)
 	{
         [adxtracker sendEvent:@"DeepLinkLaunch" withData:ADXID];
-		return [adxtracker handleOpenURL:url];
 	}
+	[adxtracker handleOpenURL:url];
 	#endif
 	#endif
 	
