@@ -214,11 +214,11 @@ public:
 	
 	[View StartAnimation];
 	
-	#ifdef TE_MODULE_PUBLISHING
-	#ifdef TE_MODULE_PUBLISHING_ADX
-	[self reportAppOpen];
-	#endif
-	#endif
+	//#ifdef TE_MODULE_PUBLISHING
+	//#ifdef TE_MODULE_PUBLISHING_ADX
+	//[self reportAppOpen];
+	//#endif
+	//#endif
 	
 	return YES;
 }
