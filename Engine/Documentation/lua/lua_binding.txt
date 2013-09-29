@@ -118,6 +118,9 @@ setMaterial
 getStage(actor:LightUserData):number
 	return level index
 
+getLocale(actor:LightUserData):string
+	return current device locale in ISO 639-1 format "en", "ru", etc
+
 ------------------------------- built-in variables
 
 each lua script created as table with functions, we set special system variables to each table

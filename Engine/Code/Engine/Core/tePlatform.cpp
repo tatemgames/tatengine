@@ -112,6 +112,15 @@ namespace te
 			return devicePlatform;
 		}
 
+		const c8 * tePlatform::GetDeviceLocale()
+		{
+			#ifdef TE_PLATFORM_IPHONE
+				return reinterpret_cast<tePlatform_iOS*>(devicePlatform)->GetDeviceLocale();
+			#else
+				return "en";
+			#endif
+		}
+
 		tePlatform * GetPlatform()
 		{
 			return currentPlatform;

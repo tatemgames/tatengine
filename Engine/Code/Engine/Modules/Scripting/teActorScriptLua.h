@@ -11,6 +11,7 @@
 #define TE_TEACTORSCRIPTLUA_H
 
 #include "teActor.h"
+#include "tePlatform.h"
 
 extern "C"
 {
@@ -676,6 +677,13 @@ namespace te
 				return 1;
 			}
 
+			static s32 LuaGetLocale(lua_State * L)
+			{
+				teActorScriptLua * data = (teActorScriptLua*)lua_topointer(L, 1);
+				lua_pushstring(L, core::GetPlatform()->GetDeviceLocale());
+				return 1;
+			}
+
 			static s32 BindPrimitiveSet(lua_State * L)
 			{
 				tePrimitiveLinkData * data = *(tePrimitiveLinkData**)luaL_checkudata(L, 1, "tePrimitive");
@@ -1152,6 +1160,7 @@ namespace te
 				lua_register(L, "toMaterial", &LuaToMaterial);
 				lua_register(L, "setMaterial", &LuaSetMaterial);
 				lua_register(L, "getStage", &LuaGetStage);
+				lua_register(L, "getLocale", &LuaGetLocale);
 
 				#define TE_LUA_REG(__name, __set, __get) \
 				{ \

@@ -25,7 +25,7 @@ namespace te
 			DO_LEFT = 4,
 			DO_RIGHT = 8
 		};
-		
+
 		enum EDeviceType
 		{
 			DT_UNKNOWN = 0,
@@ -37,6 +37,8 @@ namespace te
 			DT_IOS_IPHONE_4,
 			DT_IOS_IPHONE_4S,
 			DT_IOS_IPHONE_5,
+			DT_IOS_IPHONE_5C,
+			DT_IOS_IPHONE_5S,
 			DT_IOS_IPOD_1,
 			DT_IOS_IPOD_2,
 			DT_IOS_IPOD_3,
@@ -91,6 +93,8 @@ namespace te
 				case DT_IOS_IPOD_4:
 				case DT_IOS_IPHONE_5:
 				case DT_IOS_IPOD_5:
+				case DT_IOS_IPHONE_5C:
+				case DT_IOS_IPHONE_5S:
 					return 326.0f;
 
 				case DT_IOS_IPAD_1:
@@ -115,13 +119,16 @@ namespace te
 				}
 			}
 
+			//return in ISO 639-1
+			const c8 * GetDeviceLocale();
+
 		protected:
 			IFileSystem * fileSystem;
 			EDeviceOrientation deviceOrientation;
 			u32 deviceOrientationMask;
 			teReferenceCounter * devicePlatform;
 		};
-		
+
 		tePlatform * GetPlatform();
 	}
 }

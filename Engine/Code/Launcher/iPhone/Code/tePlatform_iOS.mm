@@ -113,12 +113,16 @@ namespace te
 			c8 machine[128];
 			sysctlbyname("hw.machine", machine, &size, NULL, 0);
 
+			if(strstr(machine, "iPhone5,3")) return DT_IOS_IPHONE_5C;
+			if(strstr(machine, "iPhone5,4")) return DT_IOS_IPHONE_5C;
+
 			if(strstr(machine, "iPhone1,1")) return DT_IOS_IPHONE_2G;
 			if(strstr(machine, "iPhone1,2")) return DT_IOS_IPHONE_3G;
 			if(strstr(machine, "iPhone2")) return DT_IOS_IPHONE_3GS;
 			if(strstr(machine, "iPhone3")) return DT_IOS_IPHONE_4;
 			if(strstr(machine, "iPhone4")) return DT_IOS_IPHONE_4S;
 			if(strstr(machine, "iPhone5")) return DT_IOS_IPHONE_5;
+			if(strstr(machine, "iPhone6")) return DT_IOS_IPHONE_5S;
 
 			if(strstr(machine, "iPod1")) return DT_IOS_IPOD_1;
 			if(strstr(machine, "iPod2")) return DT_IOS_IPOD_2;
@@ -228,6 +232,13 @@ namespace te
 			
 			if(resultSize)
 				*resultSize = res;
+		}
+		
+		const c8 * tePlatform_iOS::GetDeviceLocale()
+		{
+			// TODO
+			NSString * str = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
+			return "en";
 		}
 	}
 }
