@@ -236,9 +236,10 @@ namespace te
 		
 		const c8 * tePlatform_iOS::GetDeviceLocale()
 		{
-			// TODO
+			static c8 temp[128];
 			NSString * str = [[[NSBundle mainBundle] preferredLocalizations] objectAtIndex:0];
-			return "en";
+			strcpy(temp, [str UTF8String]);
+			return temp;
 		}
 	}
 }
