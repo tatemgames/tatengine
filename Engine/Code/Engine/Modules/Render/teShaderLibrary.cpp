@@ -192,45 +192,18 @@ uniform mat4 teMVPmat;\n\
 const int BoneCount = 64;\n\
 uniform vec4 teBoneMatrixes[BoneCount];\n\
 varying TE_TEXP vec2 TexCoord0;\n\
+vec3 dualQuatTr(vec3 pos, vec4 a, vec4 b)\n\
+{\n\
+	return pos + 2.0 * cross(a.xyz, cross(a.xyz, pos) + a.w * pos) + 2.0 * (a.w * b.xyz - b.w * a.xyz + cross(a.xyz, b.xyz));\n\
+}\n\
 void main()\n\
 {\n\
-	vec4 ip = vec4(tePosition, 1);\n\
 	ivec4 ids = ivec4(teBonesIds);\n\
-	vec4 a = \n\
-		  teBoneMatrixes[ids.x * 2 + 0] * teBonesW.x\n\
-		+ teBoneMatrixes[ids.y * 2 + 0] * teBonesW.y\n\
-		+ teBoneMatrixes[ids.z * 2 + 0] * teBonesW.z\n\
-		+ teBoneMatrixes[ids.w * 2 + 0] * teBonesW.w;\n\
-	vec4 b = \n\
-		  teBoneMatrixes[ids.x * 2 + 1] * teBonesW.x\n\
-		+ teBoneMatrixes[ids.y * 2 + 1] * teBonesW.y\n\
-		+ teBoneMatrixes[ids.z * 2 + 1] * teBonesW.z\n\
-		+ teBoneMatrixes[ids.w * 2 + 1] * teBonesW.w;\n\
-	float aLength = length(a);\n\
-	a /= aLength;\n\
-	b /= aLength;\n\
-	mat4 bone = mat4(\n\
-		1.0-2.0*(a.y*a.y+a.z*a.z),\n\
-		2.0*(a.x*a.y+a.z*a.w),\n\
-		2.0*(a.x*a.z-a.y*a.w),\n\
-		0.0,\n\
-		\n\
-		2.0*(a.x*a.y-a.z*a.w),\n\
-		1.0-2.0*(a.x*a.x+a.z*a.z),\n\
-		2.0*(a.z*a.y+a.x*a.w),\n\
-		0.0,\n\
-		\n\
-		2.0*(a.x*a.z+a.y*a.w),\n\
-		2.0*(a.z*a.y-a.x*a.w),\n\
-		1.0-2.0*(a.x*a.x+a.y*a.y),\n\
-		0.0,\n\
-		\n\
-		2.0*(-b.w*a.x + b.x*a.w - b.y*a.z + b.z*a.y),\n\
-		2.0*(-b.w*a.y + b.x*a.z + b.y*a.w - b.z*a.x),\n\
-		2.0*(-b.w*a.z - b.x*a.y + b.y*a.x + b.z*a.w),\n\
-		1.0\n\
-		);\n\
-	gl_Position = teMVPmat * (bone * ip);\n\
+	vec3 pos = dualQuatTr(tePosition, teBoneMatrixes[ids.x * 2 + 0], teBoneMatrixes[ids.x * 2 + 1]) * teBonesW.x\n\
+				+ dualQuatTr(tePosition, teBoneMatrixes[ids.y * 2 + 0], teBoneMatrixes[ids.y * 2 + 1]) * teBonesW.y\n\
+				+ dualQuatTr(tePosition, teBoneMatrixes[ids.z * 2 + 0], teBoneMatrixes[ids.z * 2 + 1]) * teBonesW.z\n\
+				+ dualQuatTr(tePosition, teBoneMatrixes[ids.w * 2 + 0], teBoneMatrixes[ids.w * 2 + 1]) * teBonesW.w;\n\
+	gl_Position = teMVPmat * vec4(pos, 1);\n\
 	TexCoord0 = teUV0;\n\
 }\n\
 #endif\n\
