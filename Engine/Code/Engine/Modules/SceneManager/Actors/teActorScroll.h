@@ -137,7 +137,7 @@ namespace te
 					wasTouchInside = 0;
 				}
 				
-				teAssetTransform & transform = scene->GetAssetPack().transforms[sprite->renderAsset.transformIndex];
+				//teAssetTransform & transform = scene->GetAssetPack().transforms[sprite->renderAsset.transformIndex];
 				
 				if(needReset)
 					Reset();

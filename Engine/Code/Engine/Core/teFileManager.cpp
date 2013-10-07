@@ -114,7 +114,7 @@ namespace te
 
 		void teFileManager::AddToLookupPaths(const teString & path, u1 insertAtEnd)
 		{
-			u32 existIndex = 0;
+			//u32 existIndex = 0;
 
 			//if(lookupPaths.LinearSearch(path, existIndex))
 			//	return;
