@@ -94,7 +94,9 @@ namespace te
 		const te::c8 * tePlatform_iOS::GetDeviceUDID()
 		{
 			//if([[[UIDevice currentDevice] systemVersion] floatValue] >= 6.0f)
-				return [[[[UIDevice currentDevice] identifierForVendor] UUIDString] cStringUsingEncoding:NSUTF8StringEncoding];
+			static c8 temp[128];
+			strcpy(temp, [[[[UIDevice currentDevice] identifierForVendor] UUIDString] cStringUsingEncoding:NSUTF8StringEncoding]);
+			return temp;
 			//else
 			//	return [[[UIDevice currentDevice] uniqueIdentifier] cStringUsingEncoding:NSUTF8StringEncoding];
 		}
