@@ -57,6 +57,8 @@ namespace te
 			//! Show Chartboost More Apps Page
 			void ShowChartbosstMoreApps();
 			
+			void DismissAllAlertView();
+			
 			EDeviceType DefinePlatform();
 			
 			void GetUserInputText(const teString & title, const teString & question, const teString & yesBtn, const teString & noBtn, teGetUserInputCallback callback, te::teptr_t userData);

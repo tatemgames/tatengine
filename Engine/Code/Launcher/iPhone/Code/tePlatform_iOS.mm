@@ -27,12 +27,17 @@
 #include <sys/sysctl.h>
 #include <sys/types.h>
 
+NSMutableArray * alertdelegates = nil;
+
 @interface teAlertViewDelegate : NSObject<UIAlertViewDelegate>
 
 typedef void (^AlertViewCompletionBlock)(NSInteger buttonIndex);
 @property (strong,nonatomic) AlertViewCompletionBlock callback;
+@property (strong,nonatomic) UIAlertView * view;
 
 + (void)showAlertView:(UIAlertView *)alertView withCallback:(AlertViewCompletionBlock)callback;
+
+- (void)dismiss;
 
 @end
 
@@ -43,12 +48,24 @@ typedef void (^AlertViewCompletionBlock)(NSInteger buttonIndex);
 	callback(buttonIndex);
 }
 
+- (void)dismiss
+{
+	[self.view dismissWithClickedButtonIndex:[self.view cancelButtonIndex] animated:NO];
+}
+
 + (void)showAlertView:(UIAlertView *)alertView  withCallback:(AlertViewCompletionBlock)callback
 {
 	__block teAlertViewDelegate *delegate = [[teAlertViewDelegate alloc] init];
 	alertView.delegate = delegate;
+	delegate.view = alertView;
+	
+	if(alertdelegates == nil)
+		alertdelegates = [[NSMutableArray alloc] init];
+	[alertdelegates addObject:delegate];
+	
 	delegate.callback = ^(NSInteger buttonIndex)
 	{
+		[alertdelegates removeObject:delegate];
 		callback(buttonIndex);
 		alertView.delegate = nil;
 		delegate = nil;
@@ -106,6 +123,14 @@ namespace te
 			#endif
 		}
 		
+
+		void tePlatform_iOS::DismissAllAlertView()
+		{
+			if(alertdelegates != nil)
+				for(teAlertViewDelegate * delg in alertdelegates)
+					[delg dismiss];
+		}
+		
 		EDeviceType tePlatform_iOS::DefinePlatform()
 		{
 			size_t size;
@@ -144,11 +169,13 @@ namespace te
 		
 		void tePlatform_iOS::GetUserInputText(const teString & title, const teString & question, const teString & yesBtn, const teString & noBtn, teGetUserInputCallback callback, te::teptr_t userData)
 		{
-			UIAlertView * alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithUTF8String:title.c_str()]
-															 message:[NSString stringWithUTF8String:question.c_str()]
-															delegate:[[UIApplication sharedApplication] delegate]
-												   cancelButtonTitle:[NSString stringWithUTF8String:noBtn.c_str()]
-												   otherButtonTitles:[NSString stringWithUTF8String:yesBtn.c_str()], nil];
+			UIAlertView * alert = nil;
+
+			alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithUTF8String:title.c_str()]
+												   message:[NSString stringWithUTF8String:question.c_str()]
+												  delegate:[[UIApplication sharedApplication] delegate]
+										 cancelButtonTitle:[NSString stringWithUTF8String:noBtn.c_str()]
+										 otherButtonTitles:[NSString stringWithUTF8String:yesBtn.c_str()], nil];
 			
 			UITextField *inputTextField = [[UITextField alloc] initWithFrame:CGRectMake(12.0, 45.0, 260.0, 25.0)];
 			[inputTextField setBackgroundColor:[UIColor whiteColor]];
@@ -166,11 +193,24 @@ namespace te
 		
 		void tePlatform_iOS::AskUserQuestion(const teString & title, const teString & question, const teString & yesBtn, const teString & noBtn, teGetUserInputCallback callback, te::teptr_t userData)
 		{
-			UIAlertView * alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithUTF8String:title.c_str()]
+			UIAlertView * alert = nil;
+			
+			if(noBtn.c_str() == NULL)
+			{
+				alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithUTF8String:title.c_str()]
+												   message:[NSString stringWithUTF8String:question.c_str()]
+												  delegate:[[UIApplication sharedApplication] delegate]
+										 cancelButtonTitle:nil
+										 otherButtonTitles:[NSString stringWithUTF8String:yesBtn.c_str()], nil];
+			}
+			else
+			{
+				alert = [[UIAlertView alloc] initWithTitle:[NSString stringWithUTF8String:title.c_str()]
 															 message:[NSString stringWithUTF8String:question.c_str()]
 															delegate:[[UIApplication sharedApplication] delegate]
 												   cancelButtonTitle:[NSString stringWithUTF8String:noBtn.c_str()] 
 												   otherButtonTitles:[NSString stringWithUTF8String:yesBtn.c_str()], nil];
+			}
 			
 			[teAlertViewDelegate showAlertView:alert withCallback:^(NSInteger buttonIndex)
 			 {
