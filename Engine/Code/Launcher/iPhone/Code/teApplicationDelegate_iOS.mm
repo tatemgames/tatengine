@@ -247,12 +247,6 @@ public:
 {
 	[View StartAnimation];
 	((te::core::tePlatform_iOS*)te::core::GetPlatform()->GetCurrentDevicePlatform())->OnBecomeActive();
-	
-	#ifdef TE_MODULE_PUBLISHING
-	#ifdef TE_MODULE_PUBLISHING_ADX
-	[self reportAppOpen];
-	#endif
-	#endif
 }
 
 //! Terminate application
