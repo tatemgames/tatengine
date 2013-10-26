@@ -882,8 +882,18 @@ namespace te
 				{
 					const c8 * str = luaL_checkstring(L, 3);
 
-					s32 l = sprintf(raw, "%s", str);
-					TE_ASSERT_NODEBUG((l + 1) < (s32)size);
+					if(strlen(str) + 1 >= size)
+					{
+						memcpy(raw, str, size - 1);
+						raw[size - 1] = '\0';
+						TE_LOG_WRN("lua str len exceeded");
+					}
+					else
+					{
+						s32 l = sprintf(raw, "%s", str);
+
+						TE_ASSERT_NODEBUG((l + 1) < (s32)size);
+					}
 				}
 
 				return 0;
