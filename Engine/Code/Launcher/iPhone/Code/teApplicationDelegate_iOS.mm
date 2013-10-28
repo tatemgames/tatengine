@@ -390,7 +390,7 @@ public:
 	
 	NSString * subject = @"Tatem Games";
 	NSString * body = @"Tatem Games";
-	NSRange subjectRange = [url rangeOfString:@"subject="];
+	NSRange subjectRange = [url rangeOfString:@"?subject="];
 	NSRange bodyRange = [url rangeOfString:@"&body="];
 	if((subjectRange.location != NSNotFound) && (bodyRange.location != NSNotFound))
 	{
@@ -402,6 +402,17 @@ public:
 	
 	MFMailComposeViewController * mailComposer = [[[MFMailComposeViewController alloc] init] autorelease];
 	mailComposer.mailComposeDelegate = self;
+
+	NSRange recp = [url rangeOfString:@"mailto:"];
+	if(recp.location != NSNotFound)
+	{
+		NSRange range;
+		range.location = recp.location + recp.length;
+		range.length = subjectRange.location - range.location;
+		NSString * to = [url substringWithRange:range];
+		[mailComposer setToRecipients:[NSArray arrayWithObject:to]];
+	}
+	
 	[mailComposer setSubject:subject];
 	[mailComposer setMessageBody:body isHTML:YES];
 	
