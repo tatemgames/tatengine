@@ -95,7 +95,7 @@ namespace te
 						
 						sTransformOffset = tSprTransform.position.y;// - elementSize->GetF32();
 						
-						scrollEdge = -teAbs(sizeB.y - sizeA.y) / 2.0f - elementSize->GetF32() / 2.0f - sTransformOffset;
+						scrollEdge = teAbs(sizeB.y - sizeA.y) / 2.0f + elementSize->GetF32() / 2.0f; //+ sTransformOffset;
 						
 						break;
 				}
@@ -351,7 +351,7 @@ namespace te
 				if(scrollType->vs32 == SCRL_HORIZONTAL)
 					limVar = position - sSize / 2.0f + elementSize->GetF32() / 2.0f;
 				else if(scrollType->vs32 == SCRL_VERTICAL)
-					limVar = position - sSize / 2.0f - elementSize->GetF32() / 2.0f;
+					limVar = position + sSize / 2.0f - elementSize->GetF32() / 2.0f;
 
 				// force check
 				if(teIsNaN(position))
@@ -359,15 +359,32 @@ namespace te
 				
 				casheVar = 0;
 				
-				for(u32 i = 0; i < elementCount->GetS32(); ++i)
+				if(scrollType->vs32 == SCRL_HORIZONTAL)
 				{
-					if((limVar > scrollEdge) && (casheVar < cacheCount->GetS32()))
+					for(u32 i = 0; i < elementCount->GetS32(); ++i)
 					{
-						UpdateElement(casheVar, i, limVar);
-						++casheVar;
+						if((limVar > scrollEdge) && (casheVar < cacheCount->GetS32()))
+						{
+							UpdateElement(casheVar, i, limVar);
+							++casheVar;
+						}
+						
+						limVar += elementSize->GetF32();
 					}
-					
-					limVar += elementSize->GetF32();
+				}
+				else if(scrollType->vs32 == SCRL_VERTICAL)
+				{
+					//for(s32 i = elementCount->GetS32() - 1; i >= 0; --i)
+					for(u32 i = 0; i < elementCount->GetS32(); ++i)
+					{
+						if((limVar < scrollEdge) && (casheVar < cacheCount->GetS32()))
+						{
+							UpdateElement(casheVar, i, limVar);
+							++casheVar;
+						}
+						
+						limVar -= elementSize->GetF32();
+					}
 				}
 				
 				if(casheVar < cacheCount->GetS32())
@@ -377,6 +394,9 @@ namespace te
 						UpdateElement(k, 0, -5000.0f);
 					}
 				}
+				
+				if((elementCount->vs32 == 10) && (scrollType->vs32 == 1))
+					printf("position %f\n", position);
 			}
 
 			u1 IsTouchInside(const teVector2df & touchInScreenSpace) const
