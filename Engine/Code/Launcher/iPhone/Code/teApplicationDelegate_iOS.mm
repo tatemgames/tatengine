@@ -27,6 +27,10 @@
 	#endif
 #endif
 
+#ifdef TE_DD_PUBLISHING_LIB
+#include "dd_publishing.h"
+#endif
+
 #define MG_IS_IPAD (([[UIDevice currentDevice] respondsToSelector:@selector(userInterfaceIdiom)] ? [[UIDevice currentDevice] userInterfaceIdiom] : UIUserInterfaceIdiomPhone) == UIUserInterfaceIdiomPad)
 
 //! iOS File System
@@ -112,6 +116,18 @@ public:
 	}
 };
 
+#ifdef TE_DD_PUBLISHING_LIB
+void dd_pbl_ios_present_viewcontroller_callback(void * viewcontroller) // UIViewController type
+{
+	if(viewcontroller == NULL)
+		return;
+	
+	ApplicationDelegate * deleg = (ApplicationDelegate*)[[UIApplication sharedApplication] delegate];
+	
+	[deleg.ViewController presentModalViewController:(UIViewController*)viewcontroller animated:YES];
+}
+#endif
+
 //! Application Delegate
 @implementation ApplicationDelegate
 
@@ -173,6 +189,11 @@ public:
 	[View layoutSubviews];
 	te::app::GetApplicationManager()->InitApplication();
 	
+	#ifdef TE_DD_PUBLISHING_LIB
+	dd_pbl_ios_fb_init();
+	dd_pbl_ios_gc_set_preset_viewcontroller(&dd_pbl_ios_present_viewcontroller_callback);
+	#endif
+	
 	return YES;
 }
 
@@ -197,17 +218,15 @@ public:
 		[self application:application willFinishLaunchingWithOptions:launchOptions];
 	}
 	
-	#ifdef TE_MODULE_PUBLISHING
-		[application registerForRemoteNotificationTypes:UIRemoteNotificationTypeBadge|UIRemoteNotificationTypeAlert|UIRemoteNotificationTypeSound];
+	[application registerForRemoteNotificationTypes:UIRemoteNotificationTypeBadge|UIRemoteNotificationTypeAlert|UIRemoteNotificationTypeSound];
 
-		UILocalNotification * localNotification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
+	UILocalNotification * localNotification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
 
-		if(localNotification)
-			[application setApplicationIconBadgeNumber:localNotification.applicationIconBadgeNumber - 1];
+	if(localNotification)
+		[application setApplicationIconBadgeNumber:localNotification.applicationIconBadgeNumber - 1];
 
-		#ifdef TE_MODULE_PUBLISHING_PARSE
-		[Parse setApplicationId:[[[[NSBundle mainBundle] infoDictionary] objectForKey:@"Social"] objectForKey:@"ParseAppID"] clientKey:[[[[NSBundle mainBundle] infoDictionary] objectForKey:@"Social"] objectForKey:@"ParseAppKey"]];
-		#endif
+	#ifdef TE_MODULE_PUBLISHING_PARSE
+	[Parse setApplicationId:[[[[NSBundle mainBundle] infoDictionary] objectForKey:@"Social"] objectForKey:@"ParseAppID"] clientKey:[[[[NSBundle mainBundle] infoDictionary] objectForKey:@"Social"] objectForKey:@"ParseAppKey"]];
 	#endif
 
 	[[Window rootViewController] didRotateFromInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
@@ -247,6 +266,10 @@ public:
 {
 	[View StartAnimation];
 	((te::core::tePlatform_iOS*)te::core::GetPlatform()->GetCurrentDevicePlatform())->OnBecomeActive();
+	
+	#ifdef TE_DD_PUBLISHING_LIB
+	dd_pbl_ios_fb_app_become_active();
+	#endif
 }
 
 //! Terminate application
@@ -493,6 +516,10 @@ public:
 
 - (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
 {
+	#ifdef TE_DD_PUBLISHING_LIB
+	dd_pbl_ios_adx_handle_url((void*)url);
+	#endif
+	
 	#ifdef TE_MODULE_PUBLISHING
 	#ifdef TE_MODULE_PUBLISHING_ADX
 	NSDictionary * dict = [self parseQueryString:[url query]];
@@ -516,6 +543,11 @@ public:
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
+	#ifdef TE_DD_PUBLISHING_LIB
+	dd_pbl_ios_adx_handle_url((void*)url);
+	return dd_pbl_ios_fb_handle_url((void*)url, (void*)sourceApplication);
+	#endif
+
 	#ifdef TE_MODULE_PUBLISHING
 	#ifdef TE_MODULE_PUBLISHING_ADX
 	NSDictionary * dict = [self parseQueryString:[url query]];

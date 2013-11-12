@@ -24,6 +24,10 @@
 	#include "teActorVideoPlayer.h"
 #endif
 
+#ifdef TE_DD_PUBLISHING_LIB
+	#include "dd_publishing.h"
+#endif
+
 #include <sys/sysctl.h>
 #include <sys/types.h>
 
@@ -105,10 +109,16 @@ namespace te
 		void tePlatform_iOS::OpenLink(teString link)
 		{
 			#ifdef TE_MODULE_PUBLISHING
-				if(!pbl::GetPublishingManager()->IsReachable())
-					[[[UIApplication sharedApplication] delegate] ShowAlert:@"No internet connection"];
-				else
-					[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithCString:link.c_str() encoding:NSUTF8StringEncoding]]];
+			if(!pbl::GetPublishingManager()->IsReachable())
+				[[[UIApplication sharedApplication] delegate] ShowAlert:@"No internet connection"];
+			else
+				[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithCString:link.c_str() encoding:NSUTF8StringEncoding]]];
+			#endif
+			#ifdef TE_DD_PUBLISHING_LIB
+			if(!dd_pbl_ios_reachability_is_wan_aviable())
+				[[[UIApplication sharedApplication] delegate] ShowAlert:@"No internet connection"];
+			else
+				[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithCString:link.c_str() encoding:NSUTF8StringEncoding]]];
 			#endif
 		}
 		
