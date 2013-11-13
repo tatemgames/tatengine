@@ -394,9 +394,6 @@ namespace te
 						UpdateElement(k, 0, -5000.0f);
 					}
 				}
-				
-				if((elementCount->vs32 == 10) && (scrollType->vs32 == 1))
-					printf("position %f\n", position);
 			}
 
 			u1 IsTouchInside(const teVector2df & touchInScreenSpace) const
