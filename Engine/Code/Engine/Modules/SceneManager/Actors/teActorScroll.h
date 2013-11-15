@@ -95,7 +95,7 @@ namespace te
 						
 						sTransformOffset = tSprTransform.position.y;// - elementSize->GetF32();
 						
-						scrollEdge = teAbs(sizeB.y - sizeA.y) / 2.0f + elementSize->GetF32() / 2.0f; //+ sTransformOffset;
+						scrollEdge = teAbs(sizeB.y - sizeA.y) / 2.0f + elementSize->GetF32() / 2.0f + sTransformOffset;
 						
 						break;
 				}
