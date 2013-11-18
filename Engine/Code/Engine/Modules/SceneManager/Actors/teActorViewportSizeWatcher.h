@@ -35,6 +35,18 @@ namespace te
 				{
 					viewportPosition = camera->viewportPosition;
 					viewportSize = camera->viewportSize;
+					
+					if(firstFrame)
+					{
+						if(viewportSize.x < viewportSize.y)
+						{
+							s32 temp = viewportSize.x;
+							viewportSize.x = viewportSize.y;
+							viewportSize.y = temp;
+						}
+						
+						firstFrame = false;
+					}
 
 					teVector3df vs((f32)viewportSize.x, (f32)viewportSize.y, 0.0f);
 					vs /= 2.0f;
@@ -136,6 +148,7 @@ namespace te
 			u8 animationState;
 			
 			static teVector2df sizeRootScale;
+			static u1 firstFrame;
 		};
 
 		TE_ACTOR_PROXY(teActorViewportSizeWatcher)
