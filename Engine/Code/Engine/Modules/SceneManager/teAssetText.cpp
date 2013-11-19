@@ -317,6 +317,8 @@ namespace te
 				scaleSize = text.options.size / font->height;
 
 				f32 renderableScaleSize = scaleSize * mat.Get(0, 0);
+				
+				renderableScaleSize = teClamp(renderableScaleSize, 0.4f, 1.6f);
 
 				f32 smooth_offset = 1.0f / (powf(renderableScaleSize, 1.18f) * 11.0f); // magic approx
 
