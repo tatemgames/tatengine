@@ -119,12 +119,16 @@ public:
 #ifdef TE_DD_PUBLISHING_LIB
 void dd_pbl_ios_present_viewcontroller_callback(void * viewcontroller) // UIViewController type
 {
-	if(viewcontroller == NULL)
-		return;
-	
 	ApplicationDelegate * deleg = (ApplicationDelegate*)[[UIApplication sharedApplication] delegate];
 	
-	[deleg.ViewController presentModalViewController:(UIViewController*)viewcontroller animated:YES];
+	if(viewcontroller != NULL)
+	{
+		[deleg.ViewController presentModalViewController:(UIViewController*)viewcontroller animated:YES];
+	}
+	else
+	{
+		[deleg.ViewController dismissModalViewControllerAnimated:YES];
+	}
 }
 #endif
 
