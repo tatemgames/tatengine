@@ -244,6 +244,9 @@ namespace te
 							break;
 					}
 					
+					if(!wasPressed && isOverLimit && (teAbs(movingCount) > overLimitSize))
+						movingCount = overLimitSize * teSign(movingCount);
+						
 					f32 moveThreshold = 1.0f;
 					if(isOverLimit)
 						moveThreshold = 0.1f;
