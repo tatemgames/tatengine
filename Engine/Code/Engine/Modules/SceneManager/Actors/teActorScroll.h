@@ -103,6 +103,8 @@ namespace te
 				scrollGap = elSize;
 				
 				SetSnapPos();
+				
+				Reset();
 			}
 
 			void OnUpdate()
@@ -327,7 +329,7 @@ namespace te
 				if(scrollType->vs32 == SCRL_HORIZONTAL)
 					position = sOrigin + scrollLim + setPosOffset;
 				else if(scrollType->vs32 == SCRL_VERTICAL)
-					position = sOrigin + scrollLim + setPosOffset;
+					position = sOrigin + scrollLim + setPosOffset - sTransformOffset;
 				//printf("PosAfterReset: %f\n", position);
 				setPosOffset = 0.0f;
 				
