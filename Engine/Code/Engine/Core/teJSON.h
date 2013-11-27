@@ -126,13 +126,15 @@ namespace te
 
 			// get node data
 			TE_INLINE teString		GetString(teString def = "") const {return IsString() ? teString(pool->GetData(Get().dataOffset)) : def;}
-			TE_INLINE f32			GetNumber(f32 def = 0.0f) const {return IsNumber() ? (*(f32*)pool->GetData(Get().dataOffset)) : def;}
+			TE_INLINE f64			GetNumber(f64 def = 0.0f) const {return IsNumber() ? (*(f64*)pool->GetData(Get().dataOffset)) : def;}
+			TE_INLINE s64			GetNumberS64(f64 def = 0.0f) const {return IsNumber() ? (*(s64*)pool->GetData(Get().dataOffset + sizeof(f64))) : def;}
+			TE_INLINE u64			GetNumberU64(f64 def = 0.0f) const {return IsNumber() ? (*(u64*)pool->GetData(Get().dataOffset + sizeof(f64) + sizeof(s64))) : def;}
 			TE_INLINE u1			GetBool(u1 def = false) const {return IsBool() ? (Get().type == teJSONToken::VT_TRUE) : def;}
 			TE_INLINE f32			GetF32(f32 def = 0.0f)	const {return IsNumber() ? (f32)GetNumber() : def;}
-			TE_INLINE s32			GetS32(s32 def = 0)		const {return IsNumber() ? (s32)GetNumber() : def;}
-			TE_INLINE u32			GetU32(u32 def = 0)		const {return IsNumber() ? (u32)GetNumber() : def;}
-			TE_INLINE s64			GetS64(s32 def = 0)		const {return IsNumber() ? (s64)GetNumber() : def;}
-			TE_INLINE u64			GetU64(u32 def = 0)		const {return IsNumber() ? (u64)GetNumber() : def;}
+			TE_INLINE s32			GetS32(s32 def = 0)		const {return IsNumber() ? (s32)GetNumberS64() : def;}
+			TE_INLINE u32			GetU32(u32 def = 0)		const {return IsNumber() ? (u32)GetNumberU64() : def;}
+			TE_INLINE s64			GetS64(s32 def = 0)		const {return IsNumber() ? (s64)GetNumberS64() : def;}
+			TE_INLINE u64			GetU64(u32 def = 0)		const {return IsNumber() ? (u64)GetNumberU64() : def;}
 			TE_INLINE u1			GetU1 (u1  def = false)	const {return GetBool(def);}
 
 			// object and array functions

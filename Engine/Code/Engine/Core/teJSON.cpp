@@ -45,7 +45,7 @@ namespace te
 						{
 							c8 primitiveChar = text.c_str()[tokensTemp[i].start];
 							if((primitiveChar != 't') && (primitiveChar != 'f') && (primitiveChar != 'n'))
-								totalDataNumbersSize += sizeof(f32); // size for number
+								totalDataNumbersSize += sizeof(f64) + sizeof(s64) + sizeof(u64); // size for number
 						}
 						++totalTokensCount;
 					}
@@ -68,7 +68,7 @@ namespace te
 					{
 						c8 primitiveChar = text.c_str()[tokensTemp[i].start];
 						if((primitiveChar != 't') && (primitiveChar != 'f') && (primitiveChar != 'n'))
-							totalDataNumbersSize += sizeof(f32); // size for number
+							totalDataNumbersSize += sizeof(f64) + sizeof(s64) + sizeof(u64); // size for number
 					}
 					++totalTokensCount;
 				}
@@ -126,10 +126,14 @@ namespace te
 						{
 							cursor.Get().type = teJSONToken::VT_NUMBER;
 							cursor.Get().dataOffset = dataFloatPosition;
-							f32 * number = reinterpret_cast<f32*>(json->GetData(dataFloatPosition));
-							*number = (f32)atof(text.c_str() + tokens[i].start);
+							f64 * number1 = reinterpret_cast<f64*>(json->GetData(dataFloatPosition));
+							s64 * number2 = reinterpret_cast<s64*>(json->GetData(dataFloatPosition + sizeof(f64)));
+							u64 * number3 = reinterpret_cast<u64*>(json->GetData(dataFloatPosition + sizeof(f64) + sizeof(s64)));
+							*number1 = (f64)atof(text.c_str() + tokens[i].start);
+							*number2 = (s64)strtoll(text.c_str() + tokens[i].start, NULL, 0);
+							*number3 = (u64)strtoull(text.c_str() + tokens[i].start, NULL, 0);
 
-							dataFloatPosition += sizeof(f32);
+							dataFloatPosition += sizeof(f64) + sizeof(s64) + sizeof(u64);
 						}
 						cursor = cursor.Next();
 
