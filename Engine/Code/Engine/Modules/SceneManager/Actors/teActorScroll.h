@@ -421,7 +421,8 @@ namespace te
 			void SetPosition(f32 value) //---- not used
 			{
 				position = value;
-			};
+			}
+			
 			f32 GetPosition(){return position;};
 
 			TE_INLINE void ResetScroll()
@@ -481,6 +482,11 @@ namespace te
 				return sSize / curElemCount;
 			}
 			
+			TE_INLINE void SetIndex(f32 index_)
+			{
+			
+			}
+			
 			TE_ACTOR_SIGNAL(0, UpdateElement)
 			TE_ACTOR_SIGNAL(1, UpdateScrollPos)
 
@@ -531,6 +537,7 @@ namespace te
 		TE_ACTOR_SLOT_0(teActorScroll, ResetScroll);
 		TE_ACTOR_SLOT_1(teActorScroll, SetScrollPosition);
 		TE_ACTOR_SLOT_1(teActorScroll, SetScrollPrevPos);
+		TE_ACTOR_SLOT_1(teActorScroll, SetIndex);
 		
 		TE_FUNC void RegisterScroll(teActorsTI * ti)
 		{
@@ -547,7 +554,7 @@ namespace te
 			ti->AddSlot("ResetScroll", TE_ACTOR_SLOT_PROXY(teActorScroll, ResetScroll));
 			ti->AddSlot("SetScrollPosition", TE_ACTOR_SLOT_PROXY(teActorScroll, SetScrollPosition));
 			ti->AddSlot("SetScrollPrevPos", TE_ACTOR_SLOT_PROXY(teActorScroll, SetScrollPrevPos));
-			//ti->AddSlot("SwitchTo", TE_ACTOR_SLOT_PROXY(teActorScroll, SwitchTo));
+			ti->AddSlot("SetIndex", TE_ACTOR_SLOT_PROXY(teActorScroll, SetIndex));
 		}
 	}
 }
