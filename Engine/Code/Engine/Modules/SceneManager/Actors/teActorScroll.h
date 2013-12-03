@@ -104,7 +104,7 @@ namespace te
 				
 				SetSnapPos();
 				
-				Reset();
+				//Reset();
 			}
 
 			void OnUpdate()
