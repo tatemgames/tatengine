@@ -717,7 +717,8 @@ namespace te
 			EHTTPCallBackResult result = HCBR_OK;
 			if(callback)
 			{
-				readBuffer[readBufferReadedSize] = '\0';
+				if(readBuffer)
+					readBuffer[readBufferReadedSize] = '\0';
 				result = (*callback)(*this, readBuffer, readBufferReadedSize, mode == WM_KEEP_ALIVE);
 			}
 			readBufferReadedSize = 0;
