@@ -49,6 +49,7 @@ namespace te
 		class teAssetPack;
 		// textPosition shoud be u32Max by default
 		u8 RenderTextToBatch(teContentPack & contentPack, const teAssetPack & assetPack, teAssetText & text, video::teSurfaceData * batch, const teMatrix4f & matView, const teVector2duh & viewportSize, u32 & textPosition, u1 shadowPass, teVector2df * getTextSize = NULL);
+		u8 CutTextForWidth(teContentPack & contentPack, const teAssetPack & assetPack, teAssetText & text, c8 * string_, f32 width);
 	}
 }
 

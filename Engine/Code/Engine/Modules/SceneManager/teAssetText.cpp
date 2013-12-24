@@ -372,5 +372,127 @@ namespace te
 			else
 				return RTBE_INVALID;
 		}
+		
+		u8 CutTextForWidth(teContentPack & contentPack, const teAssetPack & assetPack, teAssetText & text, c8 * string_, f32 width)
+		{
+			
+			if(!text.renderAsset.IsValid())
+				return RTBE_INVALID;
+			
+			const font::teFont * font = reinterpret_cast<const font::teFont*>(contentPack.fontData.At(text.fontIndex));
+			const teStringInfo * textInfo = reinterpret_cast<const teStringInfo*>(contentPack.stringsData.At(text.stringIndex));
+			const teString textString = textInfo->ToString();
+			
+			if(!font->metricsCount)
+				return RTBE_OK;
+			
+			const u32 textBytes = textInfo->size;
+			
+			if((textBytes == 0) || (textBytes == 1)) // if bytes == 1 this is null string
+				return RTBE_OK;
+			
+			u32 charsPerBatch = teRenderBatchSize / (4 * sizeof(teSpriteVertex) + 6 * sizeof(teSpriteIndex));
+			
+			teVector2df cursorPosition;
+			teColor4u charColor(255, 255, 255, 255);
+			
+			teVector2df currentTextSize;
+			teVector2df currentLineSize;
+			u1 newLine = true;
+			
+			c8 * tempString = string_;//textString.c_str();
+			u32 currentCharacter = u32Max;
+			u32 currentTextPosition = 0;
+			
+			
+			while(*tempString != '\0')
+			{
+				u8 readedChars = teUTF8toUTF32(tempString, currentCharacter);
+				currentTextPosition += readedChars;
+				tempString += readedChars;
+				
+				if((currentCharacter == '\r') || (currentCharacter == '\n') || (currentCharacter == '\0'))
+				{
+					if(currentCharacter == '\r')
+					{
+						u8 tempSkip = teUTF8toUTF32(tempString, currentCharacter);
+						if(currentCharacter == '\n') // \r\n skip
+							tempString += tempSkip;
+					}
+					
+					cursorPosition.x = 0;
+					cursorPosition.y -= currentLineSize.y;
+					
+					currentTextSize.x = teMax(currentTextSize.x, currentLineSize.x);
+					currentTextSize.y += currentLineSize.y;
+					
+					currentLineSize.SetXY(0.0f, 0.0f);
+					
+					newLine = true;
+					
+					continue;
+				}
+				else if((currentCharacter == '$') && (((teptr_t)tempString - (teptr_t)textString.c_str() + 3) < textBytes) && (tempString[3] == '$'))
+				{
+					c8 temp[4];
+					temp[0] = tempString[0];
+					temp[1] = tempString[1];
+					temp[2] = tempString[2];
+					temp[3] = '\0';
+					
+					s32 value = 0;
+					if((temp[0] == 'p') && sscanf(temp + 1, "%x", &value)) // pallete mode
+					{
+						if(value < 255)
+						{
+							tempString += 4;
+							continue;
+						}
+					}
+					else if(sscanf(temp, "%x", &value))
+					{
+						tempString += 4;
+						continue;
+					}
+				}
+				
+				// calculate char rectangle
+				u32 metricsIndex = font->GetMetricForCharacter(currentCharacter);
+				
+				if(metricsIndex == u32Max)
+					metricsIndex = 0;
+				
+				const font::teCharacterMetrics & metric = font->GetMetric(metricsIndex);
+				
+				teVector2df plu = cursorPosition + teVector2df(metric.shift.x, -metric.shift.y);	// left up
+				teVector2df prd = plu + teVector2df(metric.size.x, -metric.size.y);				// right down
+				teVector2df pld(plu.x, prd.y);
+				teVector2df pru(prd.x, plu.y);
+				
+				currentLineSize.x = teMax(currentLineSize.x, teAbs((f32)prd.x));
+				currentLineSize.y = font->height * text.options.leading;
+				
+				// move cursor
+				cursorPosition += metric.shiftCharacter;
+				cursorPosition.x += text.options.extraTracking;
+				
+				if(cursorPosition.x >= width)
+				{
+					tempString[0] = 0;
+					break;
+				}
+				
+				if((*tempString != '\0') && (!newLine) && (!text.options.ignoreKerning))
+				{
+					u32 secondCharacter = u32Max;
+					teUTF8toUTF32(tempString, secondCharacter);
+					cursorPosition.x += font->GetKerningForCharacters(currentCharacter, secondCharacter);
+				}
+				
+				newLine = false;
+			}
+					
+			return 0;
+		}
 	}
 }
