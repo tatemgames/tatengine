@@ -273,6 +273,8 @@ void dd_pbl_ios_present_viewcontroller_callback(void * viewcontroller) // UIView
 	
 	#ifdef TE_DD_PUBLISHING_LIB
 	dd_pbl_ios_fb_app_become_active();
+	
+	dd_pbl_ios_appflyer_track_eventAppLaunch();
 	#endif
 }
 
