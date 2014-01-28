@@ -11,6 +11,12 @@
 #include "teLogManager.h"
 #include "jsmn.h"
 
+#if defined(WIN32) && !defined(__MINGW32__)
+#include <stdlib.h>
+#define strtoll _strtoi64
+#define strtoull _strtoui64
+#endif
+
 namespace te
 {
 	namespace core
