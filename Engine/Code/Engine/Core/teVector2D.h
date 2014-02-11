@@ -73,6 +73,14 @@ namespace te
 			}
 		}
 		
+		TE_INLINE teVector2d<T> & RotateByAng(f32 t_ang)
+		{
+			T tmpX = this->x;
+			this->x = this->x * cos(t_ang) + this->y * sin(t_ang);
+			this->y = tmpX * cos(t_ang) - tmpX * sin(t_ang);
+			return *this;
+		}
+		
 		TE_INLINE f32 GetAngleRad(const teVector2d<T> & other) const
 		{
 			return acos(DotProduct(other)/(GetDistance() * other.GetDistance()));
