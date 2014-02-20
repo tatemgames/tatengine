@@ -60,7 +60,7 @@
 				self.contentScaleFactor = 2.0f;
 			#endif
 			#ifdef TE_LAUNCHER_IOS_SUPPORT_IPAD_RETINA
-			if([UIScreen mainScreen].currentMode.size.width == 2048)
+			if(([UIScreen mainScreen].currentMode.size.width == 2048) || ([UIScreen mainScreen].currentMode.size.width == 1536))
 				self.contentScaleFactor = 2.0f;
 			#endif
 		}
