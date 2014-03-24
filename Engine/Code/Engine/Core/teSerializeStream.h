@@ -35,10 +35,25 @@ namespace te
 			void CloseSection();
 			u1 OnValue(u16 id, void * value, u32 size);
 
+			template<typename T, typename RealStoredType>
+			u1 OnValueSubs(u16 id, T* value, RealStoredType defaultValue) {
+				assert(GetMode() == SSM_READ);
+				RealStoredType val = defaultValue;
+				
+				u1 res = OnValue(id, &val, sizeof(RealStoredType));
+				
+				if (res) {
+					*value = (T)val;
+				}
+				
+				return res;
+			}
+			
 			template <typename T>
 			TE_INLINE u1 OnValue(u16 id, T * value)
 			{
-				return OnValue(id, value, sizeof(T));
+				u1 tRes = OnValue(id, value, sizeof(T));
+				return tRes;
 			}
 
 			enum ESerializeStreamMode

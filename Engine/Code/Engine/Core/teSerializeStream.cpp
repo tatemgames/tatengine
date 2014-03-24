@@ -184,7 +184,9 @@ namespace te
 
 					if(curWorkValue->id == id)
 					{
-						memcpy(value, reinterpret_cast<void *>(pool.At(curWorkValue->dataOffset)), curWorkValue->size);
+						u32 storedSize = curWorkValue->size;
+						assert(storedSize == size);
+						memcpy(value, reinterpret_cast<void *>(pool.At(curWorkValue->dataOffset)), storedSize);
 						result = 1;
 						break;
 					}
