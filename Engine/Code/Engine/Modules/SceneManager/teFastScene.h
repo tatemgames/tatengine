@@ -97,7 +97,7 @@ namespace te
 
 		typedef void (*teRegisterActorsCallback)(teActorsTI *);
 		
-		typedef void (*tePostUpdateCallback)();
+		typedef void (*teUpdateCallback)();
 
 		class teFastScene : public te::teReferenceCounter
 		{
@@ -137,7 +137,8 @@ namespace te
 			video::teSurfaceData * NextBatch();
 			void RenderBatch(video::teSurfaceData * batch);
 			
-			void SetPostUpdateCallback(tePostUpdateCallback cb = 0);
+			void SetPostUpdateCallback(teUpdateCallback cb = 0);
+			void SetPreUpdateCallback(teUpdateCallback cb = 0);
 		protected:
 			// ---------------------------------------------------------------------------
 
@@ -159,7 +160,8 @@ namespace te
 			u1 needToUpdateRenderProgram;
 			u8 debugFlags;
 			
-			tePostUpdateCallback onPostUpdate;
+			teUpdateCallback onPreUpdate;
+			teUpdateCallback onPostUpdate;
 
 			// ---------------------------------------------------------------------------
 

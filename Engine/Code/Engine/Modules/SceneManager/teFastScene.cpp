@@ -68,6 +68,7 @@ namespace te
 		teFastScene::teFastScene(teRegisterActorsCallback registerActorsCallback)
 			:needToUpdateRenderProgram(false), debugFlags(0)
 		{
+			onPreUpdate = 0;
 			onPostUpdate = 0;
 			stageLoaded = u8Max;
 			stageWaitForLoading = u8Max;
@@ -162,7 +163,11 @@ namespace te
 			#endif
 		}
 		
-		void teFastScene::SetPostUpdateCallback(tePostUpdateCallback cb) {
+		void teFastScene::SetPreUpdateCallback(teUpdateCallback cb) {
+			onPreUpdate = cb;
+		}
+
+		void teFastScene::SetPostUpdateCallback(teUpdateCallback cb) {
 			onPostUpdate = cb;
 		}
 
@@ -174,8 +179,9 @@ namespace te
 
 			TE_TIME_BEGIN(timeActors)
 
-			scenePack.UpdateActors();
-			
+
+			if (onPreUpdate != 0) onPreUpdate();
+			scenePack.UpdateActors();			
 			if (onPostUpdate != 0) onPostUpdate();
 
 			TE_TIME_END(timeActors)
