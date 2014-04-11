@@ -394,7 +394,7 @@ namespace te
 						else if(strstr(info->name.ToString().c_str(), ".pvr"))
 							image = image::LoadPVR(buffer);
 
-						TE_LOG("ok to open %s", info->name.ToString().c_str());
+						//TE_LOG("ok to open %s", info->name.ToString().c_str());
 
 						TE_ASSERT(image);
 
