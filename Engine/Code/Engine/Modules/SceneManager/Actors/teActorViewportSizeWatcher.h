@@ -128,6 +128,8 @@ namespace te
 			
 			TE_INLINE static const teVector2df & GetSizeRootScale() {return sizeRootScale;}
 
+			void OnReset() {}
+
 		protected:
 			f32 basicUIWidth;
 			f32 basicUIHeight;

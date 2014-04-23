@@ -97,6 +97,8 @@ namespace te
 				SetLinkVariable(value, (ELinkDataType)valueType, a0);
 			}
 
+			void OnReset() {}
+
 		protected:
 			void * value;
 			u8 valueType;
@@ -119,6 +121,7 @@ namespace te
 
 			TE_ACTOR_SIGNAL(0, Out);
 			
+			void OnReset() {}
 		protected:
 			u32 _reserved;
 		};
@@ -162,6 +165,7 @@ namespace te
 			TE_ACTOR_SIGNAL(6, Out6);
 			TE_ACTOR_SIGNAL(7, Out7);
 			
+			void OnReset() {}
 		protected:
 			u32 _reserved;
 		};

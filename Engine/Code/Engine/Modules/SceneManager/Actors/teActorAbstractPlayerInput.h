@@ -41,6 +41,10 @@ namespace te
 				#endif
 			}
 
+			void OnReset() {
+				printf("teActorAbstractPlayerInput::OnReset\n");
+			}
+
 		protected:
 			teAssetTransform * transform;
 		};

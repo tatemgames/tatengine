@@ -96,6 +96,7 @@ namespace te
 			TE_ACTOR_SIGNAL(0, OnStopped);
 			TE_ACTOR_SIGNAL(1, OnLoop);
 
+			void OnReset() {}
 		protected:
 			f32 fps;
 			f32 flags;

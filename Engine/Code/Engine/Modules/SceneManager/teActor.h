@@ -57,6 +57,7 @@ namespace te
 				teptr_t constructor;
 				teptr_t destructor;
 				teptr_t onUpdate;
+				teptr_t onReset;
 				u32 size;
 				u32 slotsOffset;
 				u16 dataCount;
@@ -134,6 +135,14 @@ namespace te
 					(*reinterpret_cast<__actor::teClassService>(onUpdate))(actor);
 			}
 
+			TE_INLINE void CallClassReset(u16 classType, void * actor) const
+			{
+				teptr_t onReset = GetClassRTTI(classType)->onReset;
+
+				if(onReset)
+					(*reinterpret_cast<__actor::teClassService>(onReset))(actor);
+			}
+
 			TE_INLINE __actor::teClassTableRT * GetClassRTTI(u16 classType)
 			{
 				return reinterpret_cast<__actor::teClassTableRT*>(rtti.At(classType * sizeof(__actor::teClassTableRT)));
@@ -151,7 +160,7 @@ namespace te
 
 			void SetCalculateSizeMode(u1 enabled);
 
-			void AddClass(u32 size, const c8 * name, __actor::teClassServiceConstruct constructor = NULL, __actor::teClassService destructor = NULL, __actor::teClassService onUpdate = NULL, const c8 * description = NULL);
+			void AddClass(u32 size, const c8 * name, __actor::teClassServiceConstruct constructor = NULL, __actor::teClassService destructor = NULL, __actor::teClassService onUpdate = NULL, __actor::teClassService onReset = NULL, const c8 * description = NULL);
 
 			void AddData(const c8 * name, u1 linkable = false, const c8 * description = NULL);
 
@@ -351,6 +360,17 @@ namespace te
 					ti->CallClassUpdate(actors->offsets[i].classType, pool.At(actors->offsets[i].offset));
 			}
 
+			TE_INLINE void ActorsReset() 
+			{
+				if(!pool.GetAlive())
+					return;
+
+				const __actor::teActorsTable * actors = GetActorsTable();
+
+				for(u32 i = 0; i < actors->count; ++i)
+					ti->CallClassReset(actors->offsets[i].classType, pool.At(actors->offsets[i].offset));
+			}
+
 			// finalize pointers after after loading
 			void ActorsFinalize();
 
@@ -450,7 +470,7 @@ namespace te
 
 		// --------------------------------------------------------------------------------- Actor factory functions
 
-		#define TE_ACTOR_PROXY_NAMES_NONE NULL, NULL, NULL
+		#define TE_ACTOR_PROXY_NAMES_NONE NULL, NULL, NULL, NULL
 
 		#define TE_ACTOR_PROXY_NU(__class_name) \
 			namespace __actor \
@@ -465,6 +485,12 @@ namespace te
 				{ \
 					TE_ACTOR_DEBUG("__"#__class_name"_Destruct\n"); \
 					TE_DELETE_P(reinterpret_cast<__class_name*>(at), ~__class_name()); \
+				} \
+				\
+				TE_FUNC void __##__class_name##_OnReset(void * at) \
+				{ \
+					TE_ACTOR_DEBUG("__"#__class_name"_OnReset\n"); \
+					(reinterpret_cast<__class_name*>(at))->OnReset(); \
 				} \
 				\
 			}
@@ -482,7 +508,7 @@ namespace te
 				} \
 			}
 
-		#define TE_ACTOR_PROXY_NAMES(__class_name) &__actor::__##__class_name##_Construct, &__actor::__##__class_name##_Destruct, &__actor::__##__class_name##_OnUpdate
+		#define TE_ACTOR_PROXY_NAMES(__class_name) &__actor::__##__class_name##_Construct, &__actor::__##__class_name##_Destruct, &__actor::__##__class_name##_OnUpdate, &__actor::__##__class_name##_OnReset
 
 		#define TE_ACTOR_SIGNAL(__signal_index, __signal_name) \
 			TE_INLINE void __signal_name(f32 arg0 = 0.0f, f32 arg1 = 0.0f, f32 arg2 = 0.0f, f32 arg3 = 0.0f) \

@@ -346,6 +346,8 @@ namespace te
 				return pixelsInCm * cm;
 			}
 
+			void OnReset() {}
+
 		protected:
 			f32 flags;
 			teAssetSprite * sprite;

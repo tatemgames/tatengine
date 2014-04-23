@@ -51,6 +51,8 @@ namespace te
 				OnTick();
 			}
 
+			void OnReset() {}
+
 			TE_ACTOR_SIGNAL(0, OnTick)
 
 		protected:

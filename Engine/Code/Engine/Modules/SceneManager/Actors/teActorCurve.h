@@ -150,6 +150,8 @@ namespace te
 				curveY[index] = value;
 			}
 
+			void OnReset() {}
+
 			TE_ACTOR_SIGNAL(0, SetValue)
 			TE_ACTOR_SIGNAL(1, OnTrigger)
 

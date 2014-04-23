@@ -487,6 +487,8 @@ namespace te
 			
 			}
 			
+			void OnReset() {}
+
 			TE_ACTOR_SIGNAL(0, UpdateElement)
 			TE_ACTOR_SIGNAL(1, UpdateScrollPos)
 

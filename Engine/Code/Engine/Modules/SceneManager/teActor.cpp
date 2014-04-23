@@ -78,7 +78,7 @@ namespace te
 			}
 		}
 
-		void teActorsTI::AddClass(u32 size, const c8 * name, __actor::teClassServiceConstruct constructor, __actor::teClassService destructor, __actor::teClassService onUpdate, const c8 * description)
+		void teActorsTI::AddClass(u32 size, const c8 * name, __actor::teClassServiceConstruct constructor, __actor::teClassService destructor, __actor::teClassService onUpdate, __actor::teClassService onReset, const c8 * description)
 		{
 			if(!enableSizeCalculation)
 			{
@@ -103,6 +103,7 @@ namespace te
 			actorRT->constructor = reinterpret_cast<teptr_t>(constructor);
 			actorRT->destructor = reinterpret_cast<teptr_t>(destructor);
 			actorRT->onUpdate = reinterpret_cast<teptr_t>(onUpdate);
+			actorRT->onReset = reinterpret_cast<teptr_t>(onReset);
 			actorRT->size = size;
 			actorRT->signalsCount = 0;
 			actorRT->dataCount = 0;

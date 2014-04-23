@@ -40,6 +40,8 @@ namespace te
 				app::GetApplicationManager()->GetApplication()->SetRun(false);
 			}
 
+			void OnReset() {}
+
 		protected:
 			teFastScene * scene;
 		};

@@ -46,6 +46,8 @@ namespace te
 				#endif
 			}
 
+			void OnReset() {}
+
 			TE_ACTOR_SIGNAL(0, OnFinished);
 
 		protected:

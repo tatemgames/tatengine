@@ -160,6 +160,7 @@ namespace te
 
 			TE_ACTOR_SIGNAL(0, OnLoop);
 
+			void OnReset() {}
 		protected:
 			teAssetSurface * surface;
 
