@@ -16,6 +16,7 @@
 #include "teApplicationManager.h"
 #include "tePlatform.h"
 #include "teMathTools.h"
+#include "teFastScene.h"
 
 namespace te
 {
